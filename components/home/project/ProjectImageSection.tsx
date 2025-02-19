@@ -22,10 +22,10 @@ export function ProjectImageSection({
     return (
         <div className="relative w-full aspect-video overflow-hidden rounded-lg bg-muted">
             <Image
-                src={images[currentImageIndex] || "/placeholder.svg"}
+                src={images[currentImageIndex] || "/assets/placeholder.svg"}
                 alt={`${title} - Image ${currentImageIndex + 1}`}
                 fill
-                className="object-cover"
+                className="object-contain"
             />
             {images.length > 1 && (
                 <>
