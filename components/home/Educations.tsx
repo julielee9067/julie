@@ -15,12 +15,12 @@ const education = [
             en: "Georgia Institute of Technology",
         },
         degree: {
-            ko: "컴퓨터공학 석사",
+            ko: "컴퓨터 공학 석사",
             en: "M.S. in Computer Science",
         },
         period: {
-            ko: "2024.08 - 현재",
-            en: "Aug 2024 - Present",
+            ko: "2024.09 - 현재",
+            en: "Sept 2024 - Present",
         },
         gpa: "4.0/4.0",
     },
