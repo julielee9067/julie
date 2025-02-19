@@ -9,7 +9,7 @@ export default function BlogIndex() {
   const { language } = useLanguage()
 
   const allLabel = language === "ko" ? "전체" : "All"
-  const [selectedCategory, setSelectedCategory] = useState(allLabel)
+  const [selectedCategory, _] = useState(allLabel)
   const sortedPosts = [...blogPosts].sort(
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )

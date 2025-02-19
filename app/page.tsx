@@ -6,7 +6,6 @@ import { Github, Mail } from "lucide-react"
 import { useLanguage } from "@/components/LanguageProvider"
 import Link from "next/link"
 import Image from "next/image"
-import { blogPosts } from "@/lib/blogPosts"
 import {Projects} from "@/components/home/Projects";
 import {Experiences} from "@/components/home/Experiences";
 import {Educations} from "@/components/home/Educations";

@@ -4,7 +4,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useLanguage } from "@/components/LanguageProvider"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import cn from "classnames"
 
 interface Solution {
