@@ -25,7 +25,7 @@ export function ProjectImageSection({
                 src={images[currentImageIndex] || "/assets/placeholder.svg"}
                 alt={`${title} - Image ${currentImageIndex + 1}`}
                 fill
-                className="object-cover"
+                className="object-contain"
             />
             {images.length > 1 && (
                 <>

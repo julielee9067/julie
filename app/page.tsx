@@ -14,29 +14,16 @@ import {Blogs} from "@/components/home/Blogs";
 
 export default function Home() {
   const skills = [
-    "AWS RDS",
-    "AWS S3",
-    "AWS Lambda",
-    "Django",
-    "Docker",
-    "Elasticsearch",
-    "Flask",
-    "Go",
-    "Java",
+    "Python",
     "MongoDB",
     "PostgreSQL",
-    "Python",
-    "ReactJS",
-    "Redis",
+    "Docker",
+    "Elasticsearch",
     "RabbitMQ",
-    "Next.js",
+    "AWS",
     "GCP",
-    "Apache Groovy",
-    "AWS Lex",
-    "BeautifulSoup",
-    "InfluxDB",
-    "Grails Framework",
-    "Gin",
+    "Flask",
+    "Django",
     "FastAPI",
   ]
 
@@ -72,7 +59,7 @@ export default function Home() {
             </div>
           </div>
           <div className="relative aspect-square md:aspect-video">
-            <Image src="/assets/placeholder.svg" alt="Profile" fill className="object-cover rounded-lg" priority />
+            <Image src="/assets/user-photo.jpg" alt="Profile" fill className="object-cover rounded-lg" priority />
           </div>
         </section>
 
