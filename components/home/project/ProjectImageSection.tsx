@@ -11,6 +11,7 @@ interface ProjectImageSectionProps {
     onPrevious: () => void
     title: string
 }
+const basePath = process.env.NODE_ENV === 'production' ? '/julie' : '';
 
 export function ProjectImageSection({
                                         images,
@@ -22,7 +23,7 @@ export function ProjectImageSection({
     return (
         <div className="relative w-full aspect-video overflow-hidden rounded-lg bg-muted">
             <Image
-                src={images[currentImageIndex] || "/assets/placeholder.svg"}
+                src={images[currentImageIndex] || `${basePath}/assets/placeholder.svg`}
                 alt={`${title} - Image ${currentImageIndex + 1}`}
                 fill
                 className="object-contain"

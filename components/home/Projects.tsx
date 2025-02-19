@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button"
 import { ProjectModal } from "@/components/home/project/ProjectModal"
 import { Project } from "@/lib/types"
 
+const basePath = process.env.NODE_ENV === 'production' ? '/julie' : '';
+
 const projects: Project[] = [
     {
         title: "Togather",
@@ -17,7 +19,7 @@ const projects: Project[] = [
             ko: "북미 대학생을 위한 익명 커뮤니티 어플리케이션",
             en: "Anonymous community application for North American college students",
         },
-        images: ["/assets/togather-5.png", "/assets/togather-1.png", "/assets/togather-2.png", "/assets/togather-3.png", "/assets/togather-4.png"],
+        images: [`${basePath}/assets/togather-5.png`, `${basePath}/assets/togather-1.png`, `${basePath}/assets/togather-2.png`, `${basePath}/assets/togather-3.png`, `${basePath}/assets/togather-4.png`],
         timeline: {
             start: { ko: "2024년 1월", en: "January 2024" },
             end: { ko: "진행중", en: "Present" },
@@ -86,7 +88,7 @@ export function Projects({ language, t }: ProjectsSectionProps) {
                                 src={
                                     project.images && project.images.length > 0
                                         ? project.images[0]
-                                        : "/assets/placeholder.svg"
+                                        : `${basePath}/assets/placeholder.svg`
                                 }
                                 alt={project.title}
                                 fill

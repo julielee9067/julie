@@ -6,10 +6,11 @@ import { useLanguage } from "@/components/LanguageProvider"
 
 export function PDFDownloadButton() {
   const { language } = useLanguage()
+  const basePath = process.env.NODE_ENV === 'production' ? '/julie' : '';
 
   const downloadPDF = () => {
     const fileName =
-        language === "ko" ? "/assets/lee_eunji_resume.pdf" : "/assets/julie_lee_resume.pdf"
+        language === "ko" ? `${basePath}/assets/lee_eunji_resume.pdf` : `${basePath}/assets/julie_lee_resume.pdf`
 
     const link = document.createElement("a")
     link.href = fileName
