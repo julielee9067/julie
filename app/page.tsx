@@ -28,6 +28,7 @@ export default function Home() {
   ]
 
   const { language, t } = useLanguage()
+  const basePath = process.env.NODE_ENV === 'production' ? '/julie' : '';
 
   return (
     <main className="min-h-screen">
@@ -59,7 +60,8 @@ export default function Home() {
             </div>
           </div>
           <div className="relative aspect-square md:aspect-video">
-            <Image src="/assets/user-photo.jpg" alt="Profile" fill className="object-cover rounded-lg" priority />
+            <Image     src={`${basePath}/assets/user-photo.jpg`}
+                       alt="Profile" fill className="object-cover rounded-lg" priority />
           </div>
         </section>
 

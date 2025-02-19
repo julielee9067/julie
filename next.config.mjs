@@ -9,9 +9,6 @@ const isProd = process.env.NODE_ENV === "production"
 export default withMDX({
   pageExtensions: ["ts", "tsx", "md", "mdx"],
   output: "export",
-  images: {
-    unoptimized: true,
-  },
   basePath: isProd ? "/julie" : "",
   assetPrefix: isProd ? "/julie/" : "",
   trailingSlash: true,
