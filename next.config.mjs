@@ -1,13 +1,18 @@
-// next.config.mjs
-
 import nextMDX from "@next/mdx"
 
 const withMDX = nextMDX({
   extension: /\.(md|mdx)$/,
-  // optional: specify remark/rehype plugins here
 })
 
+const isProd = process.env.NODE_ENV === "production"
+
 export default withMDX({
-  // all your existing Next config
   pageExtensions: ["ts", "tsx", "md", "mdx"],
+  output: "export",
+  basePath: isProd ? "/julie" : "",
+  assetPrefix: isProd ? "/julie/" : "",
+  trailingSlash: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 })
