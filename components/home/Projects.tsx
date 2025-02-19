@@ -17,7 +17,7 @@ const projects: Project[] = [
             ko: "북미 대학생을 위한 익명 커뮤니티 어플리케이션",
             en: "Anonymous community application for North American college students",
         },
-        images: ["/placeholder.svg", "/placeholder.svg"],
+        images: ["/assets/togather-5.png", "/assets/togather-1.png", "/assets/togather-2.png", "/assets/togather-3.png", "/assets/togather-4.png"],
         timeline: {
             start: { ko: "2024년 1월", en: "January 2024" },
             end: { ko: "진행중", en: "Present" },
@@ -86,7 +86,7 @@ export function Projects({ language, t }: ProjectsSectionProps) {
                                 src={
                                     project.images && project.images.length > 0
                                         ? project.images[0]
-                                        : "/placeholder.svg"
+                                        : "/assets/placeholder.svg"
                                 }
                                 alt={project.title}
                                 fill

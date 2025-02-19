@@ -72,7 +72,7 @@ export default function Home() {
             </div>
           </div>
           <div className="relative aspect-square md:aspect-video">
-            <Image src="/placeholder.svg" alt="Profile" fill className="object-cover rounded-lg" priority />
+            <Image src="/assets/placeholder.svg" alt="Profile" fill className="object-cover rounded-lg" priority />
           </div>
         </section>
 
