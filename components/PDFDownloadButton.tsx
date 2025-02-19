@@ -9,7 +9,7 @@ export function PDFDownloadButton() {
 
   const downloadPDF = () => {
     const fileName =
-        language === "ko" ? "/lee_eunji_resume.pdf" : "/julie_lee_resume.pdf"
+        language === "ko" ? "/assets/lee_eunji_resume.pdf" : "/assets/julie_lee_resume.pdf"
 
     const link = document.createElement("a")
     link.href = fileName
