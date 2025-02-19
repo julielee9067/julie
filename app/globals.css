@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 267 85% 81%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 267 85% 81%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 267 85% 81%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 20 14.3% 4.1%;
+    --foreground: 0 0% 95%;
+    --card: 24 9.8% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 9%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 267 85% 81%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 267 85% 81%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 267 85% 81%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+.mdx {
+  @apply text-foreground;
+
+  :where(h1, h2, h3, h4) {
+    @apply font-bold tracking-tight;
+  }
+
+  :where(h1) {
+    @apply text-4xl mt-8 mb-4;
+  }
+
+  :where(h2) {
+    @apply text-3xl mt-8 mb-4;
+  }
+
+  :where(h3) {
+    @apply text-2xl mt-8 mb-4;
+  }
+
+  :where(h4) {
+    @apply text-xl mt-8 mb-4;
+  }
+
+  :where(p) {
+    @apply leading-7 [&:not(:first-child)]:mt-6;
+  }
+
+  :where(blockquote) {
+    @apply mt-6 border-l-2 pl-6 italic;
+  }
+
+  :where(ul) {
+    @apply my-6 ml-6 list-disc;
+  }
+
+  :where(ol) {
+    @apply my-6 ml-6 list-decimal;
+  }
+
+  :where(li) {
+    @apply mt-2;
+  }
+
+  :where(code) {
+    @apply relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm;
+  }
+
+  :where(pre) {
+    @apply mt-6 mb-4 overflow-x-auto rounded-lg border bg-black py-4;
+  }
+
+  :where(img) {
+    @apply rounded-md border;
+  }
+
+  :where(hr) {
+    @apply my-4 md:my-8;
+  }
+
+  :where(table) {
+    @apply w-full my-6;
+
+    :where(tr) {
+      @apply m-0 border-t p-0 even:bg-muted;
+    }
+
+    :where(th) {
+      @apply border px-4 py-2 text-left font-bold;
+    }
+
+    :where(td) {
+      @apply border px-4 py-2 text-left;
+    }
+  }
+}
+
