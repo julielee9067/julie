@@ -69,14 +69,12 @@ export interface Solution {
     code: string
     timeComplexity: string
     spaceComplexity: string
-    explanation: {
-        ko: string
-        en: string
-    }
+    explanation: string
 }
 
 export interface LeetCodeProblem {
     number: number
+    date: string
     name: string
     tags: string[]
     approach: string

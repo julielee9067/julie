@@ -2,6 +2,7 @@ import { LeetCodeProblem } from "@/lib/types";
 
 export const twoSum: LeetCodeProblem = {
     number: 1,
+    date: "2025-02-19",
     name: "Two Sum",
     tags: ["Array", "Hash Table"],
     approach: "Use hash map to store complement values",
@@ -19,10 +20,7 @@ export const twoSum: LeetCodeProblem = {
     return []`,
             timeComplexity: "O(n²)",
             spaceComplexity: "O(1)",
-            explanation: {
-                ko: "모든 가능한 쌍을 확인하는 방식으로, 이중 반복문을 사용합니다. 첫 번째 숫자와 두 번째 숫자의 합이 target과 같으면 해당 인덱스들을 반환합니다.",
-                en: "Check all possible pairs using nested loops. Return the indices if the sum of two numbers equals the target.",
-            },
+            explanation: "모든 가능한 쌍을 확인하는 방식으로, 이중 반복문을 사용합니다. 첫 번째 숫자와 두 번째 숫자의 합이 target과 같으면 해당 인덱스들을 반환합니다.",
         },
         {
             id: "hash-map",
@@ -37,10 +35,7 @@ export const twoSum: LeetCodeProblem = {
     return []`,
             timeComplexity: "O(n)",
             spaceComplexity: "O(n)",
-            explanation: {
-                ko: "해시맵을 사용하여 각 숫자의 보수(target - 현재 숫자)를 저장합니다. 현재 숫자의 보수가 이미 해시맵에 있다면, 현재 인덱스와 해시맵에 저장된 인덱스를 반환합니다.",
-                en: "Use a hash map to store complements (target - current number). If the complement of the current number exists in the hash map, return the current index and the stored index.",
-            },
+            explanation: "해시맵을 사용하여 각 숫자의 보수(target - 현재 숫자)를 저장합니다. 현재 숫자의 보수가 이미 해시맵에 있다면, 현재 인덱스와 해시맵에 저장된 인덱스를 반환합니다.",
         },
     ],
 };

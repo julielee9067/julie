@@ -7,7 +7,7 @@ export const systemDesignRandom: BlogPost = {
         ko: "프로세스와 스레드의 차이",
         en: "Process vs Thread",
     },
-    date: "2024-02-19",
+    date: "2025-02-19",
     category: {
         ko: "시스템 디자인",
         en: "System Design",

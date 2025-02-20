@@ -5,18 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useLanguage } from "@/components/LanguageProvider"
 import cn from "classnames"
-
-interface Solution {
-  id: string
-  approach: string
-  code: string
-  timeComplexity: string
-  spaceComplexity: string
-  explanation: {
-    ko: string
-    en: string
-  }
-}
+import {Solution} from "@/lib/types";
 
 interface SolutionModalProps {
   isOpen: boolean
@@ -78,7 +67,7 @@ export function SolutionModal({ isOpen, onClose, problem }: SolutionModalProps) 
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-medium">{language === "ko" ? "설명" : "Explanation"}</h3>
-                  <p className="text-sm text-muted-foreground">{solution.explanation[language]}</p>
+                  <p className="text-sm text-muted-foreground">{solution.explanation}</p>
                 </div>
                 <div className="space-y-2">
                   <h3 className="font-medium">{language === "ko" ? "코드" : "Code"}</h3>

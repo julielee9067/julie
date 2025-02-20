@@ -81,6 +81,10 @@ export function ProblemsTable({ data }: { data: LeetCodeProblem[] }) {
             header: language === "ko" ? "접근 방법" : "Approach",
         },
         {
+            accessorKey: "date",
+            header: language === "ko" ? "날짜" : "Solved at",
+        },
+        {
             accessorKey: "url",
             header: "LeetCode",
             cell: ({ row }) => {

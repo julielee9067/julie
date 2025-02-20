@@ -7,7 +7,7 @@ export const csProcessThread: BlogPost = {
         ko: "프로세스와 스레드의 차이",
         en: "Process vs Thread",
     },
-    date: "2024-02-19",
+    date: "2025-02-19",
     category: {
         ko: "컴퓨터 공학",
         en: "Computer Science",
