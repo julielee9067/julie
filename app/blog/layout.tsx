@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, ReactNode } from "react"
-import { Header } from "@/components/Header"
+import { Header } from "@/components/header"
 import Link from "next/link"
 import { useLanguage, LanguageProvider } from "@/components/LanguageProvider"
 
