@@ -58,7 +58,7 @@ export function ProjectModal({ isOpen, onClose, project }: ProjectImageModalProp
                     <ProjectDetailsSection
                         details={{
                             timeline: project.timeline,
-                            technologies: project.technologies,
+                            stacks: project.stacks,
                             details: project.details,
                         }}
                         language={language}

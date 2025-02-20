@@ -25,7 +25,12 @@
     --ring: 267 85% 81%;
     --radius: 0.75rem;
   }
-
+  html {
+    scrollbar-gutter: stable both-edges;
+  }
+  html, body {
+    overflow-y: scroll;
+  }
   .dark {
     --background: 20 14.3% 4.1%;
     --foreground: 0 0% 95%;

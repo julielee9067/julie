@@ -58,7 +58,7 @@ export interface Project {
     }
     images?: string[]
     timeline: { start: { ko: string; en: string }; end: { ko: string; en: string } }
-    technologies: string[]
+    stacks: string[]
     details: { ko: string[]; en: string[] }
     github?: string
 }

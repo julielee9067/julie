@@ -59,7 +59,7 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "기존 플랫폼을 새로운 아키텍처(MSA)로 이전, RabbitMQ 메시지 브로커 사용",
+                        "기존 플랫폼을 브로커 패턴을 사용한 새로운 아키텍처(MSA)로 이전",
                         "데이터 크롤링, 변환 및 정규화, 신뢰도 계산, 데이터베이스 저장, 휴먼 인 더 루프를 포함한 서비스 도메인 구현",
                         "Keda, InfluxDB, Telegraf, Grafana, Elasticsearch 로그를 활용해 메시지 큐 병목 현상 방지 및 감지 클라이언트 개발",
                         "기존 데이터를 파이프라인에 재투입하는 master data 스케쥴링 시스템 설계 및 구현",

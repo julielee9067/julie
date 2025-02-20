@@ -9,7 +9,7 @@ interface Timeline {
 
 interface ProjectDetails {
     timeline: Timeline
-    technologies: string[]
+    stacks: string[]
     details: {
         ko: string[]
         en: string[]
@@ -40,7 +40,7 @@ export function ProjectDetailsSection({
                     {language === "ko" ? "사용 기술" : "Technologies"}
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                    {details.technologies.map((tech) => (
+                    {details.stacks.map((tech) => (
                         <Badge key={tech} variant="secondary">
                             {tech}
                         </Badge>
