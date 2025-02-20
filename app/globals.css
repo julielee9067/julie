@@ -25,11 +25,20 @@
     --ring: 267 85% 81%;
     --radius: 0.75rem;
   }
+  .mdx pre,
+  .mdx code,
+  .mdx pre code,
+  .mdx pre code::first-line {
+    text-indent: 0 !important;
+  }
   html {
     scrollbar-gutter: stable both-edges;
   }
   html, body {
     overflow-y: scroll;
+  }
+  .mdx pre code::first-line {
+    text-indent: 0 !important;
   }
   .dark {
     --background: 20 14.3% 4.1%;
