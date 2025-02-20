@@ -2,18 +2,12 @@
 "use client";
 import React from "react";
 import { useLanguage } from "@/components/LanguageProvider";
-
-interface PostType {
-    slug: string;
-    category: { [key: string]: string };
-    title: { [key: string]: string };
-    description: { [key: string]: string };
-    // add any other post fields as needed
-}
+import {BlogPostCard} from "@/components/blog/BlogPostCard";
+import {BlogPost} from "@/lib/types";
 
 interface ClientBlogCategoryProps {
     category: string;
-    filteredPosts: PostType[];
+    filteredPosts: BlogPost[];
 }
 
 export default function ClientBlogCategory({ category, filteredPosts }: ClientBlogCategoryProps) {
@@ -28,23 +22,16 @@ export default function ClientBlogCategory({ category, filteredPosts }: ClientBl
                     </h1>
                     <div className="grid gap-6">
                         {filteredPosts.map((post) => (
-                            <div key={post.slug}>
-                                <div className="border rounded-lg p-4 hover:shadow-md transition">
-                                    <h2 className="text-xl font-semibold">
-                                        {post.title[language as "ko" | "en"]}
-                                    </h2>
-                                    <p className="text-sm text-muted-foreground">
-                                        {post.description[language as "ko" | "en"]}
-                                    </p>
-                                </div>
-                            </div>
+                            <BlogPostCard
+                                key={post.slug}
+                                post={post}
+                                language={language}
+                            />
                         ))}
                     </div>
-                    {filteredPosts.length === 0 && (
+                    {!filteredPosts.length && (
                         <p className="text-muted-foreground">
-                            {language === "ko"
-                                ? "이 카테고리에 대한 게시글이 없습니다."
-                                : "No posts in this category."}
+                            {language === "ko" ? "이 카테고리에 대한 게시글이 없습니다." : "No posts in this category."}
                         </p>
                     )}
                 </div>

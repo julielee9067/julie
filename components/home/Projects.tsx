@@ -33,19 +33,16 @@ const projects: Project[] = [
         stacks: ["Go", "Gin", "PostgreSQL", "AWS S3", "Redis", "Next.js", "Docker"],
         details: {
             ko: [
-                "백엔드 및 전체 프로젝트 총괄",
+                "백엔드 API, 서비스 및 전체 프로젝트 총괄",
                 "데이터베이스 스키마 개발",
                 "이메일 인증 파이프라인 구축",
-                "upvote/downvote 서비스 구현",
             ],
             en: [
                 "Led backend development and overall project management",
                 "Developed database schema",
                 "Built email verification pipeline",
-                "Implemented upvote/downvote service",
             ],
         },
-        github: "https://github.com/username/togather",
     },
     {
         title: "ARAM.GG",
