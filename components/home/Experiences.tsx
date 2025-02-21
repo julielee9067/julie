@@ -122,12 +122,14 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "25개 이상의 웹사이트에서 주어진 키워드로 데이터 크롤링 시스템 구축",
-                        "수집된 데이터를 머신러닝 모델 입력용으로 변환, 정규화 및 검증",
+                        "Beautiful Soup을 사용하여 웹 크롤러를 개발. 이를 통해 수집된 데이터를 분석하고, 최적화된 광고 솔루션을 제공하기 위한 기반을 마련",
+                        "멀티프로세싱을 활용하여 대규모 데이터 처리 작업을 병렬로 수행, 데이터 수집 속도와 효율성 향상. 이를 통해 25개의 온라인 플랫폼에서 사용자 피드백 데이터를 빠르게 처리하여, 100개 이상의 기업에 솔루션을 제공",
+                        "크롤링된 데이터를 정제하고 분석하기 위한 파이프라인을 설계, 데이터 품질을 높이고 분석의 정확성을 향상"
                     ],
                     en: [
-                        "Built a data crawling system for over 25 websites to measure and optimize business advertising effectiveness",
-                        "Transformed, normalized, and validated collected data for machine learning model input",
+                        "Developed a web crawler using Beautiful Soup. Analyzed the collected data and established a foundation for providing optimized advertising solutions.",
+                        "Leveraged multiprocessing to execute large-scale data processing tasks in parallel, enhancing data collection speed and efficiency. Processed user feedback data from 25 online platforms rapidly, delivering solutions to over 100 companies.",
+                        "Designed a pipeline for cleansing and analyzing the crawled data, thereby enhancing data quality and improving analytical accuracy."
                     ],
                 },
             },
@@ -159,12 +161,10 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "인터널 서비스 간의 버전 충돌을 해결하기 위한 플랫폼 개발",
-                        "각 서비스의 버전 호환 기능 구현",
+                        "Flask를 사용하여 버전 충돌 해결을 간소화하는 플랫폼을 설계하고 구현, 이를 통해 마이크로서비스 간의 신뢰성을 향상시키고, 개발자들이 문제를 신속하게 식별하고 해결할 수 있도록 지원",
                     ],
                     en: [
-                        "Developed a platform to resolve version conflicts among internal services",
-                        "Implemented functionality to store and retrieve services compatible with various versions",
+                        "Designed and implemented a platform using Flask to simplify version conflict resolution, enhancing reliability between microservices and enabling developers to quickly identify and resolve issues.",
                     ],
                 },
             },
@@ -195,10 +195,14 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "음원 간 불협화음 감지 및 코드 진행 유사도 분석 알고리즘 개발",
+                        "커스텀 알고리즘을 개발해 코드 간 불협화음을 감지하는 시스템 구축, 음악의 조화로움을 유지하면서 저작권 문제 해결",
+                        "Flask를 사용하여 웹사이트 백엔드를 설계 및 구현, 안정적이고 효율적인 데이터 처리와 사용자 인터페이스 제공",
+                        "작곡가와 협업하여 AI 음악 생성 시스템의 품질과 사용자 경험을 향상, 음악 서비스의 전문성 강화"
                     ],
                     en: [
-                        "Developed an algorithm for detecting dissonance between audio tracks and analyzing chord progression similarity",
+                        "Developed a custom algorithm to build a system that detects disharmony between code segments, ensuring musical harmony while addressing copyright issues.",
+                        "Designed and implemented the backend of a website using Flask, providing stable and efficient data processing and a seamless user interface.",
+                        "Collaborated with composers to enhance the quality and user experience of an AI-powered music generation system, strengthening the professionalism of the music service."
                     ],
                 },
             },
