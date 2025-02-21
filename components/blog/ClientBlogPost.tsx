@@ -54,7 +54,7 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
             <time className="block text-sm text-muted-foreground">
                 {formatDate(post.date)}
             </time>
-            <div className="prose dark:prose-invert max-w-none">
+            <div className="prose dark:prose-invert max-w-full break-words overflow-x-auto">
                 <ReactMarkdown remarkPlugins={[remarkGfm]} components={MDXComponents}>
                     {post.content}
                 </ReactMarkdown>

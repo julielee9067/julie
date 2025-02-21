@@ -1,9 +1,8 @@
 "use client"
 
 import React, { useState, ReactNode } from "react"
-import { Header } from "@/components/header"
 import Link from "next/link"
-import { useLanguage, LanguageProvider } from "@/components/LanguageProvider"
+import { useLanguage } from "@/components/LanguageProvider"
 
 const SIDE_BAR_LINKS = [
     { href: "/blog", id: "all", labelKo: "전체", labelEn: "All" },
@@ -17,21 +16,14 @@ export default function BlogLayout({ children }: { children: ReactNode }) {
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen)
 
     return (
-        <LanguageProvider>
             <div className="min-h-screen flex flex-col bg-white dark:bg-black">
-                {/* Header는 그대로 사용 */}
-                <Header />
-
-                {/* Header 높이(4rem)만큼 아래에 콘텐츠 영역 */}
                 <div className="pt-16 flex flex-1">
                     <Sidebar isOpen={isSidebarOpen} onClose={toggleSidebar} />
-
                     <main className="flex-1 p-6 transition-all duration-300 ml-0 lg:ml-64">
                         {children}
                     </main>
                 </div>
 
-                {/* 왼쪽 중앙 토글 버튼 */}
                 <button
                     onClick={toggleSidebar}
                     className={`
@@ -51,7 +43,6 @@ export default function BlogLayout({ children }: { children: ReactNode }) {
                     />
                 )}
             </div>
-        </LanguageProvider>
     )
 }
 

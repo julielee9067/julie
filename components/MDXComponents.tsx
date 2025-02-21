@@ -4,20 +4,20 @@ import React from "react"
 import { cn } from "@/lib/utils"
 
 export const MDXComponents = {
+    p: ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
+        <p className={cn("leading-7 max-w-full break-words", className)} {...props} />
+    ),
     h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-        <h1 className={cn("mt-8 mb-4 text-4xl font-bold tracking-tight", className)} {...props} />
+        <h1 className={cn("mt-8 mb-4 text-4xl font-bold tracking-tight max-w-full break-words", className)} {...props} />
     ),
     h2: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-        <h2 className={cn("mt-8 mb-4 text-3xl font-bold tracking-tight", className)} {...props} />
+        <h2 className={cn("mt-8 mb-4 text-3xl font-bold tracking-tight max-w-full break-words", className)} {...props} />
     ),
     h3: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-        <h3 className={cn("mt-8 mb-4 text-2xl font-bold tracking-tight", className)} {...props} />
+        <h3 className={cn("mt-8 mb-4 text-2xl font-bold tracking-tight max-w-full break-words", className)} {...props} />
     ),
     h4: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-        <h4 className={cn("mt-8 mb-4 text-xl font-bold tracking-tight", className)} {...props} />
-    ),
-    p: ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-        <p className={cn("leading-7 [&:not(:first-child)]:mt-6", className)} {...props} />
+        <h4 className={cn("mt-8 mb-4 text-xl font-bold tracking-tight max-w-full break-words", className)} {...props} />
     ),
     ul: ({ className, ...props }: React.HTMLAttributes<HTMLUListElement>) => (
         <ul className={cn("my-6 ml-6 list-disc", className)} {...props} />
@@ -37,8 +37,8 @@ export const MDXComponents = {
     ),
     hr: ({ ...props }) => <hr className="my-4 md:my-8" {...props} />,
     table: ({ className, ...props }: React.HTMLAttributes<HTMLTableElement>) => (
-        <div className="my-6 w-full overflow-y-auto">
-            <table className={cn("w-full", className)} {...props} />
+        <div className="my-6 w-full overflow-x-auto">
+            <table className={cn("w-full min-w-max", className)} {...props} />
         </div>
     ),
     tr: ({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) => (

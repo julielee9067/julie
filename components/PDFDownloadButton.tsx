@@ -23,7 +23,7 @@ export function PDFDownloadButton() {
   return (
       <Button variant="outline" size="sm" onClick={downloadPDF}>
         <Download className="w-4 h-4 mr-2" />
-        {language === "ko" ? "이력서 다운로드" : "Download Resume"}
+        {language === "ko" ? "이력서" : "Resume"}
       </Button>
   )
 }
