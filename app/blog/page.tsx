@@ -14,10 +14,6 @@ export default function BlogIndex() {
       (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   )
 
-  const filteredPosts = selectedCategory === allLabel
-      ? sortedPosts
-      : sortedPosts.filter((p) => p.categorySlug === selectedCategory)
-
   return (
       <div className="min-h-screen flex">
         <main className="flex-1 p-4 md:p-8 lg:p-12">
@@ -27,7 +23,7 @@ export default function BlogIndex() {
             </h1>
 
             <div className="grid gap-6">
-              {filteredPosts.map((post) => (
+              {sortedPosts.map((post) => (
                   <BlogPostCard
                       key={post.slug}
                       post={post}
@@ -35,7 +31,7 @@ export default function BlogIndex() {
                   />
               ))}
             </div>
-            {!filteredPosts.length && (
+            {!sortedPosts.length && (
                 <p className="text-muted-foreground">
                   {language === "ko" ? "이 카테고리에 대한 게시글이 없습니다." : "No posts in this category."}
                 </p>
