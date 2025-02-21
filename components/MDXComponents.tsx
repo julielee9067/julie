@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 
 export const MDXComponents = {
     p: ({ className, ...props }: React.HTMLAttributes<HTMLParagraphElement>) => (
-        <p className={cn("leading-7 max-w-full break-words", className)} {...props} />
+        <p className={cn("leading-7 &:not(:first-child)]:mt-6 mb-4 max-w-full break-words", className)} {...props} />
     ),
     h1: ({ className, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
         <h1 className={cn("mt-8 mb-4 text-4xl font-bold tracking-tight max-w-full break-words", className)} {...props} />
