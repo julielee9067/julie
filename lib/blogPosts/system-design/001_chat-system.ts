@@ -7,7 +7,7 @@ export const systemDesignMessagingService: BlogPost = {
         ko: "메시징 서비스 시스템 디자인",
         en: "Design Messaging Service",
     },
-    date: "2025-02-19",
+    date: "2025-02-20",
     category: {
         ko: "시스템 디자인",
         en: "System Design",

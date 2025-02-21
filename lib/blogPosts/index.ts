@@ -5,6 +5,8 @@ import {systemDesignMessagingService} from "@/lib/blogPosts/system-design/001_ch
 import {twoSum} from "@/lib/blogPosts/algorithms/001_two-sum";
 import {taskScheduler} from "@/lib/blogPosts/algorithms/002_task-scheduler";
 import {designTwitter} from "@/lib/blogPosts/algorithms/003_design-twitter";
+import {designAddSearchWordDataStructure} from "@/lib/blogPosts/algorithms/004_design-add-search-word-data-structure";
+import {wordSearchII} from "@/lib/blogPosts/algorithms/005_word-search-ii";
 
 export const blogPosts: BlogPost[] = [
     csProcessThread,
@@ -14,5 +16,7 @@ export const blogPosts: BlogPost[] = [
 export const leetcodeProblems: LeetCodeProblem[] = [
     twoSum,
     taskScheduler,
-    designTwitter
+    designTwitter,
+    designAddSearchWordDataStructure,
+    wordSearchII,
 ]

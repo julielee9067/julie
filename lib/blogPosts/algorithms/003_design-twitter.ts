@@ -5,7 +5,7 @@ export const designTwitter: LeetCodeProblem = {
     date: "2025-02-19",
     name: "Design Twitter",
     tags: ["Heap"],
-    approach: "Use a heap to manage task frequencies and a queue to track tasks in cooldown.",
+    approach: "Use a min heap to get the 10 most recent tweets, adding previous tweets if available.",
     difficulty: "Medium",
     url: "https://leetcode.com/problems/design-twitter/",
     solutions: [
