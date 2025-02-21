@@ -71,6 +71,12 @@
     @apply bg-background text-foreground;
   }
 }
+.prose {
+  max-width: 80vw; /* 화면의 80%를 차지하도록 조정 */
+  margin: 0 auto; /* 가운데 정렬 */
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
 
 .mdx {
   @apply text-foreground;
@@ -132,7 +138,7 @@
   }
 
   :where(table) {
-    @apply w-full my-6;
+    @apply my-6 w-full;
 
     :where(tr) {
       @apply m-0 border-t p-0 even:bg-muted;
@@ -145,6 +151,17 @@
     :where(td) {
       @apply border px-4 py-2 text-left;
     }
+  }
+  :where(p, h1, h2, h3, h4, blockquote, li) {
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+  :where(table) {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    max-width: 100%;
   }
 }
 
