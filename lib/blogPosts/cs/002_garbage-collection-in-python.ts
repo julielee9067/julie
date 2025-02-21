@@ -14,7 +14,7 @@ export const csGarbageCollectionInPython: BlogPost = {
     },
     description: {
         ko: "가비지 컬렉션의 파이썬에서의 동작 원리",
-        en: "How Garbage Collection Work in Python",
+        en: "How Garbage Collection Works in Python",
     },
     content: `
 ## 가비지 컬렉션 (Garbage Collection)
