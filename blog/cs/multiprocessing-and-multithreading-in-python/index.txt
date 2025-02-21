@@ -1,11 +1,15 @@
-2:I[3422,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","636","static/chunks/636-65bb31d056e95ffd.js","254","static/chunks/app/blog/%5Bcategory%5D/page-8636faf3adaa3fd9.js"],"default"]
+2:"$Sreact.suspense"
+3:I[1523,["851","static/chunks/851-4b7230f426f3d0c3.js","636","static/chunks/636-65bb31d056e95ffd.js","614","static/chunks/614-de6ae75424f2579f.js","797","static/chunks/app/blog/%5B...slug%5D/page-7a1b2e0cfa191dff.js"],"BailoutToCSR"]
 5:I[4707,[],""]
 7:I[6423,[],""]
 8:I[3483,["648","static/chunks/648-f6f3afee71b2d583.js","768","static/chunks/app/blog/layout-54d880e6586f2601.js"],"default",1]
 9:I[5495,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"ThemeProvider"]
 a:I[4491,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"LanguageProvider"]
 b:I[1890,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"Header"]
-3:T273f,
+6:["slug","cs/multiprocessing-and-multithreading-in-python","c"]
+0:["qImW1rhPMgmRL3Xh5Lkgq",[[["",{"children":["blog",{"children":[["slug","cs/multiprocessing-and-multithreading-in-python","c"],{"children":["__PAGE__?{\"slug\":[\"cs\",\"multiprocessing-and-multithreading-in-python\"]}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","cs/multiprocessing-and-multithreading-in-python","c"],{"children":["__PAGE__",{},[["$L1",["$","$2",null,{"fallback":null,"children":["$","$L3",null,{"reason":"next/dynamic","children":"$L4"}]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L8",null,{"children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/2688adaac3b51e6f.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$L9",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$La",null,{"children":[["$","$Lb",null,{}],["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Lc",null]]]]
+d:I[3124,["851","static/chunks/851-4b7230f426f3d0c3.js","636","static/chunks/636-65bb31d056e95ffd.js","614","static/chunks/614-de6ae75424f2579f.js","797","static/chunks/app/blog/%5B...slug%5D/page-7a1b2e0cfa191dff.js"],"default"]
+e:T273f,
 ## 개요
 대규모 데이터 파이프라인을 운영하다보면 **병목 현상**을 자주 목격하게 됩니다. 이 때, 마이크로서비스가 실행 중인 컨테이너들을 수평적으로 확장하는 것도 중요하지만, 때로는 컨테이너 확장만으로는 해결되지 않는 문제들도 있습니다.
 
@@ -116,78 +120,6 @@ Python은 **Garbage collection**을 사용해 메모리를 자동으로 관리�
 CPython에서는 GIL이 interpreter의 핵심 설계 요소이기 때문에 Python 자체에서 **GIL을 완전히 해제하거나 제거하는 것은 불가능**합니다.
 #### 멀티 스레딩에서의 풀
 멀티 프로세싱에서 풀을 사용하는 것과 같이, 스레딩에서도 풀 개념을 적용할 수 있습니다. Python에서는 주로 `cuncurrent.futures.ThreadPoolExecutor`를 사용하여 풀을 구성합니다. 이를 통해 **미리 정해진 수의 스레드를 생성하고, 작업을 해당 스레드들에 분산**시켜 실행할 수 있습니다.
-4:T1707,
-## 가비지 컬렉션 (Garbage Collection)
-Python의 가비지 컬렉션은 메모리 관리를 자동으로 수행하는 메커니즘입니다. 이 메커니즘은 크게 두 가지 방법을 사용합니다.
-### 1. 참조 카운팅 (Reference Counting)
-어떤 물건을 여러 사람이 공유하고 있을 때, 몇 명이 그 물건을 사용 중인지 숫자로 세어보는 것과 비슷합니다.
-
-**작동 원리**
-1. Python에서 어떤 데이터를 저장하는 객체(list, dictionary, etc)가 만들어지면, 이 객체를 사용하고 있는 변수가 몇 개인지 기록합니다.
-2. 만약 변수가 그 객체를 사용하면 숫자가 1 증가하고, 더 이상 사용하지 않게 되면 숫자가 1 감소합니다.
-3. 이 **참조 카운트가 0**이 되면, 그 객체는 아무도 사용하지 않는 것으로 판단되어 청소부가 그 객체를 메모리에서 제거합니다.
-```python
-a = [1, 2, 3]    # 리스트 객체 생성 (참조 카운트 증가)
-
-b = a            # b가 a를 참조 (참조 카운트 증가)
-
-del b            # b 삭제 (참조 카운트 감소)
-```
-### 2. 순환 가비지 컬렉터 (Cyclic Garbage Collector)
-때로는 두 개 이상의 객체가 서로를 참조하면서 **서로를 잡아먹는** 상황이 생깁니다. 예를 들어, A가 B를, B가 A를 참조하고 있으면 외부에서는 둘 다 사용하지 않더라도 참조 카운트가 0이 되지 않습니다.
-
-```python
-class A:
-    def __init__(self):
-        self.other = None
-
-# 두 객체 생성 후 서로를 참조하게 만듭니다.
-a = A()
-b = A()
-a.other = b  # a는 b를 참조
-b.other = a  # b는 a를 참조
-
-# 외부 참조 제거
-a = None
-b = None
-
-# 이제 두 객체는 외부에서 접근할 수 없지만, 서로를 참조하므로 참조 카운트는 0이 되지 않습니다.
-```
-Python은 이러한 순환 참조 문제를 해결하기 위해 정기적으로 청소를 하는 **순환 가비지 컬렉터** 시스템을 사용합니다. 이 시스템은 주기적으로 객체 그래프를 탐색하여, **외부에서는 접근할 수 없지만 내부적으로 서로 참조하는 객체들**을 찾아냅니다.
-#### 세대 개념
-객체는 **얼마나 오래 살아남았느냐**에 따라 몇 개의 세대로 분류됩니다. 최근에 생성된 객체는 0세대, 조금 오래된 객체는 1세대, 가장 오래된 객체는 2세대로 분류됩니다.
-
-이렇게 세대를 구분하는 이유는 대부분의 객체가 짧은 수명을 가지고 있고, 오래 살아남은 객체는 변경 가능성이 낮다고 판단하여, 더 자주 검사하지 않음으로써 가비지 컬렉션 오버헤드를 줄이기 위함입니다.
-
-### 고려 사항
-한 객체를 참조하는 수가 많을 경우, **참조 카운트를 업데이트하는 오버헤드**가 발생할 수 있습니다. 객체에 대한 참조를 추가하거나 제거할 때마다 메모리 내에서 해당 값을 읽고, 수정하고, 다시 저장하는 작업이 필요합니다. 
-이런 연산이 반복되면, 단순히 그 객체를 사용하거나 해제하는 비용 외에도 참조 카운트 업데이트에 따른 부가적인 CPU 연산 비용이 누적될 수 있습니다.
-
-예를 들어, 수천 개의 복잡한 데이터 구조에서 한 객체가 여러 부분에서 참조될 경우, 참조 카운트 관리에 드는 시간이 전체 성능에 영향을 줄 수 있습니다.
-
-OS는 새로운 메모리 블록을 할당하거나, 사용이 끝난 메모리 블록을 해제할 때 **시스템 호출**을 사용합니다. 이러한 호출은 사용자 코드에서 직접 호출하는 연산보다 훨씬 느리고, 오버헤드가 큽니다.
-
-
-또한, 메모리 할당/해제를 반복하면, 메모리 내부에 작고 산발적인 빈 공간들이 생기는데, 이를 **메모리 단편화**(Fragmentation)라고 합니다. 단편화가 심해지면 **메모리 사용 효율이 떨어지고, 큰 연속된 메모리 공간을 할당받기 어려워집니다**.
-
-
-이와 같이 메모리 할당 및 해제는 비용이 크므로, Python은 **메모리 풀**과 같은 기법을 통해 메모리를 재활용합니다. 메모리 풀은 **미리 일정 크기의 메모리 블록들을 할당해 놓고, 필요할 때마다 이 블록들을 재활용**하는 방식입니다.
-
-예를 들어, CPython은 짧은 문자열이나 작은 리스트와 같은 소형 객체를 위한 전용 메모리 할당기를 사용합니다. 이 풀은 **한 번에 시스템으로부터 큰 메모리 블록**을 받아, 내부에서 작고 고정된 크기의 블록들로 나눈 후, 객체 생성 시 이 블록들을 할당합니다.
-
-이 방식을 사용하면, 새로운 객체를 만들 때마다 OS에 매번 메모리 할당 요청을 보내지 않아도 되므로, **매우 빠르게 메모리를 할당**할 수 있습니다. 객체가 해제되면, 해당 메모리 블록은 즉시 운영체제에 반환되지 않고 **메모리 풀에 다시 저장**되어, 다음에 **재사용**됩니다.
-
-
-만약 현재 **할당된 메모리 풀이 모두 사용중**이라면:
-1. Python의 메모리 할당기는 OS에 추가 메모리를 요청합니다.
-2. 운영체제에서 추가 메모리를 제공하면, 메모리 풀은 확장되어 이후에 새로운 객체 할당에 사용됩니다.
-3. 만약 운영체제에서 더 이상 메모리를 제공할 수 없다면, Python은 더 이상 객체를 위한 메모리를 할당할 수 없게 됩니다. (`MemoryError` Exception 발생)
-
-메모리 풀 확장 시 여러 프로세스가 동시에 메모리를 요구할 수 있고, 이런 상황에서는 경쟁이 발생할 수도 있습니다.
-
-## 마무리
-오늘은 파이썬에서 가비지 컬렉션이 어떻게 동작하는지 알아보았습니다. 다음엔 네트워크 관련 게시글을 올려보도록 하겠습니다. 감사합니다 :)
-6:["category","cs","d"]
-0:["qImW1rhPMgmRL3Xh5Lkgq",[[["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__?{\"category\":\"cs\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"cs","filteredPosts":[{"slug":"cs/multiprocessing-and-multithreading-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 멀티 프로세싱과 멀티 스레딩","en":"Multiprocessing and Multithreading in Python"},"date":"2025-02-21","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"멀티 프로세싱과 멀티 스레딩의 파이썬에서의 동작 원리","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$3"},{"slug":"cs/garbage-collection-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 가비지 컬렉션","en":"Garbage Collection in Python"},"date":"2025-02-21","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"가비지 컬렉션의 파이썬에서의 동작 원리","en":"How Garbage Collection Work in Python"},"content":"$4"}]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L8",null,{"children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/2688adaac3b51e6f.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$L9",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$La",null,{"children":[["$","$Lb",null,{}],["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Lc",null]]]]
+4:["$","$Ld",null,{"post":{"slug":"cs/multiprocessing-and-multithreading-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 멀티 프로세싱과 멀티 스레딩","en":"Multiprocessing and Multithreading in Python"},"date":"2025-02-21","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"멀티 프로세싱과 멀티 스레딩의 파이썬에서의 동작 원리","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$e"}}]
 c:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
