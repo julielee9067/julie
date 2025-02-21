@@ -44,32 +44,32 @@ const projects: Project[] = [
             ],
         },
     },
-    {
-        title: "ARAM.GG",
-        description: {
-            ko: "롤 칼바람 나락 게임의 유저 및 챔피언 평가",
-            en: "Evaluation platform for users and champions in League of Legends ARAM game",
-        },
-        timeline: {
-            start: { ko: "2020년 9월", en: "September 2020" },
-            end: { ko: "2020년 12월", en: "December 2020" },
-        },
-        stacks: ["Python", "Django", "PostgreSQL"],
-        details: {
-            ko: [
-                "백엔드 API 개발",
-                "Riot Games API와 연동",
-                "DB 스키마 설계",
-            ],
-            en: [
-                "Developed backend API",
-                "Integrated with Riot Games API",
-                "Designed database schema",
-            ],
-        },
-        github: "https://github.com/hintful/aramgg",
-        images: [],
-    },
+    // {
+    //     title: "ARAM.GG",
+    //     description: {
+    //         ko: "롤 칼바람 나락 게임의 유저 및 챔피언 평가",
+    //         en: "Evaluation platform for users and champions in League of Legends ARAM game",
+    //     },
+    //     timeline: {
+    //         start: { ko: "2020년 9월", en: "September 2020" },
+    //         end: { ko: "2020년 12월", en: "December 2020" },
+    //     },
+    //     stacks: ["Python", "Django", "PostgreSQL"],
+    //     details: {
+    //         ko: [
+    //             "백엔드 API 개발",
+    //             "Riot Games API와 연동",
+    //             "DB 스키마 설계",
+    //         ],
+    //         en: [
+    //             "Developed backend API",
+    //             "Integrated with Riot Games API",
+    //             "Designed database schema",
+    //         ],
+    //     },
+    //     github: "https://github.com/hintful/aramgg",
+    //     images: [],
+    // },
 ];
 
 interface ProjectsSectionProps {
