@@ -14,11 +14,15 @@ import {subsets} from "@/lib/blogPosts/algorithms/006_subsets";
 import {combinationSum} from "@/lib/blogPosts/algorithms/007_combination-sum";
 import {combinationSumII} from "@/lib/blogPosts/algorithms/008_combination-sum-ii";
 import {permutations} from "@/lib/blogPosts/algorithms/009_permutations";
+import {cnInternetArchitectureIntro} from "@/lib/blogPosts/computer-networks/001_internet-architecture-intro";
+import {cnEncapsulationDeencapsulation} from "@/lib/blogPosts/computer-networks/002_encapsulation-deencapsulation";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
     csGarbageCollectionInPython,
-    systemDesignMessagingService
+    systemDesignMessagingService,
+    cnInternetArchitectureIntro,
+    cnEncapsulationDeencapsulation,
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
