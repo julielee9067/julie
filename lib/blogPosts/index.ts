@@ -10,6 +10,10 @@ import {
     csMultiprocessingAndMultiThreadingInPython
 } from "@/lib/blogPosts/cs/001_multiprocessing-multithreading-in-python";
 import {csGarbageCollectionInPython} from "@/lib/blogPosts/cs/002_garbage-collection-in-python";
+import {subsets} from "@/lib/blogPosts/algorithms/006_subsets";
+import {combinationSum} from "@/lib/blogPosts/algorithms/007_combination-sum";
+import {combinationSumII} from "@/lib/blogPosts/algorithms/008_combination-sum-ii";
+import {permutations} from "@/lib/blogPosts/algorithms/009_permutations";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -23,4 +27,8 @@ export const leetcodeProblems: LeetCodeProblem[] = [
     designTwitter,
     designAddSearchWordDataStructure,
     wordSearchII,
+    subsets,
+    combinationSum,
+    combinationSumII,
+    permutations
 ]
