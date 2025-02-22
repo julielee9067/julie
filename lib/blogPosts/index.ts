@@ -16,6 +16,8 @@ import {combinationSumII} from "@/lib/blogPosts/algorithms/008_combination-sum-i
 import {permutations} from "@/lib/blogPosts/algorithms/009_permutations";
 import {cnInternetArchitectureIntro} from "@/lib/blogPosts/computer-networks/001_internet-architecture-intro";
 import {cnEncapsulationDeencapsulation} from "@/lib/blogPosts/computer-networks/002_encapsulation-deencapsulation";
+import {cnInternetProtocolStack} from "@/lib/blogPosts/computer-networks/003_internet-protocol-stack-model";
+import {cnHostsAndNetworks} from "@/lib/blogPosts/computer-networks/004_interconnecting-hosts-and-networks";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -23,6 +25,8 @@ export const blogPosts: BlogPost[] = [
     systemDesignMessagingService,
     cnInternetArchitectureIntro,
     cnEncapsulationDeencapsulation,
+    cnInternetProtocolStack,
+    cnHostsAndNetworks,
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
