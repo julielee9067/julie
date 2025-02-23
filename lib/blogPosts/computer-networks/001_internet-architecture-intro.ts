@@ -184,7 +184,7 @@ export const cnInternetArchitectureIntro: BlogPost = {
 \`\`\`
 
 ## 마무리
-이번 포스트에서는 OSI 7 layer 에 대해 간단히 알아보았습니다. 다음 게시글에서는 계층간의 캡슐화, end-to-end principle 등에 대해 알아보겠습니다.
+이번 포스트에서는 OSI 7 layer 에 대해 간단히 알아보았습니다. 다음 게시글에서는 계층 간의 캡슐화, end-to-end principle 등에 대해 알아보겠습니다.
 `,
 };
 

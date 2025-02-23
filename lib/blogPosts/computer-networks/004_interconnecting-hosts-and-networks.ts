@@ -4,7 +4,7 @@ export const cnHostsAndNetworks: BlogPost = {
     slug: "computer-networks/hosts-and-networks",
     categorySlug: "computer-networks",
     title: {
-        ko: "계층 별 장치와 스패닝 트리 알고리즘",
+        ko: "계층별 장치와 스패닝 트리 알고리즘",
         en: "Layer Devices and Spanning Tree Algorithm",
     },
     date: "2025-02-23",
@@ -20,7 +20,7 @@ export const cnHostsAndNetworks: BlogPost = {
 컴퓨터 네트워크에는 호스트 간 연결을 제공하거나 서로 다른 네트워크를 연결하는 다양한 장치들이 존재합니다.
 이러한 장치들은 서로 다른 계층에서 동작하며, 각각 고유한 기능과 한계를 가지고 있습니다.
 
-## 계층 별 장치
+## 계층별 장치
 ### 물리 계층 (L1) 장치: 리피터(Repeater)와 허브(Hub)
 리피터와 허브는 **물리 계층**에서 동작하는 장치로, **디지털 신호를 수신하고 그대로 재전송하여 ethernet 세그먼트 간 연결을 제공**합니다.
 
