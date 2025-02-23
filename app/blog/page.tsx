@@ -8,11 +8,12 @@ import { BlogPostCard } from "@/components/blog/BlogPostCard"
 export default function BlogIndex() {
   const { language } = useLanguage()
 
-  const allLabel = language === "ko" ? "전체" : "All"
-  const [selectedCategory, _] = useState(allLabel)
-  const sortedPosts = [...blogPosts].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  )
+  const sortedPosts = [...blogPosts].map(post => {
+    return {
+        ...post,
+        date: post.date.includes(":") ? post.date : `${post.date} 00:00`
+    };
+  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   return (
       <div className="min-h-screen flex">

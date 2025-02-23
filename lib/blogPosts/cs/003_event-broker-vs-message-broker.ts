@@ -7,7 +7,7 @@ export const csEventBrokerVsMessageBroker: BlogPost = {
         ko: "이벤트 브로커와 메시지 브로커",
         en: "Event Broker and Message Broker",
     },
-    date: "2025-02-24",
+    date: "2025-02-23 00:00",
     category: {
         ko: "컴퓨터 공학",
         en: "Computer Science",

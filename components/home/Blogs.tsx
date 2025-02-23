@@ -14,7 +14,10 @@ interface LatestBlogPostsProps {
 }
 
 function formatDate(dateStr: string, lang: "ko" | "en") {
-    return format(new Date(dateStr), "PPP", {
+    const normalizedDateStr = dateStr.includes(":") ? dateStr : `${dateStr} 00:00`;
+    const date = new Date(normalizedDateStr.replace(" ", "T"));
+
+    return format(new Date(date), "PP p", {
         locale: lang === "ko" ? ko : enUS,
     })
 }
