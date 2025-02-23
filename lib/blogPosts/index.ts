@@ -18,6 +18,7 @@ import {cnInternetArchitectureIntro} from "@/lib/blogPosts/computer-networks/001
 import {cnEncapsulationDeencapsulation} from "@/lib/blogPosts/computer-networks/002_encapsulation-deencapsulation";
 import {cnInternetProtocolStack} from "@/lib/blogPosts/computer-networks/003_internet-protocol-stack-model";
 import {cnHostsAndNetworks} from "@/lib/blogPosts/computer-networks/004_interconnecting-hosts-and-networks";
+import {cnMultiplexingAndDemultiplexing} from "@/lib/blogPosts/computer-networks/005_multiplexing-and-demultiplexing";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -27,6 +28,7 @@ export const blogPosts: BlogPost[] = [
     cnEncapsulationDeencapsulation,
     cnInternetProtocolStack,
     cnHostsAndNetworks,
+    cnMultiplexingAndDemultiplexing,
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
