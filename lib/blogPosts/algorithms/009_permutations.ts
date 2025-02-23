@@ -12,8 +12,7 @@ export const permutations: LeetCodeProblem = {
         {
             id: "backtracking",
             approach: "Backtracking, DFS",
-            code: `
-                def permute(self, nums: List[int]) -> List[List[int]]:
+            code: `def permute(self, nums: List[int]) -> List[List[int]]:
     sol = []
     res = []
 

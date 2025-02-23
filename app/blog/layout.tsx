@@ -8,6 +8,7 @@ const SIDE_BAR_LINKS = [
     { href: "/blog", id: "all", labelKo: "전체", labelEn: "All" },
     { href: "/blog/algorithms", id: "algorithms", labelKo: "알고리즘", labelEn: "Algorithms" },
     { href: "/blog/cs", id: "cs", labelKo: "컴퓨터 공학", labelEn: "Computer Science" },
+    { href: "/blog/computer-networks", id: "computer-networks", labelKo: "컴퓨터 네트워크", labelEn: "Computer Networks" },
     { href: "/blog/system-design", id: "system-design", labelKo: "시스템 디자인", labelEn: "System Design" },
 ]
 
