@@ -21,6 +21,7 @@ import {cnHostsAndNetworks} from "@/lib/blogPosts/computer-networks/004_intercon
 import {cnMultiplexingAndDemultiplexing} from "@/lib/blogPosts/computer-networks/005_multiplexing-and-demultiplexing";
 import {cnTCP} from "@/lib/blogPosts/computer-networks/006_tcp";
 import {csEventBrokerVsMessageBroker} from "@/lib/blogPosts/cs/003_event-broker-vs-message-broker";
+import {cnIntradomainRouting} from "@/lib/blogPosts/computer-networks/007_intradomain-routing";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -33,6 +34,7 @@ export const blogPosts: BlogPost[] = [
     cnMultiplexingAndDemultiplexing,
     cnTCP,
     csEventBrokerVsMessageBroker,
+    cnIntradomainRouting,
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
