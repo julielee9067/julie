@@ -20,5 +20,12 @@ export default function BlogCategoryPage({ params }: Props) {
     if (filteredPosts.length === 0) {
         notFound();
     }
-    return <ClientBlogCategory category={category} filteredPosts={filteredPosts} />;
+    const sortedPosts = [...filteredPosts].map(post => {
+        return {
+            ...post,
+            date: post.date.includes(":") ? post.date : `${post.date} 00:00`
+        };
+    }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+    return <ClientBlogCategory category={category} filteredPosts={sortedPosts} />;
 }

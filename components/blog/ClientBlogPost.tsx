@@ -37,7 +37,10 @@ export default function BlogPostClient({ post }: BlogPostClientProps) {
     }
 
     function formatDate(dateStr: string) {
-        return format(new Date(dateStr), "PPP", {
+        const normalizedDateStr = dateStr.includes(":") ? dateStr : `${dateStr} 00:00`;
+        const date = new Date(normalizedDateStr.replace(" ", "T")); // ISO 8601 형식으로 변환
+
+        return format(new Date(date), "PP p", {
             locale: language === "ko" ? ko : enUS,
         });
     }
