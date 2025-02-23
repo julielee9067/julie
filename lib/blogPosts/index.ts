@@ -20,6 +20,7 @@ import {cnInternetProtocolStack} from "@/lib/blogPosts/computer-networks/003_int
 import {cnHostsAndNetworks} from "@/lib/blogPosts/computer-networks/004_interconnecting-hosts-and-networks";
 import {cnMultiplexingAndDemultiplexing} from "@/lib/blogPosts/computer-networks/005_multiplexing-and-demultiplexing";
 import {cnTCP} from "@/lib/blogPosts/computer-networks/006_tcp";
+import {csEventBrokerVsMessageBroker} from "@/lib/blogPosts/cs/003_event-broker-vs-message-broker";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -31,6 +32,7 @@ export const blogPosts: BlogPost[] = [
     cnHostsAndNetworks,
     cnMultiplexingAndDemultiplexing,
     cnTCP,
+    csEventBrokerVsMessageBroker,
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [

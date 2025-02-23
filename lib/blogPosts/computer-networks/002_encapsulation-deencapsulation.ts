@@ -4,7 +4,7 @@ export const cnEncapsulationDeencapsulation: BlogPost = {
     slug: "computer-networks/encapsulation-de-encapsulation",
     categorySlug: "computer-networks",
     title: {
-        ko: "계층간 캡슐화와 디캡슐화, 종단 간 원칙",
+        ko: "계층 간 캡슐화와 디캡슐화, 종단 간 원칙",
         en: "Layer Encapsulation and De-encapsulation, E2E principle",
     },
     date: "2025-02-22",
@@ -13,7 +13,7 @@ export const cnEncapsulationDeencapsulation: BlogPost = {
         en: "Computer Networks",
     },
     description: {
-        ko: "계층간 캡슐화, 디캡슐화에 대한 설명",
+        ko: "계층 간 캡슐화, 디캡슐화에 대한 설명",
         en: "How layer encapsulation and de-encapsulation work",
     },
     content: `

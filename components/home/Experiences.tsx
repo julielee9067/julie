@@ -83,7 +83,7 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "비즈니스의 공급자 다변성( Supplier diversity) 분석 및 새로운 공급자 추천을 도와주는 B2B 솔루션 백엔드 구현",
+                        "비즈니스의 공급자 다변성(Supplier diversity) 분석 및 새로운 공급자 추천을 도와주는 B2B 솔루션 백엔드 구현",
                         "Flask, FastAPI 기반 REST API 개발 및 유지보수, 관계형 데이터베이스 테이블 설계",
                     ],
                     en: [
