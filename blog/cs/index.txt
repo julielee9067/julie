@@ -1,10 +1,10 @@
 2:I[3422,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","636","static/chunks/636-65bb31d056e95ffd.js","254","static/chunks/app/blog/%5Bcategory%5D/page-8636faf3adaa3fd9.js"],"default"]
-5:I[4707,[],""]
-7:I[6423,[],""]
-8:I[3483,["648","static/chunks/648-f6f3afee71b2d583.js","768","static/chunks/app/blog/layout-3825e9c62cfb97f3.js"],"default",1]
-9:I[5495,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"ThemeProvider"]
-a:I[4491,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"LanguageProvider"]
-b:I[1890,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"Header"]
+6:I[4707,[],""]
+8:I[6423,[],""]
+9:I[3483,["648","static/chunks/648-f6f3afee71b2d583.js","768","static/chunks/app/blog/layout-3825e9c62cfb97f3.js"],"default",1]
+a:I[5495,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"ThemeProvider"]
+b:I[4491,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"LanguageProvider"]
+c:I[1890,["851","static/chunks/851-4b7230f426f3d0c3.js","648","static/chunks/648-f6f3afee71b2d583.js","185","static/chunks/app/layout-396cfab0aaba2929.js"],"Header"]
 3:T2792,
 ## 개요
 대규모 데이터 파이프라인을 운영하다보면 **병목 현상**을 자주 목격하게 됩니다. 이 때, 마이크로서비스가 실행 중인 컨테이너들을 수평적으로 확장하는 것도 중요하지만, 때로는 컨테이너 확장만으로는 해결되지 않는 문제들도 있습니다.
@@ -188,7 +188,145 @@ OS는 새로운 메모리 블록을 할당하거나, 사용이 끝난 메모리 
 
 ## 마무리
 오늘은 파이썬에서 가비지 컬렉션이 어떻게 동작하는지 알아보았습니다. 다음엔 네트워크 관련 게시글을 올려보도록 하겠습니다. 감사합니다 :)
-6:["category","cs","d"]
-0:["dGeHkf-sBcvejQuuSQ3J-",[[["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__?{\"category\":\"cs\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"cs","filteredPosts":[{"slug":"cs/multiprocessing-and-multithreading-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 멀티 프로세싱과 멀티 스레딩","en":"Multiprocessing and Multithreading in Python"},"date":"2025-02-21","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"멀티 프로세싱과 멀티 스레딩의 파이썬에서의 동작 원리","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$3"},{"slug":"cs/garbage-collection-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 가비지 컬렉션","en":"Garbage Collection in Python"},"date":"2025-02-21","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"가비지 컬렉션의 파이썬에서의 동작 원리","en":"How Garbage Collection Works in Python"},"content":"$4"}]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L8",null,{"children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/2688adaac3b51e6f.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$L9",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$La",null,{"children":[["$","$Lb",null,{}],["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Lc",null]]]]
-c:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+5:T2ede,
+오늘은 이벤트 브로커와 메시지 브로커, 그리고 각각의 대표적인 예시인 Apache Kafka와 RabbitMQ에 대해 알아보겠습니다.
+
+## 이벤트 브로커 (Event Broker)
+이벤트 브로커는 **시스템 내에서 일어나는 다양한 사건이나 상태 변화를 다른 컴포넌트에 전달**하는 중개자 역할을 합니다.
+
+예를 들어, 온라인 쇼핑몰에서는 사용자가 상품을 장바구니에 담거나 결제하는 등의 행동이 이벤트로 발생할 수 있습니다.
+이러한 이벤트들은 직접적으로 다른 컴포넌트에 전달되는 것이 아니라 이벤트 브로커를 통해 전달되어 **여러 시스템이나 서비스가 동시에 반응**할 수 있도록 할 수 있습니다.
+
+시스템의 각 부분은 이벤트 브로커를 통해 **서로 분리되어 동작**하게 되는데, 이를 통해 한 부분에서 발생한 변화가 다른 부분에 영향을 주더라도 서로 강하게 의존하지 않게 됩니다.
+
+만일 결제 시스템에 문제가 생겨도 주문 처리나 재고 관리 시스템은 이미 발생한 이벤트를 기반으로 자신의 업무를 계속 진행할 수 있습니다.
+
+이런 구조 덕분에 장애가 발생했을 때 **문제를 국소적으로 격리**할 수 있고 **시스템 전체의 안정성을 높일 수 있는 효과**가 있습니다. (Loose coupling)
+
+또한, 이벤트 브로커는 발생한 이벤트 데이터를 기록하고 저장하는 기능도 제공합니다. 
+예를 들어 사용자가 웹사이트에서 발생시킨 모든 행동 기록을 이벤트 브로커가 수집해 저장해 놓으면 나중에 이 데이터를 분석해 **사용자 행동 패턴을 파악**하거나 **문제 발생 시 재처리할 수 있는 기반**을 마련할 수 있습니다.
+
+이러한 기능은 **실시간 모니터링**이나 **로그 수집**, **감사**와 같은 다양한 활용 사례에 유용하게 쓰입니다.
+
+### Pub/Sub 모델
+이벤트 브로커는 pub/sub 모델을 채택하고 있는데, 이 모델에서 이벤트를 생성하는 쪽은 **publisher**, 이벤트를 받아 처리하는 쪽은 **consumer**라고 부릅니다.
+
+Publisher는 자신이 **생성한 이벤트를 이벤트 브로커에 전달**하고, 이벤트 브로커는 이 **이벤트를 구독하고 있는 여러 consumer들에게 동시에 전달**합니다.
+
+예를 들어, 온라인 쇼핑몰에서 상품이 구매되면 결제 시스템, 주문 관리 시스템, 재고 관리 시스템, 심지어는 고객에게 알림을 보내는 시스템 등이 모두 이 이벤트를 받아 각각의 역할을 수행할 수 있습니다.
+
+다른 예시를 생각해보면 이벤트 브로커는 마치 **도서관의 사서**와 같다고 볼 수 있습니다.
+
+도서관에서 책을 요청하면 사서가 책을 찾아 여러 독자에게 전달해 주는 것처럼, 이벤트 브로커도 각 시스템의 요청이나 상태 변화를 받아 필요한 모든 곳에 전달합니다.
+이 과정에서 각 시스템은 직접 서로를 호출할 필요 없이 **간접적으로 소통**할 수 있게 됩니다.
+
+### Apache Kafka
+Kafka는 이벤트 브로커의 대표적인 예시로 주로 **대용량의 실시간 데이터 스트림**을 처리하는 데 최적화되어 있습니다.
+
+Kafka에서는 **모든 이벤트가 로그 형태로 기록**되며, 이 로그는 분산 시스템 내 여러 노드에 걸쳐 저장됩니다.
+
+예를 들어 대규모 웹 애플리케이션에서 사용자 행동 데이터나 서버 로그 같은 이벤트가 발생하면
+이 데이터를 Kafka에 기록해 여러 consumer가 동시에 실시간 분석, 모니터링, 경고 등의 작업을 수행할 수 있습니다.
+
+Event broker의 특성처럼 Kafka의 pub/sub 모델은 publisher가 데이터를 보내면 여러 소비자가 그 로그를 구독하여 각자의 필요에 따라 데이터를 처리할 수 있습니다.
+이 과정에서 이벤트가 지속적으로 기록되기 때문에 **나중에 필요할 때 과거의 데이터를 재분석하거나 시스템 에러 발생 시 재처리**를 쉽게 할 수 있습니다.
+
+#### 동작 원리
+Kafka의 기본 단위는 **토픽**입니다. 
+토픽은 메시지들의 카테고리를 의미하고, 각 토픽은 하나 이상의 **파티션**으로 나뉩니다.
+파티션은 실제 메시지들이 저장되는 단위로, 각 파티션 내에서는 메시지가 **순차적으로 저장**되고, 각 메시지는 고유한 **offset** 값을 갖게 됩니다.
+
+이러한 구조 덕분에 Kafka는 **메시지의 순서를 보장**할 수 있고 파티션을 여러 서버에 **분산 저장**함으로써 확장성과 병렬 처리를 지원합니다.
+
+Kafka 클러스터는 여러 **브로커**로 구성되어 있고, 각 브로커는 하나 이상의 파티션을 관리합니다.
+
+데이터 안정성과 내결함성을 확보하기 위해 Kafka는 **파티션의 복제본을 여러 브로커에 분산 저장**합니다.
+이 방식으로 하나의 브로커에 장애가 발생하더라도 다른 복제본에서 데이터를 제공할 수 있습니다.
+
+데이터를 기록하는 역할은 **producer**가 담당하는데, producer는 특정 토픽에 메시지를 전송하며 **전송 시 메시지를 어느 파티션에 저장할지를 결정**할 수 있습니다.
+
+이때 파티션 선택은 **라운드 로빈 방식**이나 **특정 키 값을 기반**으로 할 수 있는데, 키를 기반으로 할 경우 동일한 키를 가진 메시지들은 항상 같은 파티션에 저장되어 순서가 보장됩니다.
+
+Kafka에서 데이터를 소비하는 역할은 **consumer**가 맡습니다. 
+consumer는 **특정 토픽의 파티션에서 메시지를 읽어들이고** 각 consumer는 **읽은 메시지의 offset을 관리**합니다.
+
+Kafka는 **consumer group** 이라는 개념을 통해 다수의 consumer가 같은 그룹으로 묶여 토픽의 각 파티션을 분산 처리할 수 있도록 지원합니다.
+동일한 consumer group 내에서는 **하나의 파티션이 하나의 consumer에게만 할당**되어 메시지가 중복 처리되지 않도록 보장합니다.
+
+#### 특징
+Kafka의 중요한 특징은 **retention**과 **reprocessing** 입니다.
+
+Kafka는 기본적으로 일정 기간 동안 혹은 특정 용량에 도달할 때까지 메시지를 보관합니다.
+이 덕분에 소비자가 메시지를 읽은 후에도 필요에 따라 과거 데이터를 다시 읽어들일 수 있어, 실시간 분석 뿐만 아니라 이벤트 소싱이나 로그 분석 같은 다양한 용도로 활용될 수 있습니다.
+
+
+## 메시지 브로커 (Message Broker)
+메시지 브로커의 주요 목적은 **메시지를 안정적으로 전송하고 각 시스템이 독립적으로 작동**할 수 있도록 하는 것입니다.
+
+메시지 브로커는 메시지를 **Queue나 Topic과 같은 구조에 저장**하고, consumer가 준비되면 해당 메시지를 전달하여 순차적 또는 병렬적으로 처리할 수 있게 합니다.
+
+예를 들어, 사용자가 주문을 완료하면 메시지 브로커는 이 주문 데이터를 결제 처리 시스템에 전달하고, 결제가 완료된 후 다시 주문 처리 시스템에 결과를 전달하는 과정을 중개합니다.
+
+이벤트 브로커가 도서관의 사서와 같았다면 메시지 브로커는 **우편 배달 시스템**과 비슷하다고 볼 수 있습니다.
+
+편지를 보내는 사람이 직접 수취인에게 전달하는 대신 우체국에 맡기는 것처럼 메시지 브로커는 발신자로부터 메시지를 받아 중간에서 필요한 곳으로 전달합니다.
+
+### RabbitMQ
+RabbitMQ는 전통적인 메시지 브로커의 대표적인 예입니다.
+
+RabbitMQ에서는 **메시지가 큐에 저장되고, consumer가 해당 큐에서 하나씩 메시지를 가져와 처리하는 방식**으로 동작합니다.
+
+예를 들어 전자상거래 시스템에서 주문이 들어오면 주문 처리 요청 메시지가 RabbitMQ 큐에 저장되고, 주문 처리 서비스가 이 큐에서 메시지를 하나씩 꺼내 처리합니다.
+
+RabbitMQ의 **라우팅 기능**을 이용하면 특정 조건이나 주제에 따라 메시지를 다양한 큐로 분배할 수 있어 시스템 간의 통신을 보다 세밀하게 조절할 수 있습니다.
+
+#### 동작 원리
+RabbitMQ의 기본 구성 요소는 크게 **producer, consumer, exchange, queue, binding**으로 구분할 수 있습니다.
+
+**Producer**는 애플리케이션에서 **메시지를 생성하고 RabbitMQ에 전달**하는 역할을 합니다.
+이때 메시지를 직접 queue에 넣는 것이 아니라, 먼저 **exchange로 메시지를 전송**합니다.
+
+**Exchang**e는 들어오는 **메시지를 어떻게 queue로 라우팅할 것인지 결정**하는 중추적인 역할을 합니다.
+Exchange엔 여러 종류가 있는데, 대표적으로 **direct, topic, fanout, headers** exchange가 있습니다.
+각 exchange는 routing key나 바인딩 조건에 따라 메시지를 적절한 queue로 분배합니다.
+
+**Queue**는 **실제로 메시지가 저장되는 공간**입니다.
+메시지는 저장된 후, 준비된 consumer에게 전달되어 처리됩니다.
+
+RabbitMQ는 메세지의 신뢰성과 안정성 보장을 위해 큐에 저장된 메시지에 대해 **persistence 옵션을 제공**하며, 
+consumer가 메시지를 받아 처리한 후에는 메시지에 대한 **ACK을 받아야 메시지를 삭제**합니다.
+이 과정은 메시지 유실이나 중복 처리 방지에 중요한 역할을 합니다.
+
+**Binding**은 exchange와 queue 사이의 **연결 규칙을 정의**합니다.
+Binding을 통해 특정 routing key나 패턴에 맞는 메시지가 어떤 queue로 전달될지 결정되므로, 메시지 흐름을 세밀하게 정의할 수 있습니다.
+
+**Consumer**는 큐에 저장된 **메시지를 받아 처리**하는 역할을 합니다.
+여러 consumer가 하나의 큐를 구독할 경우, RabbitMQ는 메시지를 **라운드 로빈 방식** 등으로 분배하여 각 consumer가 메시지를 균등하게 처리할 수 있도록 지원합니다.
+
+Consumer가 메시지를 처리하고 난 후 ACK을 보내야하는데, 만약 메시지 처리에 실패하면 RabbitMQ는 해당 메시지를 **재전달하거나 DLX 또는 다른 큐로 라우팅** 할 수 있습니다.
+
+
+
+
+## 차이점
+이벤트 브로커는 **"어떤 일이 발생했다"는 사실 자체를 전파**하는 데 중점을 둡니다. 예를 들어 온라인 쇼핑몰에서 사용자가 결제를 완료했을 때 그 사건을 기록하고 여러 시스템에 동시에 알리는 역할을 할 수 있습니다.
+
+반면, 메시지 브로커는 **특정 작업이나 요청을 안전하게 전달**하는 데 집중합니다.
+예를 들어, 주문 처리를 위해 결제 요청을 보내거나 작업 큐에 저장된 작업을 하나씩 처리하는 시스템에서 메시지 브로커는 메시지를 큐잉하여 전달하고, 재시도나 배달 보증 등의 기능을 통해 데이터의 신뢰성을 보장합니다.
+
+또한 이벤트 브로커는 이벤트 자체를 **지속적으로 기록하고 저장**하여 나중에 재처리나 분석에 활용할 수 있는 반면, 메시지 브로커는 일반적으로 메시지를 즉시 처리하는 **단기적인 데이터 전달**에 집중합니다.
+
+이처럼 이벤트 브로커는 주로 **시스템의 상태 변화나 사건 발생의 "기록"** 을 다루고, 메시지 브로커는 **특정 작업의 "수행"** 과 관련된 데이터를 다루는 데 초점을 맞춥니다.
+
+Kafka와 RabbitMQ 사용 사례를 비교하자면 Kafka는 **높은 처리량, 내구성, 재처리 기능** 등이 중요한 이벤트 스트리밍 환경에, RabbitMQ는 **복잡한 라우팅, 메세지 우선 순위, 큐 기반의 작업 분산 처리**와 같은 요구 사항이 있을 때 효과적인 선택이 됩니다.
+
+
+
+
+
+
+
+7:["category","cs","d"]
+0:["sXRFe75WCMStvMdq2mLiA",[[["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__?{\"category\":\"cs\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"cs","filteredPosts":[{"slug":"cs/multiprocessing-and-multithreading-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 멀티 프로세싱과 멀티 스레딩","en":"Multiprocessing and Multithreading in Python"},"date":"2025-02-21","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"멀티 프로세싱과 멀티 스레딩의 파이썬에서의 동작 원리","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$3"},{"slug":"cs/garbage-collection-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 가비지 컬렉션","en":"Garbage Collection in Python"},"date":"2025-02-21","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"가비지 컬렉션의 파이썬에서의 동작 원리","en":"How Garbage Collection Works in Python"},"content":"$4"},{"slug":"cs/event-broker-vs-message-broker","categorySlug":"cs","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-24","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$5"}]}],null],null],null]},[null,["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$7","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L9",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/2688adaac3b51e6f.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$La",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lb",null,{"children":[["$","$Lc",null,{}],["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
