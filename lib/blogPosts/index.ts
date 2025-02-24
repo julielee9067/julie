@@ -27,6 +27,7 @@ import {insertInterval} from "@/lib/blogPosts/algorithms/011_insert-interval";
 import {nonOverlappingIntervals} from "@/lib/blogPosts/algorithms/012_non-overlapping-intervals";
 import {mergeIntervals} from "@/lib/blogPosts/algorithms/013_merge-intervals";
 import {employeeFreeTime} from "@/lib/blogPosts/algorithms/014_employee-free-time";
+import {meetingRoomsII} from "@/lib/blogPosts/algorithms/015_meeting-rooms-ii";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -57,4 +58,5 @@ export const leetcodeProblems: LeetCodeProblem[] = [
     nonOverlappingIntervals,
     mergeIntervals,
     employeeFreeTime,
+    meetingRoomsII,
 ]
