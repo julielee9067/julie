@@ -30,7 +30,7 @@ export const nonOverlappingIntervals: LeetCodeProblem = {
     
     return res
 `,
-            timeComplexity: "O(n)",
+            timeComplexity: "O(n log n)",
             spaceComplexity: "O(1)",
             explanation: "구간들이 서로 겹치지 않도록 하기 위해 최소한의 구간을 제거하는 문제를 해결합니다. 먼저 주어진 구간들을 시작 시간 기준으로 정렬한 후, 첫 번째 구간의 종료 시간을 기준으로 이후 구간들을 순회하며 비교합니다. 만약 현재 구간의 시작 시간이 이전 구간의 종료 시간보다 크거나 같다면 두 구간이 겹치지 않으므로 기준 구간의 종료 시간을 갱신합니다. 반면, 겹치는 경우에는 두 구간 중 종료 시간이 더 이른 구간을 기준으로 설정하여 겹치는 구간을 제거하고, 제거 횟수를 증가시킵니다. 이와 같이 반복하여 모든 구간을 검사한 후 제거한 구간의 총 수를 반환합니다."
         },

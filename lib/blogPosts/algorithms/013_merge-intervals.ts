@@ -30,7 +30,7 @@ export const mergeIntervals: LeetCodeProblem = {
     
     return res
 `,
-            timeComplexity: "O(n)",
+            timeComplexity: "O(n log n)",
             spaceComplexity: "O(1)",
             explanation: "주어진 구간들을 시작 시간 기준으로 정렬한 후, 첫 번째 구간을 기준으로 하여 인접한 구간들과 비교합니다. 만약 현재 구간이 이전 구간과 겹치지 않으면 그대로 결과 리스트에 추가하고, 겹치는 경우에는 두 구간의 시작은 더 작은 값, 종료는 더 큰 값으로 병합하여 결과 리스트의 마지막 구간을 업데이트합니다. 이 과정을 통해 모든 구간들을 한 번씩만 순회하면서 겹치는 부분을 통합하여 최종 병합된 구간 리스트를 반환합니다."
         },
