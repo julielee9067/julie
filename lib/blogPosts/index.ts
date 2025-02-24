@@ -22,6 +22,12 @@ import {cnMultiplexingAndDemultiplexing} from "@/lib/blogPosts/computer-networks
 import {cnTCP} from "@/lib/blogPosts/computer-networks/006_tcp";
 import {csEventBrokerVsMessageBroker} from "@/lib/blogPosts/cs/003_event-broker-vs-message-broker";
 import {cnIntradomainRouting} from "@/lib/blogPosts/computer-networks/007_intradomain-routing";
+import {meetingRooms} from "@/lib/blogPosts/algorithms/010_meeting-rooms";
+import {insertInterval} from "@/lib/blogPosts/algorithms/011_insert-interval";
+import {nonOverlappingIntervals} from "@/lib/blogPosts/algorithms/012_non-overlapping-intervals";
+import {mergeIntervals} from "@/lib/blogPosts/algorithms/013_merge-intervals";
+import {employeeFreeTime} from "@/lib/blogPosts/algorithms/014_employee-free-time";
+import {meetingRoomsII} from "@/lib/blogPosts/algorithms/015_meeting-rooms-ii";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -46,5 +52,11 @@ export const leetcodeProblems: LeetCodeProblem[] = [
     subsets,
     combinationSum,
     combinationSumII,
-    permutations
+    permutations,
+    meetingRooms,
+    insertInterval,
+    nonOverlappingIntervals,
+    mergeIntervals,
+    employeeFreeTime,
+    meetingRoomsII,
 ]
