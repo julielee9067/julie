@@ -1,8 +1,8 @@
 import { BlogPost } from "@/lib/types";
 
-export const csEventBrokerVsMessageBroker: BlogPost = {
-    slug: "cs/event-broker-vs-message-broker",
-    categorySlug: "cs",
+export const systemDesignEventBrokerVsMessageBroker: BlogPost = {
+    slug: "system-design/event-broker-vs-message-broker",
+    categorySlug: "system-design",
     title: {
         ko: "이벤트 브로커와 메시지 브로커",
         en: "Event Broker and Message Broker",
