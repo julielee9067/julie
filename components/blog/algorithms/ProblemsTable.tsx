@@ -86,7 +86,7 @@ export function ProblemsTable({ data }: { data: LeetCodeProblem[] }) {
         },
         {
             accessorKey: "url",
-            header: "LeetCode",
+            header: "Link",
             cell: ({ row }) => {
                 const url = row.getValue("url") as string
                 return (
