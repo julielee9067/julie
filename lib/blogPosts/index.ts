@@ -25,6 +25,7 @@ import {cnIntradomainRouting} from "@/lib/blogPosts/computer-networks/007_intrad
 import {meetingRooms} from "@/lib/blogPosts/algorithms/010_meeting-rooms";
 import {insertInterval} from "@/lib/blogPosts/algorithms/011_insert-interval";
 import {nonOverlappingIntervals} from "@/lib/blogPosts/algorithms/012_non-overlapping-intervals";
+import {mergeIntervals} from "@/lib/blogPosts/algorithms/013_merge-intervals";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -53,4 +54,5 @@ export const leetcodeProblems: LeetCodeProblem[] = [
     meetingRooms,
     insertInterval,
     nonOverlappingIntervals,
+    mergeIntervals
 ]

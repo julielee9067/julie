@@ -1,7 +1,7 @@
 import { LeetCodeProblem } from "@/lib/types";
 
 export const nonOverlappingIntervals: LeetCodeProblem = {
-    number: 11,
+    number: 12,
     date: "2025-02-23 20:32",
     name: "Non-Overlapping Intervals",
     tags: ["Intervals", "Array"],
