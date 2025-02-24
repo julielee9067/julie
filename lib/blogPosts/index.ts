@@ -24,6 +24,7 @@ import {csEventBrokerVsMessageBroker} from "@/lib/blogPosts/cs/003_event-broker-
 import {cnIntradomainRouting} from "@/lib/blogPosts/computer-networks/007_intradomain-routing";
 import {meetingRooms} from "@/lib/blogPosts/algorithms/010_meeting-rooms";
 import {insertInterval} from "@/lib/blogPosts/algorithms/011_insert-interval";
+import {nonOverlappingIntervals} from "@/lib/blogPosts/algorithms/012_non-overlapping-intervals";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -51,4 +52,5 @@ export const leetcodeProblems: LeetCodeProblem[] = [
     permutations,
     meetingRooms,
     insertInterval,
+    nonOverlappingIntervals,
 ]
