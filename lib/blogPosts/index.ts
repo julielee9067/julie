@@ -29,6 +29,8 @@ import {mergeIntervals} from "@/lib/blogPosts/algorithms/013_merge-intervals";
 import {employeeFreeTime} from "@/lib/blogPosts/algorithms/014_employee-free-time";
 import {meetingRoomsII} from "@/lib/blogPosts/algorithms/015_meeting-rooms-ii";
 import {systemDesignElasticsearch} from "@/lib/blogPosts/system-design/003_elastic-search";
+import {cnASandInterdomainRouting} from "@/lib/blogPosts/computer-networks/008_AS-and-interdomain-routing";
+import {cnRouterDesign} from "@/lib/blogPosts/computer-networks/009_router-design";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -42,7 +44,9 @@ export const blogPosts: BlogPost[] = [
     cnTCP,
     systemDesignEventBrokerVsMessageBroker,
     cnIntradomainRouting,
-    systemDesignElasticsearch
+    systemDesignElasticsearch,
+    cnASandInterdomainRouting,
+    cnRouterDesign
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
