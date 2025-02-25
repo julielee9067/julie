@@ -6,11 +6,12 @@ import { useLanguage } from "@/components/LanguageProvider"
 
 const SIDE_BAR_LINKS = [
     { href: "/blog", id: "all", labelKo: "전체", labelEn: "All" },
+    { href: "/blog/to-do", id: "to-do", labelKo: "TO DO 리스트", labelEn: "TO DO List" },
     { href: "/blog/algorithms", id: "algorithms", labelKo: "알고리즘", labelEn: "Algorithms" },
+    { href: "/blog/til", id: "til", labelKo: "Today I Learned", labelEn: "Today I Learned" },
     { href: "/blog/cs", id: "cs", labelKo: "컴퓨터 공학", labelEn: "Computer Science" },
     { href: "/blog/computer-networks", id: "computer-networks", labelKo: "컴퓨터 네트워크", labelEn: "Computer Networks" },
     { href: "/blog/system-design", id: "system-design", labelKo: "시스템 디자인", labelEn: "System Design" },
-    { href: "/blog/to-do", id: "to-do", labelKo: "TO DO 리스트", labelEn: "TO DO List" },
 ]
 
 export default function BlogLayout({ children }: { children: ReactNode }) {

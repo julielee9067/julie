@@ -19,6 +19,9 @@ export default function TodoPosts() {
         { id: 10, title: "Language Comparison: Python vs. Go" },
         { id: 11, title: "Python Frameworks: Django, Flask, and FastAPI" },
         { id: 12, title: "How to Handle Throttling in Data Pipeline" },
+        { id: 13, title: "Full-text search" },
+        { id: 14, title: "Data visualization and its techniques" },
+        { id: 15, title: "GCP BigQuery" },
     ])
     const { language } = useLanguage()
 
