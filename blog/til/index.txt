@@ -1,0 +1,39 @@
+2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
+4:I[4707,[],""]
+6:I[6423,[],""]
+7:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+8:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-93fdefcd1a3dfc7d.js"],"ThemeProvider"]
+9:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-93fdefcd1a3dfc7d.js"],"LanguageProvider"]
+a:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-93fdefcd1a3dfc7d.js"],"Header"]
+3:Tb4e,
+Mongo Atlas Search에서 full-text search를 사용할 때 여러 search node로 쿼리를 분산시킬 수 있다.
+그런데 쿼리를 실행할 때마다 **어느 search node를 사용하냐에 따라 결과가 달라진다**는 사실을 발견했다.
+
+구체적으로, query를 돌릴 때 각 search node가 몇 개의 문서를 훑어보고 결과를 도출하는지 확인할 수 있는데, 그 숫자가 검색할 때마다 달라지는 현상이 있었다. (따라서 검색 결과도 달라졌다.)
+
+Mongo support 팀에서도 이런 경우가 가끔 발생한다고 응답이 왔고, 아직 정확한 원인을 파악하지 못했다고 한다.
+
+대신, search node(`mongot`)를 전용 노드에서 따로 실행하는 대신 **데이터베이스 자체(`mongod`)와 같은 노드에서 실행**하면 일관성있는 결과를 얻을 수 있을 것이라는 답변을 받았다.
+
+하지만 서포트 팀에서 얘기한 솔루션은 [공식 문서](https://www.mongodb.com/docs/atlas/atlas-search/about/deployment-options/#fts-deployment-options)에 따르면 Testing/Prototyping 환경에 적합한 것으로, 이 사용 사례는 우리가 처한 상황과는 맞지 않다. 
+우리가 인덱스 해야하는 총 문서는 2억 건 이상이고, 데이터 양도 당연히 10GB는 훨씬 넘기 때문이다.
+
+그리고 `mongot`와 `mongod`가 같은 노드에서 실행되면 두 프로세스 간 리소스 contention이 발생할 수 있어 이상적인 환경은 아닌 것 같다.
+
+Elasticsearch처럼 `mongot`도 Apache Lucene을 기반으로 만들어져있는데, [공식 문서](https://www.mongodb.com/docs/atlas/atlas-search/atlas-search-overview/#fts-architecture)에 따르면 세 가지 일을 담당한다.
+
+1. Atlas search 인덱스 생성
+2. 문서 상태 및 인덱스 변경 사항 모니터링
+3. 검색 쿼리 처리: 여기서 문서 ID와 검색 점수를 산출하고, 이 내용을 바탕으로 `mongod`에서 최종 결과를 가져온다
+
+처음엔 2번 과정에서 동기화 문제가 있어서 그런건가 싶었는데, 데이터베이스에 아무 변화가 없고 인덱스 rebuilding도 모두 완료된 상태에서도 검색 결과가 계속 달라지는 현상이 나타났다.
+(eventual consistency와는 관련이 없는 상황)
+
+그래서 지금 생각으로는 뭔가 인덱스에 있는 fuzzy search 때문에 Mongo 백그라운드에서 특정 document들을 제거 하는게 아닌가 싶긴 하지만, Mongo search 팀에서 일하는 사람이 원인을 모른다고 하니까 조금 답답하다.
+(하지만 우리보다 훨씬 복잡한 인덱스를 쓰는 사람들도 별 문제가 없는 사람들도 많았다고 하니 확실하진 않다.)
+
+우선 Mongo support에서 제시한 솔루션대로 내일 진행해보고, 쿼리 성능이나 결과를 좀 더 면밀히 분석한 후 추가로 글을 업데이트할 예정이다.
+5:["category","til","d"]
+0:["pXc9F7-rC1_xKQh7Lfyt9",[[["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__?{\"category\":\"til\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"til","filteredPosts":[{"slug":"til/2025-02-25","categorySlug":"til","title":{"ko":"2025-02-25","en":"2025-02-25"},"date":"2025-02-25 16:57","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"Mongo Atlas full-text search에서 search node가 여러 개일 때 발생하는 문제","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$3"}]}],null],null],null]},[null,["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$5","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L7",null,{"children":["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$L8",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$L9",null,{"children":[["$","$La",null,{}],["$","$L4",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L6",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Lb",null]]]]
+b:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+1:null
