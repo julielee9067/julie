@@ -4,6 +4,7 @@ import Link from "next/link"
 import { PDFDownloadButton } from "@/components/PDFDownloadButton"
 import { LanguageToggle } from "@/components/LanguageToggle"
 import { ModeToggle } from "@/components/ModeToggle"
+import type React from "react";
 
 export function Header() {
     return (
@@ -13,9 +14,13 @@ export function Header() {
                     JULIE
                 </Link>
                 <div className="flex items-center gap-4">
-                    <PDFDownloadButton />
-                    <LanguageToggle />
-                    <ModeToggle />
+                    <a href="https://hits.seeyoufarm.com">
+                        <img
+                            src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fjulielee9067.github.io%2Fjulie%2F&count_bg=%23B397D3&title_bg=%23DDBCD8&icon=awesomelists.svg&icon_color=%23E7E7E7&title=-++&edge_flat=false"/>
+                    </a>
+                    <PDFDownloadButton/>
+                    <LanguageToggle/>
+                    <ModeToggle/>
                 </div>
             </div>
         </header>
