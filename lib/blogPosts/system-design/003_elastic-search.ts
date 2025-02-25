@@ -217,7 +217,9 @@ Lucene 세그먼트는 단순히 문서를 저장하는 컨테이너 이상의 �
 
 ## References
 https://www.paradedb.com/blog/elasticsearch_vs_postgres
+
 https://medium.com/swlh/bkd-trees-used-in-elasticsearch-40e8afd2a1a4
+
 https://j.blaszyk.me/tech-blog/exploring-apache-lucene-index/
 `
 };
