@@ -31,6 +31,7 @@ import {meetingRoomsII} from "@/lib/blogPosts/algorithms/015_meeting-rooms-ii";
 import {systemDesignElasticsearch} from "@/lib/blogPosts/system-design/003_elastic-search";
 import {cnASandInterdomainRouting} from "@/lib/blogPosts/computer-networks/008_AS-and-interdomain-routing";
 import {cnRouterDesign} from "@/lib/blogPosts/computer-networks/009_router-design";
+import {til20250225} from "@/lib/blogPosts/til/001_20250225";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -46,7 +47,8 @@ export const blogPosts: BlogPost[] = [
     cnIntradomainRouting,
     systemDesignElasticsearch,
     cnASandInterdomainRouting,
-    cnRouterDesign
+    cnRouterDesign,
+    til20250225
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
