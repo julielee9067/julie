@@ -32,6 +32,7 @@ import {systemDesignElasticsearch} from "@/lib/blogPosts/system-design/003_elast
 import {cnASandInterdomainRouting} from "@/lib/blogPosts/computer-networks/008_AS-and-interdomain-routing";
 import {cnRouterDesign} from "@/lib/blogPosts/computer-networks/009_router-design";
 import {til20250225} from "@/lib/blogPosts/til/001_20250225";
+import {csCAPTheorem} from "@/lib/blogPosts/cs/003_cap-theorem";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -48,7 +49,8 @@ export const blogPosts: BlogPost[] = [
     systemDesignElasticsearch,
     cnASandInterdomainRouting,
     cnRouterDesign,
-    til20250225
+    til20250225,
+    csCAPTheorem
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
