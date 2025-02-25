@@ -7,7 +7,7 @@
 a:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-93fdefcd1a3dfc7d.js"],"ThemeProvider"]
 b:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-93fdefcd1a3dfc7d.js"],"LanguageProvider"]
 c:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-93fdefcd1a3dfc7d.js"],"Header"]
-5:T201e,
+5:T33dc,
 ## 개요
 네트워크의 근본적인 목표는 **두 호스트 간의 데이터 전송을 가능하게 하는 것**입니다.
 이를 위해 데이터를 출발지에서 목적지까지 효율적으로 전달하는 **최적의 경로**를 찾는 것이 중요합니다.
@@ -36,9 +36,8 @@ TCP 또는 UDP를 이용해 연결이 설정된 두 호스트를 예로 들어�
 그리고 각 엣지에는 특정한 **비용(cost)** 이 할당됩니다.
 
 ## Link-state Routing Algorithm
-링크 상태 알고리즘에서는 **다익스트라 알고리즘**을 기반으로 합니다. 
-여기서는 **네트워크 내 모든 노드가 전체 네트워크 토폴로지와 링크 비용**을 알고 있습니다.
-일반적으로 이 정보는 **브로드캐스트**를 통해 모든 노드에게 전달됩니다.
+링크 상태 알고리즘에서는 **다익스트라 알고리즘**을 기반으로 하여 출발지에서 모든 노드까지의 최단경로 트리(Shortest Path Tree, SPT)를 구성합니다. 
+여기서는 **네트워크 내 모든 노드가 전체 네트워크 토폴로지와 링크 비용**을 알고 있고, 이 정보는 **브로드캐스트**를 통해 모든 노드에게 전달됩니다.
 
 #### 기본 용어
      u: 출발지 노드(기준 노드)
@@ -69,9 +68,9 @@ TCP 또는 UDP를 이용해 연결이 설정된 두 호스트를 예로 들어�
     
     위 과정을 네트워크의 모든 노드가 `N'`에 포함될 때까지 반복합니다.
 
-다익스트라 알고리즘의 결과는 **`u`에서 모든 목적지까지의 최단경로 트리(Shortest Path Tree, SPT)** 가 됩니다.
+최종 결과로 **출발지 `u`에서 모든 노드까지의 최단경로 트리**를 구성하게 됩니다.
 
-#### 복잡도 계산
+#### 계산 복잡도
 이 알고리즘에서 최단 경로를 찾기위해 수행해야 하는 주요 연산은 **최소 비용을 가지는 노드를 찾는 것**과 **해당 노드를 기준으로 다른 노드들의 경로 비용을 업데이트하는 것**으로 나눌 수 있습니다.
 
 1. 첫 번째 iteration에서는 전체 n개의 노드 중에서 최소 비용을 가지는 노드를 찾아야 합니다.
@@ -86,27 +85,32 @@ TCP 또는 UDP를 이용해 연결이 설정된 두 호스트를 예로 들어�
 
 하지만 **기본적인 다익스트라 알고리즘에서는 O(n^2) 이므로, 일반적인 링크 상태 라우팅의 시간 복잡도도 같다**고 할 수 있습니다.
 
+또한, 출발지 노드가 u가 아닌 x인 경우에도, 이웃의 수가 달라도 알고리즘은 모든 노드가 포함될 때까지 동일한 반복 횟수를 수행합니다.
+
 ## Distance-Vector Routing Algorithm
-거리 벡터 라우팅 알고리즘은 **반복적, 비동기적, 분산적** 방식으로 동작하는 알고리즘입니다.
+거리 벡터 라우팅 알고리즘은 **반복적, 비동기적, 분산적** 방식으로 동작하는 방식입니다.
 
 이 알고리즘은 **Bellman-Ford 알고리즘**을 기반으로 하는데, 각 라우터는 자신이 목적지까지 도달하는 비용 정보를 담은 거리 벡터를 유지하고
 이 정보를 정기적으로 이웃 노드들과 교환하면서 네트워크의 최적 경로를 계산합니다.
 
 #### 알고리즘
-먼저, 각 노드는 **자신이 직접 연결된 이웃 노드들과의 링크 비용을 기반으로 초기 거리 벡터를 설정**합니다.
-이웃하지 않은 노드에 대해서는 비용을 무한대로 설정합니다.
+1. **초기화**
 
-그 후, 각 노드는 **주기적으로** 또는 **링크 상태 변경이 감지**될 때 자신의 거리 벡터를 이웃 노드들에게 보냅니다.
+    먼저, 각 노드는 **자신이 직접 연결된 이웃 노드들과의 링크 비용을 기반으로 초기 거리 벡터를 설정**합니다.
+    이웃하지 않은 노드에 대해서는 비용을 무한대로 설정합니다.
 
-이웃 노드들은 수신한 거리 벡터를 기반으로 자신의 거리 벡터를 업데이트합니다.
-업데이트는 Bellman-Ford 방정식을 사용하여 이루어지며 그 식은 다음과 같습니다:
-**`Dx(y) = min{c(x,v) + Dv(y)}`**
+2. **거리 벡터 교환 및 업데이트**
 
-즉, 노드 `x`가 목적지 `y`에 도달하는 최소 비용을 구하기 위해 **이웃 노드 `v`를 거쳐 가는 최소 경로**들을 고려합니다.
+    그 후, 각 노드는 **주기적으로** 또는 **링크 상태 변경이 감지**될 때 자신의 거리 벡터를 이웃 노드들에게 보냅니다.
+    
+    이웃 노드들은 수신한 거리 벡터를 기반으로 자신의 거리 벡터를 다음의 Bellman-Ford 방정식을 사용하여 업데이트합니다:
+        **`Dx(y) = min{c(x,v) + Dv(y)}`**
+    
+    즉, 노드 `x`가 목적지 `y`에 도달하는 최소 비용을 구하기 위해 **이웃 노드 `v`를 거쳐 가는 최소 경로**들을 고려합니다.
 
-각 경로에 대해 **`x`에서 `v`까지의 비용 `c(x,v)`에 `v`에서 `y`까지 가는 최소 비용 `Dv(y)`를 더한 값**을 구하고, 그 중 최소 값을 선택하여 자신의 거리 벡터를 업데이트 합니다.
+3. **수렴**
 
-위 과정은 네트워크 내 모든 노드가 더 이상 업데이트할 정보가 없을 때까지 반복되고, 네트워크 전체가 수렴할 때 까지 지속됩니다.
+    네트워크 내 모든 라우터가 더 이상 새로운 업데이트를 받지 않아 **각자의 거리 벡터가 변경되지 않을 때** 최종 라우팅 테이블이 완성됩니다.
 
 거리 벡터 라우팅 알고리즘은 **구현이 간단하고 오버헤드가 적다**는 장점이 있지만
 네트워크 변경이 있을 경우 안정화 하는데 **시간이 오래 걸릴 수** 있는 단점이 있습니다.
@@ -116,10 +120,86 @@ TCP 또는 UDP를 이용해 연결이 설정된 두 호스트를 예로 들어�
 ### Count-to-Infinity 문제
 거리 벡터 라우팅 알고리즘에서는 각 라우터가 주기적으로 자신의 거리 벡터를 이웃 라우터들에게 공유하고, 이를 기반으로 최적 경로를 갱신합니다.
 
-하지만 **링크 비용이 증가할 경우**, 잘못된 경로 정보가 업데이트되면서 무한 루프에 빠지는 문제가 발생할 수 있습니다.
+하지만 **링크 비용이 급격히 증가할 경우**, 잘못된 경로 정보가 반복적으로 업데이트되면서 두 개 이상의 노드가 서로를 통해 목적지에 도달한다고 잘못 판단하며 비용이 점진적으로 증가하는 **무한 루프 현상**이 발생할 수 있습니다.
 
-이를 해결하기 위해 Split Horizon이나 Poison Reverse 방법을 사용할 수 있습니다.
+이를 해결하기 위해 **Split Horizon**이나 **Poison Reverse** 방법을 사용할 수 있습니다.
+#### Poison Reverse
+```
+            [X]
+           /   \
+      (비용 4)  (비용 5)
+         /         \
+      [Y]  <---->   [Z]
+```
+여기서 Y와 Z는 각각 X로 가는 경로를 가지고 있으며, 서로 정보를 교환합니다.
+만약 Z가 X로 가는 최적 경로가 Y를 통해서라고 판단한다면, Z는 Y의 정보를 참고하여 경로를 설정합니다.
+
+예를 들어, Y와 X 사이의 직접 연결 비용이 급격하게 증가하여 4에서 60이 되었다고 가정해봅시다.
+Y는 직접 연결 비용이 높아졌으므로, “혹시 Z를 통해 X에 도달할 수 있지 않을까?” 하고 Z의 정보를 확인하게 됩니다.
+만약 Z 역시 Y를 통해 X에 도달하는 경로를 사용 중이라면, 잘못된 업데이트로 인해 Y와 Z가 서로를 참조하는 루프가 발생할 수 있습니다.
+```
+                  [X]
+                 /   \
+        (직접 비용 60)  (직접 비용 5)
+               /           \
+            [Y]  <------>   [Z]
+                    ↑
+    (Poison Reverse: Z는 Y에게 X 비용을 ∞로 전달)
+```
+Poison Reverse 기법을 사용하면 **라우터 Z는 자신이 X로 가는 최적 경로가 Y를 경유하는 경우, Y에게 “X로 가는 비용이 ∞입니다”라고 광고**합니다.
+이렇게 되면, Y는 Z로부터 받은 정보에 따라 “내가 X로 가기 위해 Z를 경유하는 것은 불가능하다(비용이 무한대)”고 판단하여, 루프 형성을 방지할 수 있습니다.
+
+단, 이 방법은 두 노드 간의 문제 해결에는 효과적이지만 3개 이상의 노드가 관련된 경우에는 해결책이 되지 않습니다.
+
+## Routing protocol 예제
+### RIP (Routing Information Protocol)
+RIP는 거리 벡터 알고리즘을 기반으로 하는 애플리케이션 레벨 프로세스 프로토콜로, **홉 수(Hop count)** 를 메트릭으로 사용합니다. 
+
+인접 라우터 간에 주기적으로 RIP 응답 메시지를 통해 자신의 거리 벡터(목적지까지의 홉 수 정보)를 교환하고, 
+각 라우터는 목적지 서브넷, 해당 목적지로 가기 위한 최단 경로상의 다음 라우터, 그리고 홉 수 정보를 포함하는 라우팅 테이블을 유지합니다.
+
+만약 라우터가 **일정 시간동안 인접 라우터로부터 업데이트를 받지 못하면**, 해당 이웃을 연결이 끊긴 것으로 간주하고 라우팅 테이블을 갱신합니다.
+
+하지만 **경로 업데이트의 지연, 수렴 시간, 그리고 count-to-infinity 문제** 등이 RIP의 단점으로 지적됩니다.
+
+### OSPF (Open Shortest Path First)
+OSPF는 링크 상태 라우팅 프로토콜로 대규모 네트워크나 ISP (Internet Service Provider) 환경에서 주로 사용됩니다.
+
+OSPF에서는 모든 라우터가 **Link State Advertisement (LSA)** 를 통해 자신과 입접 라우터의 링크 상태를 브로드캐스트하고, 전체 네트워크의 토폴로지를 구성합니다.
+
+여기서 네트워크를 여러 영역으로 나눌 수 있으며, 이 중 하나의 영역은 **백본 영역(Backbone area)** 으로 지정되어 다른 영역 간의 라우팅을 담당합니다.
+
+각 라우터는 다익스트라 알고리즘을 사용하여 **자신을 기준으로 SPT를 구성**하고, 이를 기반으로 **포워딩 정보(FIB)를 업데이트** 합니다.
+
+링크 상태 변화가 감지되면 즉시 LSA를 플러딩하여 네트워크 전체에 전파하며, 정기적으로도 갱신됩니다.
+
+#### OSPF 메시지 처리 과정
+1. **LS 업데이트 수신**
+    
+    인접 라우터로부터 LS 업데이트 패킷(여러 LSA 포함)을 수신하면 OSPF processor가 이를 분석하여 새로운 LSA인지 중복 LSA인지를 확인합니다. 
+    
+2. **링크 상태 데이터베이스 갱신 및 SPF 예약**
+    
+    새로운 LSA일 경우, **링크 상태 데이터베이스를 갱신**하고, 이후 다익스트라 기반의 **SPF 계산을 예약**합니다.
+    
+3. **LSA 플러딩**
+    
+    처리된 LSA는 적절한 인터페이스를 통해 인접 라우터로 다시 플러딩 됩니다.
+    
+4. **SPF 계산 및 FIB 업데이트**
+
+    예약된 SPF 계산이 실행되어 SPT를 구성하고, 그 결과가 FIB에 저장됩니다.
+    
+5. **데이터 패킷 전달**
+
+    업데이트된 FIB를 참고하여 실제 데이터 패킷이 적절한 인터페이스로 전송됩니다.
+
+## Hot Potato Routing
+대규모 네트워크에서는 내부 라우팅(IGP)와 외부 라우팅(BGP)이 함께 사용됩니다.
+
+목적지가 네트워크 외부인 경우, 네트워크 내부에서는 여러 개의 출구 지점(egress point) 중 **IGP 비용이 가장 낮은**,
+즉 **가장 가까운 출구를 선택하여 패킷을 빠르게 외부로 내보내는 방식**을 Hot Potato Routing이라고 합니다.
 7:["slug","computer-networks/intradomain-routing-algorithm","c"]
-0:["34LwrLJZ6-NB03_AKVmri",[[["",{"children":["blog",{"children":[["slug","computer-networks/intradomain-routing-algorithm","c"],{"children":["__PAGE__?{\"slug\":[\"computer-networks\",\"intradomain-routing-algorithm\"]}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","computer-networks/intradomain-routing-algorithm","c"],{"children":["__PAGE__",{},[["$L1",["$","$2",null,{"fallback":null,"children":["$","$L3",null,{"reason":"next/dynamic","children":["$","$L4",null,{"post":{"slug":"computer-networks/intradomain-routing-algorithm","categorySlug":"computer-networks","title":{"ko":"인트라도메인 라우팅 알고리즘","en":"Intradomain Routing Algorithm"},"date":"2025-02-23 14:21","category":{"ko":"컴퓨터 네트워크","en":"Computer Networks"},"description":{"ko":"인트라도메인 라우팅에 대해 자세히 알아봅시다","en":"Deep dive into Intradomain Routing Algorithm"},"content":"$5"}}]}]}],null],null],null]},[null,["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$7","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L9",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$La",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lb",null,{"children":[["$","$Lc",null,{}],["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Ld",null]]]]
+0:["RrA57HQeDQxugRMzAEzZF",[[["",{"children":["blog",{"children":[["slug","computer-networks/intradomain-routing-algorithm","c"],{"children":["__PAGE__?{\"slug\":[\"computer-networks\",\"intradomain-routing-algorithm\"]}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","computer-networks/intradomain-routing-algorithm","c"],{"children":["__PAGE__",{},[["$L1",["$","$2",null,{"fallback":null,"children":["$","$L3",null,{"reason":"next/dynamic","children":["$","$L4",null,{"post":{"slug":"computer-networks/intradomain-routing-algorithm","categorySlug":"computer-networks","title":{"ko":"인트라도메인 라우팅 알고리즘","en":"Intradomain Routing Algorithm"},"date":"2025-02-23 14:21","category":{"ko":"컴퓨터 네트워크","en":"Computer Networks"},"description":{"ko":"인트라도메인 라우팅에 대해 자세히 알아봅시다","en":"Deep dive into Intradomain Routing Algorithm"},"content":"$5"}}]}]}],null],null],null]},[null,["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$7","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L9",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$La",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lb",null,{"children":[["$","$Lc",null,{}],["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Ld",null]]]]
 d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
