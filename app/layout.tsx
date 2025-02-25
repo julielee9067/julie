@@ -28,11 +28,11 @@ export default function RootLayout({
     <body className={notoSansKr.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <LanguageProvider>
-            <Header />
+            <Header/>
             {children}
           </LanguageProvider>
         </ThemeProvider>
-      </body>
+    </body>
     </html>
   )
 }
