@@ -14,7 +14,7 @@ export const til20250225: BlogPost = {
     },
     description: {
         ko: "Mongo Atlas full-text search에서 search node가 여러 개일 때 발생하는 문제",
-        en: "How Multiprocessing and Multithreading Work in Python",
+        en: "Issues with multiple search nodes in Mongo Atlas full-text search",
     },
     content: `
 Mongo Atlas Search에서 full-text search를 사용할 때 여러 search node로 쿼리를 분산시킬 수 있다.
