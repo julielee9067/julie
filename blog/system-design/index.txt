@@ -1,11 +1,316 @@
 2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
-6:I[4707,[],""]
-8:I[6423,[],""]
-9:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
-a:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
-b:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
-c:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
-3:T3cad,
+7:I[4707,[],""]
+9:I[6423,[],""]
+a:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+b:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
+c:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
+d:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
+3:T4897,
+## 개요
+우리가 수백만 건의 기록을 가진 테이블에서 특정 유저 이름으로 정보를 검색해야 한다고 가정해봅시다.
+만약 인덱스 없이 위 요청을 처리한다면 테이블의 모든 행을 순차적으로 스캔해야 하므로 엄청나게 느려질 것입니다.
+
+그럼 인덱스가 있다면 어떻게 달라질까요?
+
+**인덱스**라는 별도의 자료구조가 존재한다면 데이터베이스는 **원하는 record가 어디에 있는지**를 빠르게 파악할 수 있습니다.
+그리고 이 덕에 전체 테이블을 훑지 않고 원하는 데이터가 들어있는 디스크 페이지로 점프할 수 있습니다.
+온라인 쇼핑몰에서 특정 상품 검색을 하거나, 앱에서 특정 문서를 찾을 때도 인덱스를 이용해 속도를 높입니다.
+
+결국 **언제 인덱스를 써야 할지, 어떤 column에 인덱스를 걸어야 할지, 어떤 유형의 인덱스를 써야 할지**는 데이터베이스 구조를 설계할 때 매우 중요한 요소가 됩니다.
+
+그럼 먼저, **왜 인덱스를 써야할까?** 부터 생각해 보도록 하겠습니다.
+
+## 인덱스의 동작 원리
+데이터베이스는 무척 많은 양의 데이터를 디스크에 저장합니다.
+그리고 우리가 쿼리를 실행할 때마다 디스크에서 데이터를 읽어 메모리에 옮긴 뒤 처리해야 합니다.
+
+즉, **디스크 접근이 빈번하게** 일어납니다.
+
+만약 인덱스 없이 특정 데이터를 찾으려면, 위에 적었듯이 **순차 스캔(sequential scan)** 으로 테이블 전체를 다 뒤져야 합니다.
+데이터가 몇 천만 건 정도라면 **디스크 I/O 횟수가 매우 많아질 것**입니다.
+
+물론 현대 데이터베이스들은 prefetch, caching 등 여러 가지 최적화 기법을 통해 디스크 I/O 횟수를 줄이려고 하지만, 그래도 순차 스캔 자체가 비효율적인 것은 어쩔 수 없습니다.
+
+그런데 인덱스가 있으면 전체 테이블을 전부 뒤질 필요 없이 **인덱스가 안내해 주는 위치로** 곧바로 이동할 수 있습니다.
+책으로 비유하면 **목차**를 통해 원하는 페이지로 바로 간다는 느낌과 비슷합니다.
+
+데이터가 많아질수록 인덱스를 사용해서 **꼭 필요한 데이터만 빠르게 찾는 것**이 전체 데이터를 순차적으로 읽는 것보다 훨씬 효율적입니다.
+특히 HDD 환경에서는 그 효과가 더욱 극명하게 나타납니다.
+
+    HDD는 물리적인 기계 부품을 사용하기 때문에, 데이터 접근 시 헤드(읽기/쓰기 장치)가 원하는 데이터가 있는 위치로 이동해야 합니다.
+    순차적으로 데이터가 저장되어 있으면 헤드 이동 거리가 짧아 빠르게 읽을 수 있지만, 데이터가 흩어져 있으면 매번 헤드가 다른 위치로 이동해야 하므로 seeking 시간이 많이 걸립니다.
+    
+    인덱스는 필요한 데이터의 위치만 빠르게 알려주기 때문에, 전체 테이블을 스캔하는 대신 소수의 데이터 페이지만 읽으면 되므로 불필요한 헤드 이동을 크게 줄일 수 있습니다.
+    
+결국 적절한 인덱스 사용은 고성능 시스템 구현에 결정적인 역할을 합니다.
+
+하지만 인덱스를 사용함으로써 오는 **단점**들도 존재합니다.
+
+인덱스를 새로 만들면 **디스크와 일부 메모리 공간을 추가로 사용**하게 되며, 인덱스가 원본 테이블과 비슷한 크기를 가지게 될 수도 있습니다.
+그리고 데이터를 `INSERT` 또는 `UPDATE` 할 때, 데이터베이스는 테이블 뿐만 아니라 **해당 테이블에 걸려있는 모든 인덱스를 갱신**해야 합니다.
+
+이 때문에 인덱스 생성이 오히려 실이 되는 경우를 생각해보면:
+1. **쓰기 Operation이 매우 빈번하지만 읽기가 드문 테이블**, 예를 들어 로그 테이블 같은 경우 인덱스를 과하게 걸어두면 인덱스 갱신 오버헤드가 장점을 상쇄해 버릴 수 있습니다.
+2. **행이 아주 적은 테이블**(몇 백 건 정도)은 순차 스캔이 오히려 빠를 수도 있습니다.
+
+## 유형
+### B-Tree Indexes
+**B-Tree 인덱스**는 가장 흔하게 쓰이는 인덱스입니다. 
+**정렬된 상태로 데이터를 저장**하면서 삽입, 삭제, 검색을 모두 빠르게 처리할 수 있는 **self-balancing tree** 구조라서 여러 종류의 쿼리에 폭넓게 활용됩니다.
+
+일반적인 Binary tree는 노드 하나가 최대 두 개의 자식을 가지지만, B-Tree는 **수백 개**의 자식 포인터를 가질 수도 있습니다.
+각 노드에는 **키**와 **포인터**가 **정렬된 배열** 형태로 저장됩니다.
+
+예를 들어 PostgreSQL에서 `id = 350`인 행을 찾을 때, B-Tree 인덱스가 있다면 루트 노드, 필요한 경우 중간 노드, 그리고 leaf 노드 정도만 2-3번정도 디스크를 읽으면 빠르게 해당 행에 도달할 수 있습니다.
+
+대부분의 현대 DB는 기본 인덱스 구조로 B-Tree를 쓰는데, 그 이유는 다음과 같습니다:
+1. **정렬 상태**를 유지해서 범위 쿼리나 `ORDER BY`를 효율적으로 사용할 수 있습니다.
+2. **자동으로 균형을 유지**(self-balancing tree)해서 데이터 양이 커져도 일정한 검색 성능을 제공합니다.
+3. Disk I/O 패턴에 최적화 되어 있어, 접근 횟수를 최소화 할 수 있습니다.
+4. **equality**와 **range** 쿼리 모두 잘 처리할 수 있습니다.
+5. **삽입/삭제**가 빈번해도 트리가 깨지지 않습니다.
+
+PostgreSQL에서는 primary key, unique constraint, 일반 인덱스 등이 모두 B-Tree로 구현됩니다.
+
+```
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE
+);
+```
+
+이 테이블을 생성할 때, PostgreSQL은 `id`와 `email` 각각에 대해 B-Tree 인덱스를 자동으로 생성합니다. 
+B-Tree가 이미 정렬된 구조를 갖고있으므로 이메일 중복 검사나 범위 쿼리를 쉽게 처리할 수 있게 됩니다.
+
+AWS DynamoDB 또한 내부적으로 B-Tree 계열 구조를 이용해 파티션 내부의 데이터를 **sort key**에 맞춰 저장합니다.
+MongoDB도 B+ Tree(B-Tree의 변형)를 기본 인덱스로 사용합니다.
+
+### Hash Indexes
+
+해시 인덱스는 **정확히 동일한 값**을 찾는 쿼리에 특화된 인덱스입니다.
+범위 검색이나 정렬을 포기하는 대신, **`O(1)`에 가까운 매우 빠른 조회**를 제공합니다.
+
+이 방식은 특정 컬럼 값을 해싱해서 그 결과를 **해시 버킷(Hash bucket)** 에 매핑하는 식으로 동작합니다.
+
+예를 들면:
+
+```
+buckets[hash("alice@example.com")] -> 페이지 1 포인터
+buckets[hash("bob@example.com")]   -> 페이지 2 포인터
+```
+
+와 같은 식으로, 해시값 -> 버킷을 통해 `(값, 행 위치)` 쌍을 저장합니다.
+다만 충돌이 발생하면 선형 탐사 등의 방식을 거쳐야 해 최악의 경우엔 `O(n)`이 될 수도 있습니다.
+
+해시 인덱스의 한계는 범위 쿼리나 정렬에서는 해시 인덱스를 전혀 활용할 수 없다는 점입니다.
+애초에 해시 함수의 목적이 **서로 비슷한 값이라도 해시 공간에 골고루 퍼뜨리는 것**이기 때문에, 값의 상대적 크기나 순서 등을 전혀 알 수 없습니다.
+
+실무에서 B-Tree는 동등 비교도 꽤 빠르게 처리하기 때문에 해시 인덱스가 실제로 자주 쓰이지는 않습니다.
+
+다만 **메모리 기반 DB**, 예를 들면 Redis처럼 **모든 데이터를 메모리에 저장하고 키-값 조회가 주 용도**일 때는 해시 테이블 구조가 핵심이 됩니다.
+
+그럼 언제 해시 인덱스를 선택해야 할까요?
+
+1. **동등 비교가 엄청나게 빈번**하고, 최대한 빠른 성능이 필요할 때
+2. 범위 쿼리나 정렬이 전혀 필요 없을 때
+3. 메모리가 충분하고(해시 인덱스가 B-Tree보다 더 많은 메모리를 쓸 수도 있습니다), **대부분의 쿼리를 인메모리에서** 처리 가능할 때
+
+### Geospatial Indexes
+지도나 위치 기반 서비스(배민, 쿠팡 이츠, 카카오 택시 등)가 많아지면서, **지리공간 인덱스**도 중요하게 떠올랐습니다.
+
+네이버 지도를 예로 들어봅시다.
+
+수백만 개의 식당 정보가 저장되어 있고, 각 식당의 위도/경보 정보가 있습니다.
+만약 **"현재 사용자 위치 기준 반경 1km 이내 식당"** 을 찾고 싶다면 1차원 정렬인 B-Tree 인덱스 만으로는 쉽지 않습니다.
+
+B-Tree를 위도, 경도 각각에 대해 만들었다고 해봅시다.
+```
+CREATE TABLE restaurants (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8)
+);
+
+CREATE INDEX idx_lat ON restaurants(latitude);
+CREATE INDEX idx_lng ON restaurants(longitude);
+```
+
+그리고 위도 x, 경도 y에서 반경 1km 를 찾으려고 하면 사실상 2D 원형 범위를 1D(위도, 경도)에 대입해야 하므로 매우 비효율적입니다.
+
+위도 인덱스로 검색해 걸러낸 뒤, 경도 인덱스로 또 걸러내고, 결과 중 실제로 "원형 범위"에 해당하는 것만 다시 필터링 하고.. 이런 식으로 번거로운 과정을 거쳐야 합니다.
+
+지리공간 인덱스는 **2차원(또는 그 이상) 공간에서 가까운 점끼리는 인접하게 저장**하고, 먼 점은 멀리 저장해 **어느 지역에 속하는 데이터만 효율적으로 찾을 수 있게** 설계된 구조입니다.
+
+그럼 지리공간 인덱스는 어떻게 이 문제를 해결했을까요?
+
+#### Geohash
+가장 단순하면서 멀리 쓰이는 방법은 **지오해시(Geohash)** 방식입니다.
+
+(위도, 경도) 2차원 좌표를 1차원 문자열로 바꾸는데, 이때 **근처에 있는 점**은 **비슷한 prefix를 가진 문자열**이 되도록 변환하는 해싱 기법입니다.
+
+간단히 말하면 아래와 같이 동작합니다.
+
+1. 지구(혹은 지정한 영역)를 큰 사각형 4 개로 나누고 각 사각형에 0~3 번호를 붙입니다.
+2. 각 사각형을 다시 4개로 쪼개 0~3 번호를 붙이는 과정을 반복합니다.
+3. 이렇게 생긴 숫자 시퀀스를 인코딩해 geohash 문자열을 만듭니다.
+4. 문자열 길이가 길수록 더 정밀한 위치를 나타냅니다. (dr -> 대한민국, dr5 -> 서울, dr5ur -> 강남구 등등)
+
+이렇게 하면 **비슷한 좌표의 geohash 문자열이 비슷한 prefix**를 가지게 되고, 이를 **B-Tree**에 넣어 효율적으로 범위 검색을 할 수 있습니다.
+Redis의 `GEOADD`, `GEORADIUS`나 MongoDB의 지오해시 기반 인덱스가 이런 방식을 사용합니다.
+
+다만 지오해시 구역의 **경계선 근처에 있는 점들**끼리는 실제로는 가깝더라도 해시 구역이 달라 **문자열 prefix가 전혀 다를 수 있다**는 단점이 있습니다.
+그래도 많은 서비스에서는 구현이 비교적 간단하기 때문에 자주 사용됩니다.
+
+#### Quadtree
+두번째 방법은 **쿼드트리(Quadtree)** 방식입니다.
+
+쿼드트리 방식은 최신 데이터베이스들에서는 자주 쓰이지 않지만, 예전부터 2D 그래픽이나 지도에서 쓰여 온 전통적인 구조를 가지고 있습니다.
+
+1. 전체 영역을 하나의 큰 사각형으로 보고, 이 사각형에 좌표가 많으면 4개 사각형으로 분할합니다.
+2. 분할된 작은 사각형에도 좌표가 많다면 또 4개로 분할합니다.
+3. 더 이상 분할할 필요가 없을 때까지 내려가, 리프 노드에는 일정 개수 이하의 포인트만 남도록 합니다.
+
+쿼드트리의 장점은 **데이터가 밀집된 구역은 세밀하게** 쪼개고, **희박한 구역은 크게 유지**함으로써 **공간을 효율적으로 관리할 수 있다는 점**입니다.
+
+대신 데이터가 특정한 모양으로 몰려 있다면 계속 쪼개야 할 수도 있어 트리가 깊어질 수 있고, 구현이 비교적 복잡해 실제로는 잘 쓰이지 않는 편입니다.
+
+#### R-Tree
+마지막으로 소개할 2D 인덱스 구조는 **R-Tree** 입니다.
+쿼드트리와 달리, 공간을 **고정된 4등분**이 아닌, **자유롭게 설정된 사각형들이 겹칠 수 있는 구조**로 나눕니다.
+
+예를 들면,
+1. 지역 전체를 감싸는 큰 사각형(루트 노드)을 잡고, 해당 구역 내에서 데이터가 몰려있는 구역만 골라 더 작은 사각형으로 내려가며 하위 노드를 생성합니다.
+2. 각 레벨에서 사각형이 겹치거나 맞닿을 수 있는데, 그만큼 유연하게 공간 분포를 다룰 수 있습니다.
+
+이렇게 하면 점(식당 위치나 특정 좌표)뿐 아니라 선(도로), 면(배달 구역) 같은 복잡한 데이터도 한 구조 안에 저장하기 쉽습니다.
+
+R-Tree의 단점은 **사각형이 겹칠 때** 검색 시 **여러 노드를 동시에 뒤져야 하는 경우**가 있다는 것이지만, 대부분의 현대 DB는 R-Tree를 표준 공간 인덱스로 쓰고 있을 만큼 실무에서 검증된 방식입니다.
+
+### Inverted Indexes
+B-Tree는 어떤 값이나 범위를 찾는 데 강점이 있지만, 문서 내 임의 위치의 단어 검색에는 거의 도움이 되지 않습니다.
+
+아래와 같은 경우를 보면,
+
+```
+SELECT * FROM posts WHERE content LIKE '%database%';
+```
+
+B-Tree는 기본적으로 **문자열 앞부분이 일치하는 검색(`database%`)** 정도만 최적화 할 수 있고, 이렇게 중간에 위치한 패턴(`%database%`)은 처리하기가 어렵습니다.
+결국 테이블을 전부 스캔하면서 content 열 전체를 확인해야 합니다.
+
+**Inverted index**는 이때 사용됩니다. 
+
+"문서 -> 단어 목록"이 아니라, **"단어 -> 문서 목록"** 으로 관계를 뒤집어 놓는 것입니다.
+
+예를 들어 아래와 같은 간단한 문서 집합이 있다고 가정해봅시다.
+```
+doc1: "B-trees are fast and reliable"
+doc2: "Hash tables are fast but limited"
+doc3: "B-trees handle range queries well"
+```
+
+위 문서들을 역색인 하면:
+```
+b-trees  -> [doc1, doc3]
+fast     -> [doc1, doc2]
+reliable -> [doc1]
+hash     -> [doc2]
+tables   -> [doc2]
+limited  -> [doc2]
+handle   -> [doc3]
+range    -> [doc3]
+queries  -> [doc3]
+well     -> [doc3]
+```
+
+이런 식으로 **`단어 -> 해당 단어가 등장하는 문서 리스트`** 구조가 됩니다.
+
+실제 검색 엔진(Elasticsearch, Lucene 등)은 여기서 **토큰화**를 거쳐 텍스트를 정리하고, 단어 빈도, 문서 길이, 유사도 점수 등을 계산해 검색 결과 순위를 결정합니다.
+
+역색인은 저장 공간을 많이 사용하고, 문서가 변경될 때 단어 목록도 업데이트해야 해 비용이 많이 든다는 단점이 있지만, **텍스트 검색을 효율적으로** 만드는 데는 필수적인 구조입니다.
+
+## 최적화
+실제 업무에서는 **"어떤 인덱스를 쓸까"** 결정할 때, **어떤 쿼리가 주로 사용되는지, 어떤 칼럼으로 정렬 혹은 그룹화를 많이 하는지** 등을 종합해서 인덱스를 최적화합니다.
+
+### Composite Index
+복합 인덱스(composite index)는 **여러 컬럼을 묶어서 하나의 인덱스**를 만드는 것입니다. 업무에서 가장 흔히 쓰이는 최적화 방법 중 하나입니다.
+
+예를 들어 SNS 앱에서 특정 사용자 피드를 시간 순으로 보여주려면 아래와 같은 쿼리가 자주 쓰입니다.
+```
+SELECT * FROM posts 
+WHERE user_id = 123 
+AND created_at > '2025-01-01'
+ORDER BY created_at DESC;
+```
+
+만약 user_id에 인덱스를 만들고, created_at에도 별도 인덱스를 만들면 어떻게 될까요?
+
+```
+CREATE INDEX idx_user ON posts(user_id);
+CREATE INDEX idx_time ON posts(created_at);
+```
+
+이 경우 DB가 쿼리를 처리하는 과정은 다음과 같습니다:
+1. `user_id = 123` 인 레코드를 `idx_user` 인덱스로 찾습니다.
+2. 그 결과 중 `created_at > '2025-01-01'` 인 것만 거릅니다. 
+3. 최종적으로 `created_at DESC` 정렬을 수행합니다.
+
+그런데 아래처럼 `(user_id, created_at)` composite index를 만들면:
+```
+CREATE INDEX idx_user_time ON posts(user_id, created_at);
+```
+
+B-Tree가 실제로는 `(user_id, created_at)` 순서로 **정렬된 상태를 유지**합니다.
+```
+(1, 2025-01-01),
+(1, 2025-01-02),
+(1, 2025-01-03),
+(2, 2025-01-01),
+...
+(123, 2025-01-02),
+(123, 2025-01-03),
+...
+```
+
+위와 같은 식으로 이미 정렬되어 있기 때문에, `user_id = 123` 범위만 바로 찾아가서 `created_at` 조건에 맞는 범위만 빠르게 스캔하고, 이미 정렬된 상태이므로 별도의 정렬 없이 바로 결과를 도출할 수 있습니다.
+
+복합 인덱스에서 **컬럼 순서**는 매우 중요합니다.
+`(user_id, created_at)` 인덱스는 `user_id`를 먼저 사용하는 쿼리에 유리하지만, `created_at`만으로 데이터를 찾을 때는 도움이 되지 않습니다.
+그래서 가장 자주 사용하거나 필터링에 자주 쓰이는 컬럼을 맨 앞에 두는게 보통 효율적입니다.
+
+### Covering Indexes
+**커버링 인덱스**는 쿼리에 필요한 모든 컬럼을 인덱스에 포함시켜, **테이블 자체를 굳이 읽지 않아도** 되게 만드는 기법입니다.
+
+예를 들어 SNS에서 피드를 보여줄 때, `created_at`과 `likes`만 화면에 표시한다고 가정해봅시다.
+만약 인덱스가 `(user_id, created_at)`만 저장한다면 `likes` 값을 얻기 위해 테이블에 다시 접근해야 하고 이 때 Disk I/O가 한 번 더 발생하게 됩니다.
+
+그런데 **인덱스 자체에 `likes` 컬럼을 포함**시키면, 인덱스에서 `(user_id, created_at)` 순서로 정렬하면서 `likes` 정보도 함께 저장하므로 인덱스만으로 필요한 정보를 전부 읽을 수 있게 됩니다.
+
+```
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    user_id INT,
+    title TEXT,
+    content TEXT,
+    likes INT,
+    created_at TIMESTAMP
+);
+
+-- 일반 인덱스
+CREATE INDEX idx_user_time ON posts(user_id, created_at);
+
+-- 커버링 인덱스 (likes까지 포함)
+CREATE INDEX idx_user_time_likes 
+  ON posts(user_id, created_at) 
+  INCLUDE (likes);
+```
+
+이렇게 하면 **Index-Only Scan**이 가능해져 테이블 본문을 재차 읽을 필요가 없어집니다.
+
+물론 인덱스 크기가 커지고, 쓰기 연산 시 업데이트할 데이터가 많아진다는 단점이 있지만,
+**조회가 매우 빈번하고 필요한 컬럼이 소수**라면 큰 효율을 얻을 수 있습니다.
+4:T3cad,
 ## 개요
 시스템을 설계할 때 종종 **많은 데이터 중에서 원하는 정보를 찾아내는** 작업이 필요할 때가 있습니다.
 이 때, 일반적인 데이터베이스로 충분할 때도 있지만 데이터가 많거나 검색 조건이 복잡할 경우엔 전용 검색 엔진이 필요하기도 합니다.
@@ -210,7 +515,7 @@ https://www.paradedb.com/blog/elasticsearch_vs_postgres
 https://medium.com/swlh/bkd-trees-used-in-elasticsearch-40e8afd2a1a4
 
 https://j.blaszyk.me/tech-blog/exploring-apache-lucene-index/
-4:T6154,
+5:T6154,
 오늘은 이벤트 브로커와 메시지 브로커, 그리고 각각의 대표적인 예시인 Apache Kafka와 RabbitMQ에 대해 알아보겠습니다.
 
 ## 이벤트 브로커 (Event Broker)
@@ -517,7 +822,7 @@ https://kafka.apache.org/uses
 https://www.cloudamqp.com/blog/rabbitmq-use-cases-explaining-message-queues-and-when-to-use-them.html
 https://www.youtube.com/watch?v=DU8o-OTeoCc&ab_channel=HelloInterview-SWEInterviewPreparation
 https://medium.com/riskified-technology/message-broker-vs-event-broker-when-to-use-each-one-of-them-15597320a8ba
-5:T5592,
+6:T5592,
 `Togather` 프로젝트 (북미 대학생을 위한 익명 커뮤니티 앱) 를 만들면서 자연스럽게 커뮤니티 플랫폼과 채팅 서비스의 시스템 디자인에 대해 관심을 갖게 되었습니다.
 
 이번 글에서는 대규모 사용자를 대상으로 한 채팅 서비스의 시스템 디자인에 대해 살펴보겠습니다.
@@ -806,7 +1111,7 @@ Redis Cluster는 데이터를 **키(Key) 값에 따라 여러 노드(Shard)로 �
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-indexes-general.html
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html
 - https://youtu.be/cr6p0n0N-VA
-7:["category","system-design","d"]
-0:["mDy0wqT6GHTA5WnIIszLw",[[["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__?{\"category\":\"system-design\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"system-design","filteredPosts":[{"slug":"system-design/elasticsearch","categorySlug":"system-design","title":{"ko":"엘라스틱서치","en":"Elasticsearch"},"date":"2025-02-24 14:16","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"엘라스틱서치의 기본 개념과 동작 원리","en":"Intro to Elasticsearch and how it works"},"content":"$3"},{"slug":"system-design/event-broker-vs-message-broker","categorySlug":"system-design","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-23 18:11","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$4"},{"slug":"system-design/messaging-service","categorySlug":"system-design","title":{"ko":"메시징 서비스 시스템 디자인","en":"Design Messaging Service"},"date":"2025-02-20 00:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 메시징 서비스 설계","en":"Let's design messaging service"},"content":"$5"}]}],null],null],null]},[null,["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$7","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L9",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$La",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lb",null,{"children":[["$","$Lc",null,{}],["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Ld",null]]]]
-d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+8:["category","system-design","d"]
+0:["3vxnQqLROryOdwVayVeJn",[[["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__?{\"category\":\"system-design\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"system-design","filteredPosts":[{"slug":"system-design/database-indexing","categorySlug":"system-design","title":{"ko":"데이터베이스 인덱싱","en":"Database Indexing"},"date":"2025-02-27 00:43","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"데이터베이스 인덱싱 기본 개념 및 동작 원리","en":"Intro to DB index and how it works"},"content":"$3"},{"slug":"system-design/elasticsearch","categorySlug":"system-design","title":{"ko":"엘라스틱서치","en":"Elasticsearch"},"date":"2025-02-24 14:16","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"엘라스틱서치의 기본 개념과 동작 원리","en":"Intro to Elasticsearch and how it works"},"content":"$4"},{"slug":"system-design/event-broker-vs-message-broker","categorySlug":"system-design","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-23 18:11","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$5"},{"slug":"system-design/messaging-service","categorySlug":"system-design","title":{"ko":"메시징 서비스 시스템 디자인","en":"Design Messaging Service"},"date":"2025-02-20 00:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 메시징 서비스 설계","en":"Let's design messaging service"},"content":"$6"}]}],null],null],null]},[null,["$","$L7",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$8","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$La",null,{"children":["$","$L7",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$Lb",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lc",null,{"children":[["$","$Ld",null,{}],["$","$L7",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Le",null]]]]
+e:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
