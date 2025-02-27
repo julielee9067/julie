@@ -39,8 +39,10 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "여러 데이터 소스에서 오는 >3억개의 데이터 프로세싱 및 저장, 관리",
-                        "TNV (transformation, normalization, validation) 프로세스를 각 데이터 소스에 맞게 정의 및 시스템에 통합",
+                        "다양한 데이터 소스에서 들어오는 데이터를 정제(TNV)하고 저장하는 시스템을 설계했습니다. " +
+                        "각 소스마다 데이터 구조가 달라 필드별 수정이 필요했으며, 이를 해결하기 위해 Config 기반의 데이터 변환 프로세스를 도입했습니다. " +
+                        "또한, 자동 수평 확장 기능을 적용하여 증가하는 데이터 처리량에도 유연하게 대응할 수 있도록 했습니다. " +
+                        "이를 통해 데이터 처리 속도가 향상되었으며, 장애율을 낮추는 데 기여했습니다."
                     ],
                     en: [
                         "Processed and managed >300M data points from various sources",
@@ -59,10 +61,7 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "기존 플랫폼을 브로커 패턴을 사용한 새로운 아키텍처(MSA)로 이전",
-                        "데이터 크롤링, 변환 및 정규화, 신뢰도 계산, 데이터베이스 저장, 휴먼 인 더 루프를 포함한 서비스 도메인 구현",
-                        "Keda, InfluxDB, Telegraf, Grafana, Elasticsearch 로그를 활용해 메시지 큐 병목 현상 방지 및 감지 클라이언트 개발",
-                        "기존 데이터를 파이프라인에 재투입하는 master data 스케쥴링 시스템 설계 및 구현",
+                        "기존 구조에서는 하나의 서비스가 너무 많은 기능을 담당하고 있어 유지보수가 어려웠지만, 서비스 도메인을 분리하고 독립적으로 운영할 수 있도록 개선했습니다. 특히, InfluxDB, Grafana, Telegraf를 활용한 모니터링 시스템을 구축하여 메시지 큐 병목 현상을 감지하고, 실시간으로 대응할 수 있도록 했습니다. 결과적으로 장애율이 감소하고, 데이터 처리 안정성이 대폭 향상되었습니다.",
                     ],
                     en: [
                         "Migrated the existing platform to a new MSA architecture using RabbitMQ message broker",
@@ -83,8 +82,7 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "비즈니스의 공급자 다변성(Supplier diversity) 분석 및 새로운 공급자 추천을 도와주는 B2B 솔루션 백엔드 구현",
-                        "Flask, FastAPI 기반 REST API 개발 및 유지보수, 관계형 데이터베이스 테이블 설계",
+                        "대용량 데이터를 다루는 B2B 솔루션의 백엔드 API를 개발하며, 데이터베이스 인덱싱 최적화 및 캐싱 전략을 적용해 성능을 개선했습니다.",
                     ],
                     en: [
                         "Implemented the backend for a B2B solution to analyze supplier diversity and recommend new suppliers",
