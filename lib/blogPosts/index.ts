@@ -34,6 +34,7 @@ import {cnRouterDesign} from "@/lib/blogPosts/computer-networks/009_router-desig
 import {til20250225} from "@/lib/blogPosts/til/001_20250225";
 import {csCAPTheorem} from "@/lib/blogPosts/cs/003_cap-theorem";
 import {til20250226} from "@/lib/blogPosts/til/002_20250226";
+import {busRoutes} from "@/lib/blogPosts/algorithms/016_bus-routes";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -71,4 +72,5 @@ export const leetcodeProblems: LeetCodeProblem[] = [
     mergeIntervals,
     employeeFreeTime,
     meetingRoomsII,
+    busRoutes,
 ]
