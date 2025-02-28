@@ -36,6 +36,7 @@ import {csCAPTheorem} from "@/lib/blogPosts/cs/003_cap-theorem";
 import {til20250226} from "@/lib/blogPosts/til/002_20250226";
 import {busRoutes} from "@/lib/blogPosts/algorithms/016_bus-routes";
 import {systemDesignDBIndexing} from "@/lib/blogPosts/system-design/004_db-indexing";
+import {systemDesignDataWarehouse} from "@/lib/blogPosts/system-design/005_data-warehouse";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -56,6 +57,7 @@ export const blogPosts: BlogPost[] = [
     csCAPTheorem,
     til20250226,
     systemDesignDBIndexing,
+    systemDesignDataWarehouse
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [

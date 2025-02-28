@@ -19,7 +19,6 @@ export default function TodoPosts() {
         { id: 12, title: "How to Handle Throttling in Data Pipeline" },
         { id: 13, title: "Full-text search" },
         { id: 14, title: "Data visualization and its techniques" },
-        { id: 15, title: "GCP BigQuery" },
     ])
     const { language } = useLanguage()
 
