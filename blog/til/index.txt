@@ -1,11 +1,68 @@
 2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
-5:I[4707,[],""]
-7:I[6423,[],""]
-8:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
-9:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
-a:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
-b:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
-3:T156c,
+6:I[4707,[],""]
+8:I[6423,[],""]
+9:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+a:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
+b:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
+c:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
+3:Tdaf,
+회사에서 MongoDB의 full text search를 사용하면서 embedded document 관련 제약사항을 접하게 되었다.
+
+우리가 사용하는 데이터의 일부는 이런식으로 저장되어 있는데
+```
+{
+  "A": [
+    { "type": "a", "value": "something" },
+    { "type": "a", "value": "something else" },
+    { "type": "b", "value": "something" }
+  ]
+}
+```
+
+단순히 `"value": "something"`을 검색(fuzzy search 등)을 수행할 때는 array index를 통해 처리할 수 있다.
+
+근데 `"type": "a"`, `"value": "something"` 처럼 **구체적인 필드 조합**으로 검색하려면 **embedded document** index가 필요하다. ([**참조**](https://www.mongodb.com/docs/atlas/atlas-search/embedded-document/))
+
+문제는 embedded document index를 생성하면 **array 안의 각 객체마다 하나의 문서가 인덱싱**된다는 점이었다.
+
+Mongo Atlas에서는 샤드 하나당 최대 21억(2.1 billion) 개의 embedded 문서를 인덱싱할 수 있다.
+그런데 우리는 이미 2억개 이상의 문서가 단일 샤드에 들어 있는 상황이었고, 각 문서의 여러 필드에는 많개는 수백개의 객체가 포함될 수 있으므로, 
+이 배열을 전부 embedded doc으로 인덱싱하다 보면 금세 21억 개를 초과하는 상황이었다.
+
+그래서 다음과 같은 세 가지 해결책을 고민해봤다.
+
+1. **스키마 변경**
+
+    배열 안에 있는 key-value 구조를 최상위로 옮겨서 embedded document index를 사용하지 않아도 되도록 재설계한다.
+    
+    예를 들어, 기존에 `A: [{type: "...", value: "..."}]` 형태로 저장하던 문서를 `"a": ["something", "something else"]` 요런식으로 분리해서 일반 문자열 필드나 배열 인덱스로 검색 가능하게 만든다.
+    
+2. **Full text search 대신 element search**
+    
+    type과 value를 따로 인덱싱하고, wildcard나 Regex 같은 방식을 사용해서 검색한다.
+    
+    근데 이 방법은 **데이터들이 매우 일관적(standardized)으로 저장되어 있어야 동작**한다는 단점이 있다. (전처리 로직이 필수)
+    
+    그리고 score 개념이 없어서 어떤 문서가 더 관련이 높은지 판별하기도 어렵다.
+    
+3. **샤딩**
+
+    샤드 수를 늘려서 샤드마다 embedded 문서 개수가 21억을 넘지 않게 분산한다.
+    
+    이 방법이 처음엔 가장 간단해 보였으나.. 이미 있는 데이터를 옮겨야하고, 샤딩 키를 어떻게 설정할지 등 여러 가지를 면밀히 고려해야한다.
+    
+    또한, 검색에 샤드 키 조건이 포함되지 않은 쿼리들은 모든 샤드에 broadcast 되고, 각 샤드에서 병렬 검색 후 결과를 취합해야 한다. (최종 응답 도출 시간/오버헤드 증가)
+    
+    즉, 샤드 관리 비용도 포함해서 비용이 더 많이 든다. ([**참조**](https://www.mongodb.com/resources/products/capabilities/database-sharding-explained#:~:text=Sharding%20does%20come%20with%20several,operation%20to%20the%20appropriate%20shard.))
+
+결국 여러 가지 제약 상황(시간, 비용, 인력 자원 등등)으로 인해 우리는 **첫 번째 방식(데이터 스키마 재설계)** 을 선택했다.
+
+이 방법도 엄청난 단점이 있었는데, 이미 있는 데이터들을 새로운 스키마로 다 옮겨야 한다는 것이었다..
+
+그리고 이미 원래 스키마에 맞게 설정된 기존 코드들을 새로운 스키마에 맞게 전부 다 고쳐야 한다. :)
+
+
+4:T156c,
 데이터 파이프라인에서는 여러 서비스가 각각 다른 역할을 수행하는데, 때때로 **전체 흐름을 거치지 않고 특정 서비스의 결과만 확인**하고 싶을 때가 있다.
 
 예를 들어, A 서비스에서 데이터를 변형하고 B 서비스가 그 데이터를 데이터베이스에 넣는다고 가정해보자. 이때 B 서비스에서 데이터베이스 저장 과정을 생략하고 A 서비스의 결과값을 확인하는 방법은 여러 가지가 있다.
@@ -97,7 +154,7 @@ except asyncio.TimeoutError:
 await rabbit.basic_cancel(consumer_tag)
 await rabbit.queue_delete(reply_queue_name)
 ```
-4:Tbbe,
+5:Tdd6,
 Mongo Atlas Search에서 full-text search를 사용할 때 여러 search node로 쿼리를 분산시킬 수 있다.
 그런데 쿼리를 실행할 때마다 **어느 search node를 사용하냐에 따라 결과가 달라진다**는 사실을 발견했다.
 
@@ -127,7 +184,15 @@ Elasticsearch처럼 `mongot`도 Apache Lucene을 기반으로 만들어져있는
 (하지만 우리보다 훨씬 복잡한 인덱스를 쓰는 사람들도 별 문제가 없는 사람들도 많았다고 하니 확실하진 않다.)
 
 우선 Mongo support에서 제시한 솔루션대로 내일 진행해보고, 쿼리 성능이나 결과를 좀 더 면밀히 분석한 후 추가로 글을 업데이트할 예정이다.
-6:["category","til","d"]
-0:["m1uCat9QsgqkNshR7WDRj",[[["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__?{\"category\":\"til\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"til","filteredPosts":[{"slug":"til/2025-02-26","categorySlug":"til","title":{"ko":"2025-02-26","en":"2025-02-26"},"date":"2025-02-26 16:22","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"RabbitMQ Temporary queue 사용법","en":"How and when to use rabbitMQ temporary queues"},"content":"$3"},{"slug":"til/2025-02-25","categorySlug":"til","title":{"ko":"2025-02-25","en":"2025-02-25"},"date":"2025-02-25 16:57","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"Mongo Atlas full-text search에서 search node가 여러 개일 때 발생하는 문제","en":"Issues with multiple search nodes in Mongo Atlas full-text search"},"content":"$4"}]}],null],null],null]},[null,["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$6","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L8",null,{"children":["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$L9",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$La",null,{"children":[["$","$Lb",null,{}],["$","$L5",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L7",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Lc",null]]]]
-c:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+
+---
+2025-02-28
+
+업데이트: Resource contention 문제로 인해 단일 search node를 분리해서 사용하는 방안을 고민했으나, search query가 많을 경우 노드 하나로는 부하가 과도할 것으로 판단하였다. 
+따라서 replica와 main DB에 **colocated search node**를 함께 구성하는 것이 최선이라는 결론을 내렸다.
+
+`preference=secondary` 설정을 적용하여 replica가 모두 사용 불가능한 상황이 아닐 경우, 우선적으로 replica를 활용하도록 설정하였다.
+7:["category","til","d"]
+0:["U-zNAgZn9yXXFl7pgAiv-",[[["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__?{\"category\":\"til\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"til","filteredPosts":[{"slug":"til/2025-02-28","categorySlug":"til","title":{"ko":"2025-02-28","en":"2025-02-28"},"date":"2025-02-28 18:56","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"MongoDB full-text search를 사용할 때의 임베디드 문서 관련 제한 사항","en":"Limitations of MongoDB full-text search on embedded documents"},"content":"$3"},{"slug":"til/2025-02-26","categorySlug":"til","title":{"ko":"2025-02-26","en":"2025-02-26"},"date":"2025-02-26 16:22","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"RabbitMQ Temporary queue 사용법","en":"How and when to use rabbitMQ temporary queues"},"content":"$4"},{"slug":"til/2025-02-25","categorySlug":"til","title":{"ko":"2025-02-25","en":"2025-02-25"},"date":"2025-02-25 16:57","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"Mongo Atlas full-text search에서 search node가 여러 개일 때 발생하는 문제","en":"Issues with multiple search nodes in Mongo Atlas full-text search"},"content":"$5"}]}],null],null],null]},[null,["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$7","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L9",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$La",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lb",null,{"children":[["$","$Lc",null,{}],["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
