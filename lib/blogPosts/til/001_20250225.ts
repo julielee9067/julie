@@ -46,6 +46,14 @@ Elasticsearch처럼 \`mongot\`도 Apache Lucene을 기반으로 만들어져있�
 (하지만 우리보다 훨씬 복잡한 인덱스를 쓰는 사람들도 별 문제가 없는 사람들도 많았다고 하니 확실하진 않다.)
 
 우선 Mongo support에서 제시한 솔루션대로 내일 진행해보고, 쿼리 성능이나 결과를 좀 더 면밀히 분석한 후 추가로 글을 업데이트할 예정이다.
+
+---
+2025-02-28
+
+업데이트: Resource contention 문제로 인해 단일 search node를 분리해서 사용하는 방안을 고민했으나, search query가 많을 경우 노드 하나로는 부하가 과도할 것으로 판단하였다. 
+따라서 replica와 main DB에 **colocated search node**를 함께 구성하는 것이 최선이라는 결론을 내렸다.
+
+\`preference=secondary\` 설정을 적용하여 replica가 모두 사용 불가능한 상황이 아닐 경우, 우선적으로 replica를 활용하도록 설정하였다.
 `,
 };
 
