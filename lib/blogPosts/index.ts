@@ -38,6 +38,7 @@ import {busRoutes} from "@/lib/blogPosts/algorithms/016_bus-routes";
 import {systemDesignDBIndexing} from "@/lib/blogPosts/system-design/004_db-indexing";
 import {systemDesignRealtimeUpdates} from "@/lib/blogPosts/system-design/005_realtime-updates";
 import {til20250228} from "@/lib/blogPosts/til/003_20250228";
+import {decodeWays} from "@/lib/blogPosts/algorithms/017_decode-ways";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -79,4 +80,5 @@ export const leetcodeProblems: LeetCodeProblem[] = [
     employeeFreeTime,
     meetingRoomsII,
     busRoutes,
+    decodeWays,
 ]
