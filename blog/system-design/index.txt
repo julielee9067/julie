@@ -1,11 +1,171 @@
 2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
-9:I[4707,[],""]
-b:I[6423,[],""]
-c:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
-d:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
-e:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
-f:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
-3:T2657,
+a:I[4707,[],""]
+c:I[6423,[],""]
+d:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+e:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
+f:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
+10:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
+3:T2139,
+## 개요
+처음엔 이 글을 시스템 디자인 카테고리에 넣는게 맞나 하는 생각이 들었지만.. 이런 글은 아마 자주 올리지 않을 것 같고, 따로 카테고리를 빼기도 좀 그런 것 같아 여기에 넣기로 결정했습니다!
+
+## 사용 사례
+예를 들어, 여러 개의 주소가 있다고 가정해 봅시다.
+- A: 서울특별시 강남구
+- B: 서울 강남구
+- C: 부산 해운대구
+
+이 주소들이 실제로 같은 지역에 속하는지 알고 싶다면 어떻게 해야 할까요?
+
+단순히 문자열을 비교하는 방식으로는 "서울특별시 강남구"와 "서울 강남구"가 거의 같은 의미라는 걸 판단하기 어려울 수도 있습니다. 
+그래서 이런 문제를 해결하려면 **비슷한 요소들을 그룹으로 묶는 군집화(clustering)** 기법을 사용할 수 있습니다.
+
+여기서는 **계층적 군집화(Hierarchical Clustering)** 를 사용하여 데이터 간의 유사도를 기반으로 그룹을 형성하는 방법을 설명하려고 합니다.
+
+## 군집화 적용 과정
+### 1. 유사도 매트릭스 생성
+
+먼저, **유사도 행렬(similarity matrix)** 을 만듭니다.
+이 행렬은 각 요소들 간의 유사도를 숫자로 나타내는 표입니다.
+
+앞서 예로 든 **A, B, C** 세 개의 주소가 있다면, 가능한 조합은 **(A, B), (A, C), (B, C)** 세 쌍이 됩니다.
+각 쌍의 유사도를 계산해서 아래와 같은 형태의 행렬을 만들 수 있습니다.
+
+|  | A | B | C |
+|------|-----------|---------|------|
+| A | 1 | 0.95 | 0.2 |
+| B | 0.95 | 1 | 0.3 |
+| C | 0.2 | 0.3 | 1 |
+
+
+- A와 B는 매우 비슷하므로 유사도가 **0.95**
+- A와 C는 많이 다르므로 유사도가 **0.2**
+- B와 C는 A보다 조금 더 비슷하지만 그래도 차이가 있으므로 **0.3**
+
+이렇게 계산된 유사도 행렬을 기반으로 그룹을 형성할 수 있습니다.
+
+유사도를 계산하는 기준은 문제에 따라 달라질 수 있습니다.
+예를 들어, 문자열 유사도를 비교할 수도 있고, 거리 기반 계산(주소 간의 실제 거리 차이)을 활용할 수도 있습니다.
+
+
+### 2. 유사도 → 거리 변환
+    
+**계층적 군집화는 거리(distance)를 기반으로 데이터를 그룹화** 합니다.
+거리가 가까울수록 두 데이터가 더 비슷하다는 의미입니다.
+
+유사도를 거리로 변환하는 방법 중 하나는 **거리 = 1 - 유사도** 를 사용하는 것입니다.
+
+|  | A | B | C |
+|------|-----------|---------|------|
+| A | 0 | 0.05 | 0.8 |
+| B | 0.05 | 0 | 0.7 |
+| C | 0.8 | 0.7 | 0 |
+
+### 3. 군집화 수행
+`SciPy`의 `linkage()` 함수를 사용하여 계층적 군집화를 수행합니다.
+
+이 함수는 처음에 각 데이터(A, B, C)를 **독립적인 그룹(군집)** 으로 간주하고,
+가장 거리가 가까운 두 군집부터 점차 합쳐 나갑니다.
+
+여기서는 **평균 연결(average linkage)** 방법을 사용했습니다.
+    
+평균 연결은 두 그룹 간의 모든 데이터 쌍의 거리를 평균내어 군집 간의 거리를 결정하는 방식입니다.
+
+예를 들어, 그룹 1(A, B)과 그룹 2(C) 사이의 거리는:
+- (A, C)의 거리: 0.8
+- (B, C)의 거리: 0.7
+- 평균 거리: (0.8 + 0.7) / 2 = 0.75
+
+이 과정을 반복하면 데이터들이 점점 하나의 큰 그룹으로 묶이게 됩니다.
+
+> 평균 연결 방식은 군집을 좀 더 균형 잡힌 형태로 만들기 때문에,
+이상치(outlier)나 데이터의 불균형이 있는 경우에도 안정적인 군집화를 할 수 있습니다.
+
+### 4. 덴드로그램으로 군집 분할
+군집화 과정이 끝나면 덴드로그램(dendrogram) 을 활용해 그룹을 시각적으로 확인할 수 있습니다.
+
+![덴드로그램](https://miro.medium.com/v2/resize:fit:740/1*VvOVxdBb74IOxxF2RmthCQ.png)
+
+덴드로그램은 트리(tree) 형태로 데이터가 병합되는 과정을 보여줍니다.
+
+이제 `fcluster()` 함수를 사용하여 **특정 임계값(THRESHOLD)** 을 기준으로 덴드로그램을 잘라 최종 군집을 결정합니다.
+
+예를 들어, THRESHOLD를 **0.8**로 설정하면, 서로의 거리가 **0.8 이하**인 데이터들은 같은 그룹이 되고,
+거리가 **0.8 이상**인 데이터들은 다른 그룹이 됩니다.
+
+최종 결과는 아래처럼 나올 수 있습니다.
+```
+   -------------0.75------------
+    |                           |
+    |                           |
+──────────────── Threshold = 0.5 ────────────────
+    |                           | 
+    |                           |
+    |                   -------0.05------
+    |                   |               |
+"부산 해운대구"        "서울 강남구"    "서울특별시 강남구"
+
+
+[["서울특별시 강남구", "서울 강남구"], ["부산 해운대구"]]
+```
+
+즉, 서울 강남구 관련 주소들은 같은 그룹으로 묶이고, 부산 해운대구는 별도의 그룹이 됩니다.
+
+---
+
+## Hierarchical Clustering (계층적 군집화)
+### Agglomerative Clustering (병합형 / Bottom-Up)
+각 데이터를 처음에는 개별 그룹으로 취급한 후, 가장 비슷한 두 그룹부터 차례대로 합쳐나갑니다.
+
+친구 모임에서 처음에는 개별적으로 모였다가, 성격이나 관심사가 비슷한 사람들이 점차 하나의 모임으로 합쳐지는 과정과 비슷합니다.
+
+처음부터 모든 데이터를 독립적으로 다루고, 데이터 간의 미세한 차이도 반영할 수 있습니다.
+대신 계산 비용이 높아 데이터가 많을 때는 처리하기 어렵습니다.
+
+### Divisive Clustering (분할형 / Top-Down)
+모든 데이터를 하나의 큰 그룹으로 시작하여, 유사성이 낮은 부분부터 점차 분할하여 개별 데이터로 나누는 방식입니다.
+
+큰 회사의 조직도를 생각해보면, 최고 경영진 아래에 여러 부서로 나뉘고, 각 부서 내에서 다시 팀으로 나뉘는 과정을 떠올릴 수 있습니다.
+
+이 방법은 구현이 복잡하고 일반적으로 많이 사용되지 않습니다.
+
+---
+
+## 다른 클러스터링 기법
+### K-Means Clustering
+- 군집 개수(k)를 미리 정해야 함
+- 각 데이터가 가장 가까운 중심(centroid)으로 이동하면서 군집을 형성
+- 빠르고 효율적이지만, 데이터의 분포가 특정한 형태(구형)로 가정되는 문제가 있음
+- 예시: 학생들의 성적을 기준으로 상위권, 중위권, 하위권 3개 그룹으로 나누기
+
+### Affinity propagation
+- 데이터 간의 유사도를 활용해 대표(Exemplar)를 자동으로 선택하는 방식
+- 군집 수를 사전에 정할 필요가 없음
+- 하지만 계산량이 많고 느리다는 단점이 있음
+- 예시: SNS에서 비슷한 관심사를 가진 사용자 그룹을 자동으로 찾아내기
+
+### Mean-Shift
+- 밀도가 높은 지역을 중심으로 군집을 형성
+- 군집 수를 사전에 정할 필요 없음
+- 하지만 계산 비용이 높아 대량의 데이터에는 적합하지 않음
+- 예시: 도시 내에서 사람들이 자주 방문하는 지역(상권 분석) 찾기
+
+### Gaussian Mixture Model (GMM)
+- 데이터가 여러 개의 가우시안 분포(정규분포)의 혼합으로 구성되었다고 가정하고, 각 데이터가 어떤 분포에 속할 확률을 계산
+- 군집 개수(k)를 미리 정해야 함
+- 타원형 등 다양한 모양의 군집을 모델링 가능
+- 계산 비용 높음
+- 예시: 학생들의 시험 점수가 명확하게 나뉘지 않고, 상위권과 하위권이 겹치는 경우 각 학생이 어느 그룹에 속할 확률을 추정하여 소프트하게 그룹을 나누는 방식
+
+## 마무리
+제가 **계층적 군집화**를 선택했던 이유는 군집화할 **데이터의 개수가 많지 않고, 미리 군집 수를 정하기 어려웠기 때문**입니다.
+
+이처럼 각 클러스터링 기법은 **데이터의 크기, 분포, 군집 수에 대한 사전 정보, 그리고 해석의 용이성** 등 여러 요소에 따라 장단점이 있으므로 분석 목적에 맞는 방법을 선택하는 것이 중요합니다.
+
+대규모 데이터나 실시간 처리가 필요한 경우에는 K-Means 같은 방법이 적합할 수 있고,
+데이터 간의 관계를 자세히 분석하고 싶다면 계층적 군집화가 유리하며,
+군집 수를 미리 정하기 어려운 경우는 Affinity Propagation이나 Mean-Shift를 고려해볼 수 있습니다.
+4:T2657,
 ## 개요
 현재 저는 TICK stack 중 Telegraf와 InfluxDB를 사용하고 있는데 (+Grafana), 오늘은 TICK stack이 뭔지, 그리고 대안에는 어떤 것들이 있는지 알아보도록 하겠습니다.
 
@@ -163,7 +323,7 @@ Time-series 모니터링 개념을 바탕으로 구축되었는데, 자세한 �
 
 따라서 **레거시 환경**에서 이미 Graphite을 쓰고 있거나, 모니터링 대상이 적을 때 쓰는게 적합합니다.
 
-4:T4390,
+5:T4390,
 ## 개요
 실무에서 어떤 이벤트가 일어났을 때 이를 사용자에게 **실시간**으로 알려주는 기능은 매우 유용합니다.
 
@@ -401,7 +561,7 @@ Consistent hashing을 사용하면 서버를 한 대 더 추가해도 특정 구
 **서버 측 이벤트 감지는 Pub/Sub**을 많이 쓰며, 연결 상태가 방대하면 Consistent Hashing 같은 방법도 고려할 수 있습니다.
 
 다음엔 **빅데이터**에 대한 글을 써보도록 하겠습니다. 감사합니다!
-5:T4897,
+6:T4897,
 ## 개요
 우리가 수백만 건의 기록을 가진 테이블에서 특정 유저 이름으로 정보를 검색해야 한다고 가정해봅시다.
 만약 인덱스 없이 위 요청을 처리한다면 테이블의 모든 행을 순차적으로 스캔해야 하므로 엄청나게 느려질 것입니다.
@@ -706,7 +866,7 @@ CREATE INDEX idx_user_time_likes
 
 물론 인덱스 크기가 커지고, 쓰기 연산 시 업데이트할 데이터가 많아진다는 단점이 있지만,
 **조회가 매우 빈번하고 필요한 컬럼이 소수**라면 큰 효율을 얻을 수 있습니다.
-6:T3cad,
+7:T3cad,
 ## 개요
 시스템을 설계할 때 종종 **많은 데이터 중에서 원하는 정보를 찾아내는** 작업이 필요할 때가 있습니다.
 이 때, 일반적인 데이터베이스로 충분할 때도 있지만 데이터가 많거나 검색 조건이 복잡할 경우엔 전용 검색 엔진이 필요하기도 합니다.
@@ -911,7 +1071,7 @@ https://www.paradedb.com/blog/elasticsearch_vs_postgres
 https://medium.com/swlh/bkd-trees-used-in-elasticsearch-40e8afd2a1a4
 
 https://j.blaszyk.me/tech-blog/exploring-apache-lucene-index/
-7:T6154,
+8:T6154,
 오늘은 이벤트 브로커와 메시지 브로커, 그리고 각각의 대표적인 예시인 Apache Kafka와 RabbitMQ에 대해 알아보겠습니다.
 
 ## 이벤트 브로커 (Event Broker)
@@ -1218,7 +1378,7 @@ https://kafka.apache.org/uses
 https://www.cloudamqp.com/blog/rabbitmq-use-cases-explaining-message-queues-and-when-to-use-them.html
 https://www.youtube.com/watch?v=DU8o-OTeoCc&ab_channel=HelloInterview-SWEInterviewPreparation
 https://medium.com/riskified-technology/message-broker-vs-event-broker-when-to-use-each-one-of-them-15597320a8ba
-8:T5592,
+9:T5592,
 `Togather` 프로젝트 (북미 대학생을 위한 익명 커뮤니티 앱) 를 만들면서 자연스럽게 커뮤니티 플랫폼과 채팅 서비스의 시스템 디자인에 대해 관심을 갖게 되었습니다.
 
 이번 글에서는 대규모 사용자를 대상으로 한 채팅 서비스의 시스템 디자인에 대해 살펴보겠습니다.
@@ -1507,7 +1667,7 @@ Redis Cluster는 데이터를 **키(Key) 값에 따라 여러 노드(Shard)로 �
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-indexes-general.html
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html
 - https://youtu.be/cr6p0n0N-VA
-a:["category","system-design","d"]
-0:["YyaiJ8ZcdlnTCqR75HLhh",[[["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__?{\"category\":\"system-design\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"system-design","filteredPosts":[{"slug":"system-design/time-series-db","categorySlug":"system-design","title":{"ko":"시계열 데이터베이스와 TICK Stack","en":"Time series DB and TICK Stack"},"date":"2025-03-04 20:12","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"시계열 데이터베이스의 종류와 TICK stack","en":"types of time series DB and TICK Stack"},"content":"$3"},{"slug":"system-design/realtime-updates","categorySlug":"system-design","title":{"ko":"실시간 업데이트","en":"Realtime Updates"},"date":"2025-02-28 17:24","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"실시간 업데이트 처리 시 사용 기술","en":"Technologies for realtime updates"},"content":"$4"},{"slug":"system-design/database-indexing","categorySlug":"system-design","title":{"ko":"데이터베이스 인덱싱","en":"Database Indexing"},"date":"2025-02-27 00:43","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"데이터베이스 인덱싱 기본 개념 및 동작 원리","en":"Intro to DB index and how it works"},"content":"$5"},{"slug":"system-design/elasticsearch","categorySlug":"system-design","title":{"ko":"엘라스틱서치","en":"Elasticsearch"},"date":"2025-02-24 14:16","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"엘라스틱서치의 기본 개념과 동작 원리","en":"Intro to Elasticsearch and how it works"},"content":"$6"},{"slug":"system-design/event-broker-vs-message-broker","categorySlug":"system-design","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-23 18:11","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$7"},{"slug":"system-design/messaging-service","categorySlug":"system-design","title":{"ko":"메시징 서비스 시스템 디자인","en":"Design Messaging Service"},"date":"2025-02-20 00:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 메시징 서비스 설계","en":"Let's design messaging service"},"content":"$8"}]}],null],null],null]},[null,["$","$L9",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$a","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lb",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Lc",null,{"children":["$","$L9",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lb",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$Ld",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Le",null,{"children":[["$","$Lf",null,{}],["$","$L9",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lb",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L10",null]]]]
-10:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+b:["category","system-design","d"]
+0:["nBlwvcTFiqFjWAR0inr3E",[[["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__?{\"category\":\"system-design\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"system-design","filteredPosts":[{"slug":"system-design/hierarchical-clustering","categorySlug":"system-design","title":{"ko":"계층적 클러스터링","en":"Hierarchical Clustering"},"date":"2025-03-05 13:09","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"계층적 클러스터링 적용 과정과 다른 클러스터링 기법과의 비교","en":"Hierarchical clustering and comparison with other clustering methods"},"content":"$3"},{"slug":"system-design/time-series-db","categorySlug":"system-design","title":{"ko":"시계열 데이터베이스와 TICK Stack","en":"Time series DB and TICK Stack"},"date":"2025-03-04 20:12","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"시계열 데이터베이스의 종류와 TICK stack","en":"types of time series DB and TICK Stack"},"content":"$4"},{"slug":"system-design/realtime-updates","categorySlug":"system-design","title":{"ko":"실시간 업데이트","en":"Realtime Updates"},"date":"2025-02-28 17:24","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"실시간 업데이트 처리 시 사용 기술","en":"Technologies for realtime updates"},"content":"$5"},{"slug":"system-design/database-indexing","categorySlug":"system-design","title":{"ko":"데이터베이스 인덱싱","en":"Database Indexing"},"date":"2025-02-27 00:43","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"데이터베이스 인덱싱 기본 개념 및 동작 원리","en":"Intro to DB index and how it works"},"content":"$6"},{"slug":"system-design/elasticsearch","categorySlug":"system-design","title":{"ko":"엘라스틱서치","en":"Elasticsearch"},"date":"2025-02-24 14:16","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"엘라스틱서치의 기본 개념과 동작 원리","en":"Intro to Elasticsearch and how it works"},"content":"$7"},{"slug":"system-design/event-broker-vs-message-broker","categorySlug":"system-design","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-23 18:11","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$8"},{"slug":"system-design/messaging-service","categorySlug":"system-design","title":{"ko":"메시징 서비스 시스템 디자인","en":"Design Messaging Service"},"date":"2025-02-20 00:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 메시징 서비스 설계","en":"Let's design messaging service"},"content":"$9"}]}],null],null],null]},[null,["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$b","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Ld",null,{"children":["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$Le",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lf",null,{"children":[["$","$L10",null,{}],["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L11",null]]]]
+11:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
