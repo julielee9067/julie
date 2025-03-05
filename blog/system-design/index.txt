@@ -1,11 +1,169 @@
 2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
-8:I[4707,[],""]
-a:I[6423,[],""]
-b:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
-c:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
-d:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
-e:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
-3:T4390,
+9:I[4707,[],""]
+b:I[6423,[],""]
+c:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+d:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
+e:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
+f:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
+3:T2657,
+## 개요
+현재 저는 TICK stack 중 Telegraf와 InfluxDB를 사용하고 있는데 (+Grafana), 오늘은 TICK stack이 뭔지, 그리고 대안에는 어떤 것들이 있는지 알아보도록 하겠습니다.
+
+## Logs vs. Metrics
+먼저 **로그**와 **메트릭**을 구분해 봅시다.
+
+**모니터링**은 결국 **시스템에서 어떤 일이 일어나고 있는지 파악**한 뒤, **문제를 발견**하고 **근본 원인을 찾아 해결**하는 것이 최종 목표입니다.
+
+**로그**는 어플리케이션이나 시스템에서 발생한 **이벤트의 상세 내역**을 남겨둔 기록입니다.
+예를 들면, 어떤 사용자가 언제, 무슨 요청을 했고, 응답 시간과 응답 코드는 어땠는지 확인하려면 로그가 필요합니다.
+
+**메트릭**은 **숫자로 된 지표를 수집**하고, 시계열(시간 순서)에 따라 어떻게 변하는지 분석하기 위해 사용합니다.
+예를 들어 메트릭을 사용해 `CPU 사용률이 5% -> 10% -> 90%로 증가`, 또는 `초당 요청 수가 100에서 500으로 급등` 이렇게 분석할 수 있습니다.
+
+이 둘은 **상호 보완적**으로, 둘 다 함께 분석해야 제대로 된 모니터링 시스템을 구축할 수 있습니다.
+**메트릭은 문제 상황을 발견**하는데 탁월하고, **로그는 문제의 원인**을 자세히 파악하는 데 필수적입니다.
+
+## TICK Stack
+TICK Stack은 **시계열 데이터 파이프라인**을 **수집 → 저장 → 시각화 → 처리**까지 한 번에 구성할 수 있는 통합 솔루션입니다.
+
+**Telegraf(수집), InfluxDB(저장), Chronograf(시각화), Kapacitor(처리 및 알림)** 이렇게 네 가지 요소로 구성되며, 각각의 앞 글자를 따서 TICK이라고 부릅니다.
+
+### 1. Telegraf
+**Telegraf**는 시스템, DB, IoT 센서 등 **여러 소스에서 메트릭을 수집**하여 **InfluxDB에 Push**하는 에이전트입니다.
+
+- 장점
+    - **매우 다양한 input/output plugin** 지원 (CPU/memory, Docker/k8s, MySQL, Redis, etc)
+    - Config file만 잘 구성하면 바로 사용 가능
+    - **Push 방식**이라 클라이언트가 스스로 데이터를 보냄
+- 단점
+    - 모니터링 대상 서버마다 에이전트 필요
+    - Prometheus처럼 Pull 기반 모니터링 스택과 혼합 시 고려 필요
+
+아래와 같이 Telegraf → InfluxDB 연결을 설정할 수 있습니다.
+```
+# /etc/telegraf/telegraf.conf
+[agent]
+  interval = "10s"     # 10초 간격으로 수집
+  round_interval = true
+
+[[outputs.influxdb]]
+  urls = ["http://localhost:8086"]
+  database = "metrics_db"
+
+[[inputs.cpu]]
+  # CPU 사용량 측정 플러그인
+  percpu = true
+  totalcpu = true
+```
+
+위 설정대로라면 Telegraf가 10초마다 CPU 사용량 메트릭을 InfluxDB `metrics_db` 데이터베이스에 기록하게 됩니다.
+
+### 2. InfluxDB
+InfluxDB는 시계열 데이터에 최적화된 오픈 소스 DBMS로, 고속 쓰기 성능과 시계열 쿼리에 특화된 구조를 갖추고 있습니다.
+TICK Stack의 중심에 있으며, 보통 단일 실행 파일로 쉽게 구동할 수 있습니다.
+
+- 장점
+    - 쓰기 성능이 매우 빠름
+    - 구성이 간단 (단일 바이너리를 실행하면 바로 서버가 뜨고, 브라우저에서 확인 가능)
+    - TICK Stack과의 확장성이 뛰어남
+    - Flux(InfluxQL)은 SQL과 비슷해서 쿼리 작성이 간편
+- 단점
+    - **tag cardinality** 고려 필수 (주로 1 Million 이하가 이상적)
+    - 복잡한 join 이나 관계형 쿼리에 취약
+
+> 아래에서 설명하겠지만 다양한 TSDB가 존재합니다. 저희는 빠르게 프로토타입을 구성해야 했고, 다른 stack과의 연동성 부분에서 InfluxDB를 선택했는데 
+지금은 규모가 커지는 중이라 Prometheus로의 migration을 고려 중입니다.
+
+#### 아키텍쳐
+![influxdb architecture](https://images.ctfassets.net/o7xu9whrs0u9/50Gb9y9OuHd42InqbcfWRl/defa279fd370649385e718eefde61f2d/Figure_1_InfluxDB_3-0_Architecture.png)
+
+InfluxDB는 네 가지 주요 컴포넌트와 두 가지 주요 스토리지로 구성되어 있습니다.
+
+**컴포넌트**
+1. **데이터 적재: Ingest** - 파란색
+    
+    사용자가 데이터를 Ingest router에 기록하면, 이 라우터가 데이터를 여러 ingester 중 하나로 분산시켜 전달합니다.
+    ingester는 데이터를 받아 테이블을 자동으로 생성하며, 타입 검증과 중복 제거 작업을 수행한 후 Parquet 파일로 영구 저장합니다.
+    
+2. **데이터 쿼리: Query** - 초록색
+    
+    사용자가 Flux 쿼리를 Query router에 보내면, 라우터가 이를 Querier로 전달합니다. 
+    Querier는 필요한 데이터를 읽고 쿼리 플랜을 작성하여 결과를 반환합니다. 
+    새 데이터가 있을 경우 ingester와 통신하여 데이터를 최신 상태로 유지합니다.
+    
+3. **데이터 압축: Compaction** - 빨간색
+
+    ingester가 생성한 작은 파일들을 더 큰 파일로 압축하여 쿼리 성능을 개선합니다. 
+    이 과정에서 기존 파일은 **soft delete 처리**를 거친 후, 나중에 Garbage Collector에 의해 완전히 삭제됩니다.
+
+4. **가비지 컬렉션: Garbage collection** - 분홍색
+    
+    사용자가 설정한 **보존 기간**에 따라, 오래된 데이터 파일을 soft-delete 처리하고 이후에 실제 삭제하여 저장 공간을 확보합니다.
+        
+**스토리지**
+1. **Catalog**: 데이터베이스, 테이블, 컬럼, 파일 정보와 같은 메타데이터를 저장합니다.
+2. **Object Storage**: 실제 데이터(Parquet 파일)를 저장합니다.
+    
+### 3. Chronograf
+Chronograf는 InfluxDB **데이터를 대시보드 형태로 시각화**하고 Kapacitor를 연계해 **알람을 설정**할 수 있는 웹 UI 입니다. 
+
+쉽게 말해 InfluxDB 전용 그래프 및 알람 설정 툴이라고 볼 수 있습니다.
+
+- 장점
+    - 대시보드 템플릿이나 탐색 기능을 통해 빠르게 데이터 확인 가능
+    - InfluxDB와의 연동성 극대화
+    - Kapacitor와 직관적으로 연결 가능
+- 단점
+    - Prometheus, elasticsearch 등 **다른 데이터 소스는 지원이 한정**됨
+    - Grafana만큼 플러그인이 많지 않음
+    - 규모가 큰 환경에서는 성능이 떨어질 수 있음
+
+#### Chronograf vs. Grafana
+저는 **Grafana**를 사용하고 있는데, **Chronograf는 다른 데이터 소스를 지원하지 않는다는 점**이 이걸 선택하지 않은 가장 큰 이유였습니다.
+
+GCP BigQuery, MongoDB, 심지어 RabbitMQ metric까지 다양한 데이터 소스에서 데이터를 가져와 비교하고 시각화하는 것이 대시보드를 활용하는 가장 중요한 목적 중 하나였기 때문입니다.
+
+아래는 어떤 스택을 사용할까 고민했을 당시 Grafana와 chronograf를 실제로 비교분석했던 테이블입니다.
+| 항목 | Chronograf | Grafana |
+|------|-----------|---------|
+| **필터 (사용자 입력값 제공 가능 여부)** | 확실하지 않음 | 가능 |
+| **개발 친화성** | 비교적 어려움 | 쉬움 |
+| **제공되는 시각화 종류** | 11개 | 26개 |
+| **커스텀 시각화 가능 여부** | 가능 (Plotly.js 사용) | 가능 (D3.js 사용) |
+| **관련 튜토리얼** | [Data Visualizations With InfluxDB and Plotly.js](https://www.influxdata.com/blog/data-visualizations-with-influxdb-integrating-plotly-js/) | [Grafana Plugin Tools](https://grafana.com/developers/plugin-tools/tutorials/) |
+| **사용되는 쿼리 언어** | Flux | Flux |
+| **지원 데이터 소스** | Influx, Telegraf | 다양한 데이터 소스 지원 (Postgres, Elasticsearch 포함) |
+| **대시보드에서 여러 데이터 소스 사용 가능 여부** | 불가능 | 가능 (ES, Postgres, InfluxDB 데이터를 한 대시보드에서 조회 가능) |
+| **커뮤니티 활성도** | 비교적 덜 활성화 | 활성화됨 |
+
+### 4. Kapacitor
+**Kapacitor**는 실시간 스트림 처리 및 알림 엔진으로, InfluxDB에서 들어오는 데이터를 분석해 특정 조건이 만족되면 슬랙/이메일 등에 알림을 보낼 수 있습니다.
+
+- 장점
+    - **유연한 로직 설정 가능 (CPU 사용률 > 90% 이 2분 이상 지속되면 알림 등등)**
+- 단점
+    - 너무 복잡하거나 대규모 스트림 처리에는 운영 부담 증가
+    - Prometheus alertmanager에 비해 작은 커뮤니티
+
+## Time-series Databases (other than InfluxDB)
+### Prometheus
+**Prometheus**는 SoundCloud에서 개발한 오픈소스 시스템 모니터링 및 알림 도구 입니다.
+**Pull 방식**으로 메트릭을 수집하고, **Kubernetes 같은 클라우드 네이티브 환경에서 사실상 모니터링 표준**으로 자리잡았습니다.
+
+Time-series 모니터링 개념을 바탕으로 구축되었는데, 자세한 내용은 "[Google SRE 북: 실용적인 경고(Practical Alerting)](https://sre.google/sre-book/practical-alerting/)"에서 확인할 수 있습니다.
+
+만약 **Kubernetes나 MSA 환경**에서 시스템 모니터링을 주 목적으로 하거나, 모니터링과 알림을 원스톱으로 해결하고 싶을 때 Prometheus가 적합합니다.
+
+### Graphite
+**Graphite**는 초기 오픈소스 시계열 DB 및 그래프 도구로, StatsD와 함께 1세대 서버 모니터링 솔루션으로 널리 사용되었습니다.
+
+설치 및 개념이 비교적 단순하고, 작은 규모 환경에서 간단히 서버 모니터링을 세팅하기엔 여전히 쓸만 하다는 장점이 있습니다.
+
+하지만, 확장이 어렵고 대규모 환경에는 부적합합니다. (고빈도 수집 시 서버 부하가 증가합니다.)
+
+따라서 **레거시 환경**에서 이미 Graphite을 쓰고 있거나, 모니터링 대상이 적을 때 쓰는게 적합합니다.
+
+4:T4390,
 ## 개요
 실무에서 어떤 이벤트가 일어났을 때 이를 사용자에게 **실시간**으로 알려주는 기능은 매우 유용합니다.
 
@@ -243,7 +401,7 @@ Consistent hashing을 사용하면 서버를 한 대 더 추가해도 특정 구
 **서버 측 이벤트 감지는 Pub/Sub**을 많이 쓰며, 연결 상태가 방대하면 Consistent Hashing 같은 방법도 고려할 수 있습니다.
 
 다음엔 **빅데이터**에 대한 글을 써보도록 하겠습니다. 감사합니다!
-4:T4897,
+5:T4897,
 ## 개요
 우리가 수백만 건의 기록을 가진 테이블에서 특정 유저 이름으로 정보를 검색해야 한다고 가정해봅시다.
 만약 인덱스 없이 위 요청을 처리한다면 테이블의 모든 행을 순차적으로 스캔해야 하므로 엄청나게 느려질 것입니다.
@@ -548,7 +706,7 @@ CREATE INDEX idx_user_time_likes
 
 물론 인덱스 크기가 커지고, 쓰기 연산 시 업데이트할 데이터가 많아진다는 단점이 있지만,
 **조회가 매우 빈번하고 필요한 컬럼이 소수**라면 큰 효율을 얻을 수 있습니다.
-5:T3cad,
+6:T3cad,
 ## 개요
 시스템을 설계할 때 종종 **많은 데이터 중에서 원하는 정보를 찾아내는** 작업이 필요할 때가 있습니다.
 이 때, 일반적인 데이터베이스로 충분할 때도 있지만 데이터가 많거나 검색 조건이 복잡할 경우엔 전용 검색 엔진이 필요하기도 합니다.
@@ -753,7 +911,7 @@ https://www.paradedb.com/blog/elasticsearch_vs_postgres
 https://medium.com/swlh/bkd-trees-used-in-elasticsearch-40e8afd2a1a4
 
 https://j.blaszyk.me/tech-blog/exploring-apache-lucene-index/
-6:T6154,
+7:T6154,
 오늘은 이벤트 브로커와 메시지 브로커, 그리고 각각의 대표적인 예시인 Apache Kafka와 RabbitMQ에 대해 알아보겠습니다.
 
 ## 이벤트 브로커 (Event Broker)
@@ -1060,7 +1218,7 @@ https://kafka.apache.org/uses
 https://www.cloudamqp.com/blog/rabbitmq-use-cases-explaining-message-queues-and-when-to-use-them.html
 https://www.youtube.com/watch?v=DU8o-OTeoCc&ab_channel=HelloInterview-SWEInterviewPreparation
 https://medium.com/riskified-technology/message-broker-vs-event-broker-when-to-use-each-one-of-them-15597320a8ba
-7:T5592,
+8:T5592,
 `Togather` 프로젝트 (북미 대학생을 위한 익명 커뮤니티 앱) 를 만들면서 자연스럽게 커뮤니티 플랫폼과 채팅 서비스의 시스템 디자인에 대해 관심을 갖게 되었습니다.
 
 이번 글에서는 대규모 사용자를 대상으로 한 채팅 서비스의 시스템 디자인에 대해 살펴보겠습니다.
@@ -1349,7 +1507,7 @@ Redis Cluster는 데이터를 **키(Key) 값에 따라 여러 노드(Shard)로 �
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-indexes-general.html
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html
 - https://youtu.be/cr6p0n0N-VA
-9:["category","system-design","d"]
-0:["V4za5p5BBtSVX8JZ1nOKZ",[[["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__?{\"category\":\"system-design\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"system-design","filteredPosts":[{"slug":"system-design/realtime-updates","categorySlug":"system-design","title":{"ko":"실시간 업데이트","en":"Realtime Updates"},"date":"2025-02-28 17:24","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"실시간 업데이트 처리 시 사용 기술","en":"Technologies for realtime updates"},"content":"$3"},{"slug":"system-design/database-indexing","categorySlug":"system-design","title":{"ko":"데이터베이스 인덱싱","en":"Database Indexing"},"date":"2025-02-27 00:43","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"데이터베이스 인덱싱 기본 개념 및 동작 원리","en":"Intro to DB index and how it works"},"content":"$4"},{"slug":"system-design/elasticsearch","categorySlug":"system-design","title":{"ko":"엘라스틱서치","en":"Elasticsearch"},"date":"2025-02-24 14:16","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"엘라스틱서치의 기본 개념과 동작 원리","en":"Intro to Elasticsearch and how it works"},"content":"$5"},{"slug":"system-design/event-broker-vs-message-broker","categorySlug":"system-design","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-23 18:11","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$6"},{"slug":"system-design/messaging-service","categorySlug":"system-design","title":{"ko":"메시징 서비스 시스템 디자인","en":"Design Messaging Service"},"date":"2025-02-20 00:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 메시징 서비스 설계","en":"Let's design messaging service"},"content":"$7"}]}],null],null],null]},[null,["$","$L8",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$9","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$La",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Lb",null,{"children":["$","$L8",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$La",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$Lc",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Ld",null,{"children":[["$","$Le",null,{}],["$","$L8",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$La",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Lf",null]]]]
-f:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+a:["category","system-design","d"]
+0:["U1kBsDwZ4LTbi6PuZroUi",[[["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__?{\"category\":\"system-design\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"system-design","filteredPosts":[{"slug":"system-design/time-series-db","categorySlug":"system-design","title":{"ko":"시계열 데이터베이스와 TICK Stack","en":"Time series DB and TICK Stack"},"date":"2025-03-04 17:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"시계열 데이터베이스의 종류와 TICK stack","en":"types of time series DB and TICK Stack"},"content":"$3"},{"slug":"system-design/realtime-updates","categorySlug":"system-design","title":{"ko":"실시간 업데이트","en":"Realtime Updates"},"date":"2025-02-28 17:24","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"실시간 업데이트 처리 시 사용 기술","en":"Technologies for realtime updates"},"content":"$4"},{"slug":"system-design/database-indexing","categorySlug":"system-design","title":{"ko":"데이터베이스 인덱싱","en":"Database Indexing"},"date":"2025-02-27 00:43","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"데이터베이스 인덱싱 기본 개념 및 동작 원리","en":"Intro to DB index and how it works"},"content":"$5"},{"slug":"system-design/elasticsearch","categorySlug":"system-design","title":{"ko":"엘라스틱서치","en":"Elasticsearch"},"date":"2025-02-24 14:16","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"엘라스틱서치의 기본 개념과 동작 원리","en":"Intro to Elasticsearch and how it works"},"content":"$6"},{"slug":"system-design/event-broker-vs-message-broker","categorySlug":"system-design","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-23 18:11","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$7"},{"slug":"system-design/messaging-service","categorySlug":"system-design","title":{"ko":"메시징 서비스 시스템 디자인","en":"Design Messaging Service"},"date":"2025-02-20 00:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 메시징 서비스 설계","en":"Let's design messaging service"},"content":"$8"}]}],null],null],null]},[null,["$","$L9",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$a","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lb",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Lc",null,{"children":["$","$L9",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lb",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$Ld",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Le",null,{"children":[["$","$Lf",null,{}],["$","$L9",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lb",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L10",null]]]]
+10:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null

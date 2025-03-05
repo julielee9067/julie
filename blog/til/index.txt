@@ -1,11 +1,76 @@
 2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
-6:I[4707,[],""]
-8:I[6423,[],""]
-9:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
-a:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
-b:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
-c:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
-3:Tdaf,
+7:I[4707,[],""]
+9:I[6423,[],""]
+a:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+b:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
+c:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
+d:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
+3:T1231,
+지난 2주 (2025.02.15 - 2025.03.03) 동안 알고리즘 공부를 정말 열심히 했다.
+체감상 예전에 처음으로 풀타임 취업 준비했을 때보다 훨씬 더 몰입해서 한 것 같다. 
+
+![2월 기준](/julie/assets/til-004-20250304-2.png)
+![3월 3일 기준](/julie/assets/til-004-20250304-1.png)
+
+이 기간 동안 총 **254문제**를 풀었는데, **Easy 82문제, Medium 157문제, Hard 15문제**였다. 
+중간에 복습 차원에서 두세 번 다시 푼 문제들도 있고, 처음 접하는 문제도 있었다.
+
+나는 뭔가 한 번 시작하면 끝을 봐야 직성이 풀리는 성격이라 잠도 줄이면서 문제를 풀었고, 중간고사까지 겹쳐서(2월 말에 문제 조금만 푼 날들은 중간고사 대비한 날들) 스트레스가 꽤 심했다.
+어떤 날은 아직 할게 많이 남았다는 불안한 마음에 휴가까지 써가면서 풀었다.
+
+> 개인적으로 기회가 찾아왔을 때 노력하지 않아서 놓치는 상황을 견디기가 어렵ㄷㅏ .. 
+차라리 최선을 다했는데도 안 됐다면 그냥 지금 당장은 나와 잘 맞지 않는 거라고 생각하고 넘길 수 있다.
+이 블로그도 그런 의미에서, 내가 공부한 내용을 잊지 않고 나중에 다시 참고하려는 목적의 일환이다.
+
+사실 학부생 때부터 알고리즘이 강한 편은 아니었는데, 다행히 100문제 정도 풀었을 때 취업을 해서 이후엔 1년에 몇십 문제 정도만 복습하면서 살았다. 
+그런데 요즘 이직을 고민하면서 **"혹시 알고리즘이 발목을 잡으면 어떡하지?"** 하는 불안감이 커졌고, 그래서 이번에 집중적으로 공부했던 것 같다.
+
+그래도 이제는 Easy/Medium 문제를 보면 처음 보는 유형이 아닌 이상 대충 감이 오고, 풀이 방법이 떠오르는 수준까지 왔다. (하지만 Hard 문제는 아직 어렵다 😂)
+
+### 2주 Grinding에 도움이 되었던 방법
+
+이 방법들은 어느 정도 알고리즘 / 데이터구조 사전 지식이 있을 때 통하는 방법이다!
+없으면 나는 neetcode에서 처음부터 시간을 들여 공부하는 것을 추천한다..!
+
+1. **Neetcode.io**
+    
+    Neetcode는 학부 때부터 자주 봤던 유튜브 채널인데, 이제는 웹사이트까지 생겨서 훨씬 체계적으로 정리되어 있다. 
+    문제 설명이 엄청 깔끔하고 이해하기 쉬운데, 가끔 난해하게 설명되는 문제들이 있으면 **Greg Hogg 유튜브**를 참고했다.
+    
+    특히 **Roadmap** 기능이 있어서, 어떤 문제에 어떤 자료구조를 써야 할지 감이 잘 안 잡히는 사람에게 정말 유용하다. 
+       
+    알고리즘 문제들은 처음부터 최적화된 솔루션을 찾으려고 하면 오히려 더 어렵다. 
+    (문제 by 문제 지만) 대부분의 문제는 **Brute force → 최적화 과정**을 거치면서 풀이를 발전시키는 게 더 좋은 접근이다.
+
+2. **70 leetcode problems in 5+ hours (youtube 영상)**
+    
+    이 영상은 Leetcode 70문제를 5시간 30분짜리 영상 안에 담아둔 건데, 주말 이틀 동안 따라가면서 문제를 풀어봤다.
+    
+    실제로 다 풀어보려면 영상 시간의 두 배 정도 걸리는 느낌이다. 
+    하지만 의지가 약하거나 집중력이 흐려질 때는 이런 영상이 꽤 도움이 된다. 
+    그냥 **"같이 풀어보는 느낌"** 이 들면서 계속 문제를 풀게 된다.
+    
+3. **google docs에 정리**
+    
+    ![google doc](/julie/assets/til-004-20250304-3.png)
+    
+    문제를 풀 때마다 문제 이름, 난이도, 풀이 방법, 시간 복잡도를 정리했다.
+    
+    **굵게 표시된 문제 → 한 번에 못 풀었던 문제**이고,
+    못 풀었던 문제들은 나중에 다시 돌아가서 한 줄 설명을 보고도 또 기억이 안 나면 또 풀기를 반복했다.
+    
+4. **google sheets에 정리**
+
+    ![google sheets](/julie/assets/til-004-20250304-4.png)
+    
+    어느 정도 문제를 풀고 나면, 다시 풀어야겠다고 생각되는 문제들을 엑셀에 정리하고, 문제를 다시 풀면서 **더 간단한 한 줄 요약을 추가**했다.
+    
+    면접이나 코딩 테스트 직전에 Redo 체크된 문제들 위주로 복습했고, 체크가 안 되어 있어도, 1. 문제 이름 보고 풀이가 안 떠오르면 2. 한 줄 설명을 보고, 그래도 기억 안 나면 3. 다시 풀었다.
+
+웃긴 건 이렇게 열심히 연습했는데, 실제 면접에서는 구현 문제가 나왔고 내 머리가 하얘졌다는 점...
+
+그래도 그 전보단 훨씬 자신감이 생긴 것 같다! ;)
+4:Tdaf,
 회사에서 MongoDB의 full text search를 사용하면서 embedded document 관련 제약사항을 접하게 되었다.
 
 우리가 사용하는 데이터의 일부는 이런식으로 저장되어 있는데
@@ -62,7 +127,7 @@ Mongo Atlas에서는 샤드 하나당 최대 21억(2.1 billion) 개의 embedded 
 그리고 이미 원래 스키마에 맞게 설정된 기존 코드들을 새로운 스키마에 맞게 전부 다 고쳐야 한다. :)
 
 
-4:T156c,
+5:T156c,
 데이터 파이프라인에서는 여러 서비스가 각각 다른 역할을 수행하는데, 때때로 **전체 흐름을 거치지 않고 특정 서비스의 결과만 확인**하고 싶을 때가 있다.
 
 예를 들어, A 서비스에서 데이터를 변형하고 B 서비스가 그 데이터를 데이터베이스에 넣는다고 가정해보자. 이때 B 서비스에서 데이터베이스 저장 과정을 생략하고 A 서비스의 결과값을 확인하는 방법은 여러 가지가 있다.
@@ -154,7 +219,7 @@ except asyncio.TimeoutError:
 await rabbit.basic_cancel(consumer_tag)
 await rabbit.queue_delete(reply_queue_name)
 ```
-5:Tdd6,
+6:Tdd6,
 Mongo Atlas Search에서 full-text search를 사용할 때 여러 search node로 쿼리를 분산시킬 수 있다.
 그런데 쿼리를 실행할 때마다 **어느 search node를 사용하냐에 따라 결과가 달라진다**는 사실을 발견했다.
 
@@ -192,7 +257,7 @@ Elasticsearch처럼 `mongot`도 Apache Lucene을 기반으로 만들어져있는
 따라서 replica와 main DB에 **colocated search node**를 함께 구성하는 것이 최선이라는 결론을 내렸다.
 
 `preference=secondary` 설정을 적용하여 replica가 모두 사용 불가능한 상황이 아닐 경우, 우선적으로 replica를 활용하도록 설정하였다.
-7:["category","til","d"]
-0:["V4za5p5BBtSVX8JZ1nOKZ",[[["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__?{\"category\":\"til\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"til","filteredPosts":[{"slug":"til/2025-02-28","categorySlug":"til","title":{"ko":"2025-02-28","en":"2025-02-28"},"date":"2025-02-28 18:56","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"MongoDB full-text search를 사용할 때의 임베디드 문서 관련 제한 사항","en":"Limitations of MongoDB full-text search on embedded documents"},"content":"$3"},{"slug":"til/2025-02-26","categorySlug":"til","title":{"ko":"2025-02-26","en":"2025-02-26"},"date":"2025-02-26 16:22","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"RabbitMQ Temporary queue 사용법","en":"How and when to use rabbitMQ temporary queues"},"content":"$4"},{"slug":"til/2025-02-25","categorySlug":"til","title":{"ko":"2025-02-25","en":"2025-02-25"},"date":"2025-02-25 16:57","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"Mongo Atlas full-text search에서 search node가 여러 개일 때 발생하는 문제","en":"Issues with multiple search nodes in Mongo Atlas full-text search"},"content":"$5"}]}],null],null],null]},[null,["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$7","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L9",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$La",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lb",null,{"children":[["$","$Lc",null,{}],["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Ld",null]]]]
-d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+8:["category","til","d"]
+0:["U1kBsDwZ4LTbi6PuZroUi",[[["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__?{\"category\":\"til\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","til","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"til","filteredPosts":[{"slug":"til/2025-03-04","categorySlug":"til","title":{"ko":"2025-03-04","en":"2025-03-04"},"date":"2025-03-04 17:01","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"2주 동안의 알고리즘 공부 회고","en":"Reflections on grinding leetcode for 2 weeks"},"content":"$3"},{"slug":"til/2025-02-28","categorySlug":"til","title":{"ko":"2025-02-28","en":"2025-02-28"},"date":"2025-02-28 18:56","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"MongoDB full-text search를 사용할 때의 임베디드 문서 관련 제한 사항","en":"Limitations of MongoDB full-text search on embedded documents"},"content":"$4"},{"slug":"til/2025-02-26","categorySlug":"til","title":{"ko":"2025-02-26","en":"2025-02-26"},"date":"2025-02-26 16:22","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"RabbitMQ Temporary queue 사용법","en":"How and when to use rabbitMQ temporary queues"},"content":"$5"},{"slug":"til/2025-02-25","categorySlug":"til","title":{"ko":"2025-02-25","en":"2025-02-25"},"date":"2025-02-25 16:57","category":{"ko":"TIL","en":"TIL"},"description":{"ko":"Mongo Atlas full-text search에서 search node가 여러 개일 때 발생하는 문제","en":"Issues with multiple search nodes in Mongo Atlas full-text search"},"content":"$6"}]}],null],null],null]},[null,["$","$L7",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$8","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$La",null,{"children":["$","$L7",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$Lb",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lc",null,{"children":[["$","$Ld",null,{}],["$","$L7",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L9",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Le",null]]]]
+e:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
