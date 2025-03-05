@@ -39,6 +39,8 @@ import {systemDesignDBIndexing} from "@/lib/blogPosts/system-design/004_db-index
 import {systemDesignRealtimeUpdates} from "@/lib/blogPosts/system-design/005_realtime-updates";
 import {til20250228} from "@/lib/blogPosts/til/003_20250228";
 import {decodeWays} from "@/lib/blogPosts/algorithms/017_decode-ways";
+import {systemDesignTimeSeriesDB} from "@/lib/blogPosts/system-design/006_time-series-db";
+import {til20250304} from "@/lib/blogPosts/til/004_20250304";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -60,7 +62,9 @@ export const blogPosts: BlogPost[] = [
     til20250226,
     systemDesignDBIndexing,
     systemDesignRealtimeUpdates,
-    til20250228
+    til20250228,
+    systemDesignTimeSeriesDB,
+    til20250304
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
