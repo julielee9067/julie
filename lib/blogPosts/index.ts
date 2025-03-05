@@ -41,6 +41,7 @@ import {til20250228} from "@/lib/blogPosts/til/003_20250228";
 import {decodeWays} from "@/lib/blogPosts/algorithms/017_decode-ways";
 import {systemDesignTimeSeriesDB} from "@/lib/blogPosts/system-design/006_time-series-db";
 import {til20250304} from "@/lib/blogPosts/til/004_20250304";
+import {csAsyncSyncBlockingNonblocking} from "@/lib/blogPosts/cs/004_async-vs-sync";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -64,7 +65,8 @@ export const blogPosts: BlogPost[] = [
     systemDesignRealtimeUpdates,
     til20250228,
     systemDesignTimeSeriesDB,
-    til20250304
+    til20250304,
+    csAsyncSyncBlockingNonblocking
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [

@@ -7,7 +7,7 @@ export const systemDesignTimeSeriesDB: BlogPost = {
         ko: "시계열 데이터베이스와 TICK Stack",
         en: "Time series DB and TICK Stack",
     },
-    date: "2025-03-04 17:00",
+    date: "2025-03-04 20:12",
     category: {
         ko: "시스템 디자인",
         en: "System Design",
