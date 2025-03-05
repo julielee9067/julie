@@ -8,7 +8,6 @@ import {useLanguage} from "@/components/LanguageProvider";
 export default function TodoPosts() {
     const [todos] = useState([
         { id: 3, title: "SQL vs. NoSQL" },
-        { id: 4, title: "Time series DB" },
         { id: 5, title: "Hierarchical Clustering" },
         { id: 6, title: "Design Search System" },
         { id: 7, title: "Design SNS Feed System" },
