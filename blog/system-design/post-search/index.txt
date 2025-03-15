@@ -1,0 +1,230 @@
+2:"$Sreact.suspense"
+3:I[1523,["137","static/chunks/137-7c01c277e0f0cc48.js","269","static/chunks/269-a28aad18182cd41e.js","614","static/chunks/614-0bac26ad143a75db.js","797","static/chunks/app/blog/%5B...slug%5D/page-c538284416fbde4d.js"],"BailoutToCSR"]
+4:I[3124,["137","static/chunks/137-7c01c277e0f0cc48.js","269","static/chunks/269-a28aad18182cd41e.js","614","static/chunks/614-0bac26ad143a75db.js","797","static/chunks/app/blog/%5B...slug%5D/page-c538284416fbde4d.js"],"default"]
+6:I[4707,[],""]
+8:I[6423,[],""]
+9:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+a:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
+b:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
+c:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
+5:T3086,
+## 개요
+커뮤니티 앱에서 게시글 검색 기능을 어떻게 구현할 수 있을까요?
+
+특히 Full-text search나 elasticsearch 같은 검색 엔진 없이, 직접 검색 기능을 만들어보는 방법들을 살펴보겠습니다.
+
+## 기능적 요구사항
+1. 게시글 생성 기능
+2. 게시글 좋아요 기능
+3. 키워드로 게시글 검색 기능
+4. 검색 결과 최신순/좋아요 수 순으로 정렬 기능
+
+## 비기능적 요구사항
+1. Query latency < 500ms
+2. 많은 요청 지원
+3. 모든 게시글이 검색 대상이 되어야 함
+4. 신규 게시글은 게시 후 최대 1분 내에 검색 가능해야 함
+5. High availability
+
+> Hot data / Cold data를 나눠서 생각하는 게 좋습니다. 자주 조회되는 데이터(hot data)는 메모리에 둬서 빠르게 응답하고, cold data는 디스크나 원격 db로 보관할 수 있습니다.
+
+## 규모 추정
+우리는 대규모 시스템을 전제로 하기 때문에, 데이터 총량, write TPS, read TPS와 같은 정보를 추정해봐야 합니다.
+
+검색 시스템이라고 해서 검색 쿼리만 중요한 것이 아니라 게시글 생성, 좋아요 등 쓰기 요청이 훨씬 많을 수도 있음을 인지해야 합니다.
+
+1. 커뮤니티 사용자가 **10억 명**(1 Billion) 있다고 가정
+2. 평균적으로 사용자 1명이 하루 **1개 게시글** 작성
+3. 사용자 1명이 하루에 **10번** 다른 사람의 게시글에 좋아요
+
+**쓰기 연산 추정**
+```
+게시글 생성: 10억 명 * (1 post/일) / 86400초/일 ≈ 초당 10,000개의 게시글
+좋아요: 10억 명 * (10 likes/일) / 86400초/일 ≈ 초당 100,000개의 좋아요
+```
+
+**읽기 연산 추정**
+```
+검색 요청: 10억 명 * (1 search/일) / 86400초/일 ≈ 초당 10,000번의 검색
+```
+
+위 두개 연산을 비교해 봤을 때, 살제로 **검색 요청보다 쓰기 비중(게시글 + 좋아요)이 높다**는 것을 확인할 수 있습니다.
+
+**스토리지 용량 추정**
+1. 데이터를 10년간 보관한다고 가정
+2. 게시글 메타데이터는 약 1KB라고 가정
+3. `총 게시글 수: 1 Billion posts/day * 365 day/year * 10 year = 3.6T 개의 게시글`
+4. `총 데이터 크기: 3.6T 개의 게시글 * 1 KB/게시글 = 3.6 PB`
+
+## Core Entities
+1. User
+2. Post
+3. Like
+
+## API 디자인
+API는 크게 **쓰기**와 **읽기**로 나누어서 생각할 수 있습니다.
+
+### 쓰기
+1. `createPost(userId, content)`
+2. `likePost(userId, postId)`
+
+### 읽기
+1. `searchPosts(keyword, sortBy)`
+
+## High-Level Design
+### 1. 게시글 생성 / 좋아요 기능
+```
+[ Post Service ] -----+
+                      |-----> [ Load Balancer ] -----> [ Ingestion Service ] -----> [ DB ]
+[ Like Service ] -----+
+```
+보통 대규모 서비스라면 **Post Service**와 **Like Service**가 내부적으로 분리되어 있을 수 있습니다. 
+이번에는 검색 기능에 초점을 맞추기 때문에 각각의 서비스 구현 세부 사항은 자세히 다루지 않겠습니다.
+
+단순화된 버전으로는, 이 두 서비스에서 발생하는 모든 Write(게시글 생성/좋아요)가 하나의 **Ingestion Service**를 통해 DB나 인덱스에 들어간다고 볼 수 있습니다.
+
+### 2. 키워드 검색 기능
+게시글을 키워드로 검색하기 위해서는 Read path를 구성해야 하는데, 다음과 같은 요소로 구성될 수 있습니다.
+
+1. **API gateway**: auth, rate limit 등의 처리를 담당
+2. **Search service**: 실제 검색 요청 처리
+3. **Index**
+
+이 문제는 **inverted index**의 전형적인 활용 사례입니다. 
+엘라스틱서치 게시글이나 DB Index 게시글에서도 자세히 다뤘지만, inverted index의 가장 중요한 아이디어는 **특정 키워드를 포함하는 문서 목록을 미리 만들어두고, 검색시 해당 키워드에 매핑된 문서 목록을 바로 가져오는 방식**입니다.
+
+간단하고 빠른 검색을 위해 여기서는 **Redis**를 사용할 수 있습니다.
+
+```
+[ Ingestion Service ] -----+
+                            |----->  [ Index(Redis) ]
+[   Search Service  ] -----+
+```
+
+Redis에 inverted index를 저장해두면 메모리에 있는 데이터를 직접 조회하기 때문에 매우 빠른 검색이 가능합니다.
+물론 휘발성 환경이므로 durability 문제가 있지만, 이는 나중에 memoryDB 같은 대안을 적용해 해결할 수 있습니다.
+
+각 키워드는 **"해당 키워드를 포함하는 게시글 ID list"** 를 갖게 되고, 사용자가 새 게시글을 생성하면 ingestion service에서 게시글 내용에 들어있는 모든 키워드를 추출하여 해당 키워드의 리스트에 새 게시글 ID를 append 합니다.
+
+**고려해야 할 사항**
+1. 특정 키워드(예: 아주 흔한 단어)에 매핑된 게시글 목록이 지나치게 커질 수 있음
+2. 한 게시글이 최대 수백~수천 키워드를 가질 수 있으므로, 생성할 때 여러 Redis 키에 쓰기 작업을 해야 함
+
+### 3. 검색 결과 정렬
+검색 결과를 요구 사항에 맞게 (최신 순, 좋아요 수 순) 정렬하려면, 검색 결과가 단순히 해당 키워드가 들어있는 게시글들 뿐만 아니라, 정렬에 필요한 메타데이터를 가져와야 합니다.
+
+여기서는 두 개의 별도 인덱스를 사용할 수 있습니다.
+1. **Creation index**: 게시글 작성 시각 기준 정렬
+2. **Likes index**: 좋아요 개수 기준 정렬
+
+#### Creation Index
+Redis의 **List**를 활용할 수 있습니다.
+
+새로운 게시글이 생성될 때, **해당 키워드에 대한 creation index list** 맨 끝에 post ID를 추가합니다.
+
+최근 게시글 보여줄 때는 리스트의 뒤쪽 요소부터 순회하면 됩니다.
+
+#### Likes Index
+Redis의 **sorted set**을 활용할 수 있습니다.
+
+각 키워드별로 **좋아요 수**를 점수로 설정해서, post ID를 sorted set에 저장합니다.
+새로운 게시글이 생성되면 초기 점수 0으로 삽입하고, 좋아요가 생길 때마다 점수가 업데이트 되며 정렬 순서가 반영됩니다.
+
+위 방법에는 **문제점**이 존재합니다.
+1. 저장 공간(스토리지)이 2배로 늘어남 (Creation & Likes 두 인덱스)
+2. 좋아요가 아주 자주 발생하면, 그때마다 점수를 업데이트해야 하므로 쓰기 부담이 큼
+
+이를 해결하기 위해 배치 처리, 샤딩, 캐싱 등의 기법을 병행하거나, 좋아요 정보를 주기적으로만 반영하는 방안을 고려할 수 있습니다.
+
+## 상세 설계
+### 1. 사용자 요청이 매우 많을 때는 어떻게 처리할 것인가?
+요구 사항에서 같은 검색어에 대해서는 누구든 같은 결과를 본다고 했고, 1분의 지연이 허용되므로 이 문제에선 캐싱을 적용하기 적합합니다.
+
+#### 분산 캐시
+방법 중 하나는 search service 옆에 distributed cache를 두는 것입니다. 
+이 캐시는 특정 키워드에 대한 가장 최신 검색 결과를 저장합니다.
+
+1. 검색 요청이 들어오면, 검색 서비스는 우선 캐시에 결과가 있는지 확인합니다.
+2. 캐시에 해당 결과가 있으면 캐시에서 바로 결과를 반환합니다.
+3. 캐시에 없다면 full search를 수행한 뒤, 검색 결과를 캐시에 저장합니다.
+
+오래된 결과가 계속 남아있는 걸 방지하기 위해 eviction policy도 설정해줘야 합니다.
+
+새 게시글 반영에 1분 정도 지연이 허용되므로, 캐시 항목의 TTL을 1분 미만으로 설정하면 새 게시글이 검색에서 빠지는 상황을 막을 수 있습니다.
+
+### CDN
+Redis 같은 캐시에 더해서, CDN을 활용해서 edge level에서 캐싱할 수도 있습니다.
+
+1. origin 혹은 캐시 대상 서버를 설정하고, DNS를 CDN을 거치도록 구성합니다.
+2. 사용자가 검색 결과를 요청했을 때, CDN 캐시에 해당 항목이 있으면 가장 가까운 CDN 지점에서 응답을 반환합니다.
+3. 캐시에 없다면 CDN이 실게 서버로 요청을 proxy해서 결과를 가져옵니다.
+
+CDN 노드를 통해 응답하면 사용자가 좀 더 짧은 latency로 결과를 받을 수 있다는 장점이 있습니다.
+다만 캐시 무효화나 TTL 정책에 따라 최신 게시글이 늦게 반영될 수 있으므로 요구사항에 맞춰 설정을 잘 해야 합니다.
+
+/search endpoint에 대해서 응답을 보낼 때, cache-control header를 통해서 언제까지 캐시를 유지할지 설정할 수 있습니다.
+
+### 2. 여러 키워드 검색은 어떻게 다룰까?
+사용자가 하나의 키워드가 아니라 긴 문장을 검색할 경우 어떻게 처리해야 할까요?
+
+일반적으로 inverted index에서는 각 키워드 별로 게시글 목록을 가지고 있으니 **각 목록의 교집합**을 구해 결과를 만들 수 있습니다.
+
+phrase 검색이라면 인접 단어 관계를 추적하는 인덱스 구조나, 슬라이딩 윈도우를 이용한 기법을 사용할 수도 있습니다.
+
+예를 들어, **Bigram 단위로도 인덱스**를 만들 수 있습니다.
+이렇게 하면 다중 키워드 검색 시 교집합 연산을 줄이고 더 빠른 검색이 가능합니다.
+
+하지만 **인덱스 크기가 폭증**하고 **빈도가 낮은 bigram이 너무 많아진다**는 단점이 있습니다.
+
+이런 단점을 완화하기 위해, 모든 Bigram을 저장하지 않고, **자주 등장하거나 검색될 확률이 높은 bigram만 인덱싱** 할 수 있습니다.
+(빈도를 추적해보고 특정 기준 이상일 때만 인덱스 생성)
+
+
+### 3. 매우 높은 쓰기 부하를 어떻게 처리할 것인가
+앞서 규모 추정에서 알아봤듯, 게시글 생성은 초당 1만 건, 좋아요는 초당 10만 건 발생할 수 있습니다.
+
+#### 게시글 생성
+Ingestion service가 게시글을 받아 토큰화해서 키워드별 inverted index에 연결해야 합니다.
+
+예를 들어 게시글에 100개의 단어가 있다면, inverted index에 100번 쓰기를 거쳐야합니다.
+동시에 엄청나게 많은 게시글이 생성된다면 **Ingestion service가 병목**이 될 수 있습니다.
+
+이를 해결하기 위해 다음과 같은 방법을 고려할 수 있습니다.
+1. **Kafka** 같은 stream 시스템을 도입해 생성 요청을 여러 인스턴스에 분산 처리
+2. **버퍼링**을 통해 일시적으로 쌓아뒀다가, 일괄 배치로 inverted index에 반영 (1분 latency 허용이 있으므로 가능)
+3. 인덱스를 샤딩하여, 키워드 범위별로 여러 서버가 나눠서 처리
+
+#### 좋아요
+좋아요 수가 실시간 반영되어야 하는지, 어느 정도 지연이 허용되는지에 따라 전략이 달라집니다.
+
+실시간 반영이 부담스러우면, 좋아요 정보를 별도 저장하고 주기적으로 인덱스를 업데이트하거나, 검색 시점에 최종 like count를 DB에서 조회해 재정렬할 수 있습니다.
+
+예를 들어, 게시글의 좋아요 수가 2의 제곱 단위(혹은 10의 제곱 단위)를 넘어설 때만 인덱스를 갱신할 수 있습니다.
+이렇게 하면 1000개의 좋아요가 생겨도 실제 인덱스 업데이트는 10번 정도로 줄어듭니다.
+
+결국 인덱스에 있는 좋아요 수는 근사치가 되므로 검색할 때 상위 N개 정도만 인덱스에서 가져온 뒤, 실제 like service에 최종 like count를 조회해서 정확한 순서로 재정렬 하는 방식을 쓸 수 있습니다.
+
+**Flow**
+1. 게시글 생성 시 likes index에 0점으로 삽입
+2. 사용자가 1번 좋아요 -> Like count = 1 -> 인덱스 업데이트
+3. 이후 다음 마일스톤 (2, 4, 8, ...)에 도달할 때마다 업데이트
+4. 검색 시 상위 후보군 (ex) top 100)을 가져온 뒤, 각 게시글의 실제 Like 수를 Db에서 조회한 후 최종 정렬
+
+
+
+### 4. 스토리지 최적화
+전체 inverted index를 전부 메모리에 넣으려면 비용이 아주 많이 늘어나므로 다음과 같은 최적화 방안을 고려해 볼 수 있습니다.
+
+1. **키워드별 인덱스의 크기 제한**: 일정 개수를 넘으면 세부 정보를 압축·요약 처리
+2. **잘 검색되지 않는 키워드는 Cold Storage**로 옮긴 뒤, 검색 요청이 오면 천천히(느리지만) 가져온다. 예: AWS S3 등
+
+## 마무리
+오늘은 대규모 검색 시스템 설계에 대해서 다루어 보았습니다.
+
+다음엔 어떤 걸 공부해볼ㄲ ㅏ.. 
+
+
+7:["slug","system-design/post-search","c"]
+0:["NaZIj2JiavFCpU3la-qKe",[[["",{"children":["blog",{"children":[["slug","system-design/post-search","c"],{"children":["__PAGE__?{\"slug\":[\"system-design\",\"post-search\"]}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["slug","system-design/post-search","c"],{"children":["__PAGE__",{},[["$L1",["$","$2",null,{"fallback":null,"children":["$","$L3",null,{"reason":"next/dynamic","children":["$","$L4",null,{"post":{"slug":"system-design/post-search","categorySlug":"system-design","title":{"ko":"게시글 검색 서비스 시스템 디자인","en":"Design post search service"},"date":"2025-03-15 16:40","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 검색 서비스 설계","en":"System design for post searching service"},"content":"$5"}}]}]}],null],null],null]},[null,["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$7","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$L9",null,{"children":["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$La",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lb",null,{"children":[["$","$Lc",null,{}],["$","$L6",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L8",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$Ld",null]]]]
+d:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+1:null
