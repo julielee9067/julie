@@ -1,11 +1,103 @@
 2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
-a:I[4707,[],""]
-c:I[6423,[],""]
-d:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
-e:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
-f:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
-10:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
-3:T2139,
+b:I[4707,[],""]
+d:I[6423,[],""]
+e:I[3483,["648","static/chunks/648-3ae006cfe07c9d94.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+f:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"ThemeProvider"]
+10:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"LanguageProvider"]
+11:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-3ae006cfe07c9d94.js","185","static/chunks/app/layout-2f9a78561536bd6f.js"],"Header"]
+3:T16ce,
+## 개요
+시스템 디자인 면접을 보면 **"분산 시스템을 어떻게 설계할까?"** 라는 질문은 빠지지 않습니다.
+
+하지만 **"언제 분산 시스템을 사용해야 할까?"** 라는 의사결정 시점은 자주 다뤄지지 않습니다.
+
+과거에는 분산 시스템 없이 해결하기 힘든 규모가 많았지만, 최근 하드웨어 성능이 크게 발전하면서 단일 머신으로도 예전과 비교할 수 없을 만큼 큰 규모를 처리할 수 있게 되었습니다.
+
+스토리지를 예로 들면 단일 인스터스에서 100TB 이상의 SSD를 제공할 수 있고, 클라우드 환경에서는 S3 같은 Object storage를 PB 단위로 사용하는 일이 흔해졌습니다.
+한때 데이터베이스가 100GB만 되어도 샤딩하라고 했던 것 같은데 이제는 이 기준이 너무 보수적으로 변했습니다.
+
+이 글에선 현대 하드웨어 성능의 증가에 따라 **"언제 스케일링을 해야 하는지"** 의 기준이 어떻게 달라졌는지 적어보도록 하겠습니다.
+
+## 1. 캐싱
+인메모리 캐시 기술은 비교할 수 없을 정도로 발전했는데, 예전에는 64GB 정도의 Redis instance가 흔했지만, 지금은 **TB 단위**까지도 단일 인스턴스로 운용할 수 있습니다.
+- 메모리 용량: 메모리 최적화 인스턴스의 경우 최대 1TB 이상
+- Latency
+    - same region: 읽기 시 1ms 미만
+    - cross-region: 쓰기 시 1~2ms
+- Throughput
+    - read: 초당 10만 건 이상
+    - write: 초당 수십만 건 이상
+
+이처럼 캐시 하나에 상당한 규모를 담을 수 있기 때문에, 데이터의 부분적 캐싱을 고려하기 보다는 **데이터 전체를 통째로 올려도 될까**를 먼저 고민해봐야 합니다.
+
+캐시에 대한 샤딩을 고려해야 할 때는:
+- 데이터셋 크기가 1TB에 근접할 경우
+- 초당 10만건 이상의 트래픽이 지속적으로 발생하는 경우
+- 읽기 latency를 0.5ms 이하로 계속 유지해야 하는 경우
+- hit rate이 80% 미만으로 떨어지는 경우
+
+## 데이터베이스
+PostgreSQL, MySQL 등 현대 DB engine은 단일 인스턴스로도 수십 TB를 처리할 수 있을 만큼 성능이 올라갔습니다.
+
+보통 병목은 **"백업/복구에 너무 오래 걸린다"** 처럼 운영 관점에서 발생하는 경우가 많습니다.
+
+- Stroage (단일 인스턴스): 최대 64TB, aurora 등에선 128TB 이상도 가능 
+- Latency
+    - Read: 캐시된 데이터 기준 1-5ms, 디스크에서 읽을 경우 5-30ms
+    - Write: 고성능 설정일 때 5~15ms
+- Throughput
+    - Read: 초당 50000 TPS
+    - Write: 초당 10000~20000 TPS
+    - Connection: 5000~20000개 동시 연결 가능
+
+PB 단위로 데이터를 다루지 않는 이상, 실제로 단일 데이터베이스만으로도 수백 만 ~ 수천 만 사용자까지 버틸 수 있습니다.
+
+샤딩을 사용하기 전에, 정말 샤딩이 필요한지를 먼저 계산해봐야하고, 정말 샤딩이 필요한 경우라면 순수한 데이터의 양 때문인지, 운영 측면 문제 때문인지, 지리적 분산 때문인지 등 정확한 이유를 알아야합니다.
+
+누가 "네이버 플레이스를 설계해봐라" 하고 물어볼 때, 만약 업체가 1000만개라고 해도 각 업체가 1KB라면 10GB에 불과하니까, 데이터 양만 봤을 때는 굳이 샤딩을 고려할 이유가 없습니다.
+
+## 서버
+애플리케이션 서버에서 가장 흔한 병목은 CPU입니다. 
+
+요즘 서버는 동시 연결 수가 수천~수만 개여도 커버할 수 있고, 클라우드 환경에서는 부하가 늘 시 몇 초만에 새 인스턴스를 띄워서 대응할 수 있습니다.
+
+- Connections: 인스턴스당 동시 10만+ 연결 가능
+- CPU: 8~64 core
+- 메모리: 보통 64~512GB, 최대 2TB 이상도 가능하긴 함
+- 네트워크: 최대 25GBps
+- startup time: 30~60초
+
+서버 확장을 고려해야 하는 경우는:
+- CPU 사용률이 70~80%을 꾸준히 넘가는 경우
+- latency가 threshold를 초과하는 경우
+- 메모리 사용률이 70~80%을 꾸준히 넘기는 경우
+- network bandwidth가 20Gbps에 근접하는 경우
+
+서버 로컬 캐싱, 인메모리 계산, 세션 처리를 적극적으로 활용해서 성능을 최적화 할 수 있고, CPU가 병목이 되는 경우 메모리를 더 끌어다 쓰는 최적화 기법을 사용할 수 있습니다.
+
+## 메시지 큐
+Kafka같은 고성능 메시지 큐는 단일 클러스터에서 초당 수백만 건의 메시지를 처리하면서도 1~5ms 단위의 latency를 유지할 수 있습니다.
+
+- Latency: 1~5ms (same region, optimized setups)
+- Throughput: 초당 최대 100만 건 이상
+- 메시지 크기: 1kb~10MB
+- 스토리지: 브로커 당 50TB
+- Retention: 설정에 따라 몇 주에서 몇 달까지
+
+브로커 확장을 고려해야 하는 경우는:
+- 브로커 당 처리량이 초당 80만 건 이상인 경우
+- 클러스터 내 파디션 수가 20만 개에 가까워진 경우
+- consumer lag가 계속 증가하는 경우
+
+## 마무리
+시스템 디자인에서 가장 흔히 하는 실수 중 하나가 **너무 섣부르게 샤딩을 도입하는 것**입니다.
+
+단일 인스턴스로도 충분히 감당 가능한 규모일 때 "샤딩을 어떻게 도입할까?"부터 고민할 때가 많습니다. 
+
+또한, SSD에서 인덱스 조회를 하면 10ms 안팎이면 충분히 빠른데도 불필요하게 캐시 레이어를 붙이기도 합니다.
+
+진짜로 분산 아키텍쳐가 필요한 시점이 오면 적극적으로 적용해야 하지만, 그 전에 **현재 단일 인스턴스가 어느 정도까지 버틸 수 있는가**를 구체적인 수치로 확인해본 후, Batch write, index optimization, connection pool, async commit 등 간단한 최적화부터 시도해보는게 좋습니다.
+4:T2139,
 ## 개요
 처음엔 이 글을 시스템 디자인 카테고리에 넣는게 맞나 하는 생각이 들었지만.. 이런 글은 아마 자주 올리지 않을 것 같고, 따로 카테고리를 빼기도 좀 그런 것 같아 여기에 넣기로 결정했습니다!
 
@@ -165,7 +257,7 @@ f:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648
 대규모 데이터나 실시간 처리가 필요한 경우에는 K-Means 같은 방법이 적합할 수 있고,
 데이터 간의 관계를 자세히 분석하고 싶다면 계층적 군집화가 유리하며,
 군집 수를 미리 정하기 어려운 경우는 Affinity Propagation이나 Mean-Shift를 고려해볼 수 있습니다.
-4:T2657,
+5:T2657,
 ## 개요
 현재 저는 TICK stack 중 Telegraf와 InfluxDB를 사용하고 있는데 (+Grafana), 오늘은 TICK stack이 뭔지, 그리고 대안에는 어떤 것들이 있는지 알아보도록 하겠습니다.
 
@@ -323,7 +415,7 @@ Time-series 모니터링 개념을 바탕으로 구축되었는데, 자세한 �
 
 따라서 **레거시 환경**에서 이미 Graphite을 쓰고 있거나, 모니터링 대상이 적을 때 쓰는게 적합합니다.
 
-5:T4390,
+6:T4390,
 ## 개요
 실무에서 어떤 이벤트가 일어났을 때 이를 사용자에게 **실시간**으로 알려주는 기능은 매우 유용합니다.
 
@@ -561,7 +653,7 @@ Consistent hashing을 사용하면 서버를 한 대 더 추가해도 특정 구
 **서버 측 이벤트 감지는 Pub/Sub**을 많이 쓰며, 연결 상태가 방대하면 Consistent Hashing 같은 방법도 고려할 수 있습니다.
 
 다음엔 **빅데이터**에 대한 글을 써보도록 하겠습니다. 감사합니다!
-6:T4897,
+7:T4897,
 ## 개요
 우리가 수백만 건의 기록을 가진 테이블에서 특정 유저 이름으로 정보를 검색해야 한다고 가정해봅시다.
 만약 인덱스 없이 위 요청을 처리한다면 테이블의 모든 행을 순차적으로 스캔해야 하므로 엄청나게 느려질 것입니다.
@@ -866,7 +958,7 @@ CREATE INDEX idx_user_time_likes
 
 물론 인덱스 크기가 커지고, 쓰기 연산 시 업데이트할 데이터가 많아진다는 단점이 있지만,
 **조회가 매우 빈번하고 필요한 컬럼이 소수**라면 큰 효율을 얻을 수 있습니다.
-7:T3cad,
+8:T3cad,
 ## 개요
 시스템을 설계할 때 종종 **많은 데이터 중에서 원하는 정보를 찾아내는** 작업이 필요할 때가 있습니다.
 이 때, 일반적인 데이터베이스로 충분할 때도 있지만 데이터가 많거나 검색 조건이 복잡할 경우엔 전용 검색 엔진이 필요하기도 합니다.
@@ -1071,7 +1163,7 @@ https://www.paradedb.com/blog/elasticsearch_vs_postgres
 https://medium.com/swlh/bkd-trees-used-in-elasticsearch-40e8afd2a1a4
 
 https://j.blaszyk.me/tech-blog/exploring-apache-lucene-index/
-8:T6154,
+9:T6154,
 오늘은 이벤트 브로커와 메시지 브로커, 그리고 각각의 대표적인 예시인 Apache Kafka와 RabbitMQ에 대해 알아보겠습니다.
 
 ## 이벤트 브로커 (Event Broker)
@@ -1378,7 +1470,7 @@ https://kafka.apache.org/uses
 https://www.cloudamqp.com/blog/rabbitmq-use-cases-explaining-message-queues-and-when-to-use-them.html
 https://www.youtube.com/watch?v=DU8o-OTeoCc&ab_channel=HelloInterview-SWEInterviewPreparation
 https://medium.com/riskified-technology/message-broker-vs-event-broker-when-to-use-each-one-of-them-15597320a8ba
-9:T5592,
+a:T5592,
 `Togather` 프로젝트 (북미 대학생을 위한 익명 커뮤니티 앱) 를 만들면서 자연스럽게 커뮤니티 플랫폼과 채팅 서비스의 시스템 디자인에 대해 관심을 갖게 되었습니다.
 
 이번 글에서는 대규모 사용자를 대상으로 한 채팅 서비스의 시스템 디자인에 대해 살펴보겠습니다.
@@ -1667,7 +1759,7 @@ Redis Cluster는 데이터를 **키(Key) 값에 따라 여러 노드(Shard)로 �
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/bp-indexes-general.html
 - https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/GSI.html
 - https://youtu.be/cr6p0n0N-VA
-b:["category","system-design","d"]
-0:["nBlwvcTFiqFjWAR0inr3E",[[["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__?{\"category\":\"system-design\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"system-design","filteredPosts":[{"slug":"system-design/hierarchical-clustering","categorySlug":"system-design","title":{"ko":"계층적 클러스터링","en":"Hierarchical Clustering"},"date":"2025-03-05 13:09","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"계층적 클러스터링 적용 과정과 다른 클러스터링 기법과의 비교","en":"Hierarchical clustering and comparison with other clustering methods"},"content":"$3"},{"slug":"system-design/time-series-db","categorySlug":"system-design","title":{"ko":"시계열 데이터베이스와 TICK Stack","en":"Time series DB and TICK Stack"},"date":"2025-03-04 20:12","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"시계열 데이터베이스의 종류와 TICK stack","en":"types of time series DB and TICK Stack"},"content":"$4"},{"slug":"system-design/realtime-updates","categorySlug":"system-design","title":{"ko":"실시간 업데이트","en":"Realtime Updates"},"date":"2025-02-28 17:24","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"실시간 업데이트 처리 시 사용 기술","en":"Technologies for realtime updates"},"content":"$5"},{"slug":"system-design/database-indexing","categorySlug":"system-design","title":{"ko":"데이터베이스 인덱싱","en":"Database Indexing"},"date":"2025-02-27 00:43","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"데이터베이스 인덱싱 기본 개념 및 동작 원리","en":"Intro to DB index and how it works"},"content":"$6"},{"slug":"system-design/elasticsearch","categorySlug":"system-design","title":{"ko":"엘라스틱서치","en":"Elasticsearch"},"date":"2025-02-24 14:16","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"엘라스틱서치의 기본 개념과 동작 원리","en":"Intro to Elasticsearch and how it works"},"content":"$7"},{"slug":"system-design/event-broker-vs-message-broker","categorySlug":"system-design","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-23 18:11","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$8"},{"slug":"system-design/messaging-service","categorySlug":"system-design","title":{"ko":"메시징 서비스 시스템 디자인","en":"Design Messaging Service"},"date":"2025-02-20 00:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 메시징 서비스 설계","en":"Let's design messaging service"},"content":"$9"}]}],null],null],null]},[null,["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$b","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Ld",null,{"children":["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$Le",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lf",null,{"children":[["$","$L10",null,{}],["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L11",null]]]]
-11:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+c:["category","system-design","d"]
+0:["hASPlcudqfoGRA_bnaCUb",[[["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__?{\"category\":\"system-design\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","system-design","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"system-design","filteredPosts":[{"slug":"system-design/when-to-scale","categorySlug":"system-design","title":{"ko":"언제 샤딩이 필요한가","en":"When should we shard our system"},"date":"2025-03-15 15:17","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"현대 하드웨어 기준 샤딩이 정말 필요할 때","en":"When should we shard our system based on modern hardware"},"content":"$3"},{"slug":"system-design/hierarchical-clustering","categorySlug":"system-design","title":{"ko":"계층적 클러스터링","en":"Hierarchical Clustering"},"date":"2025-03-05 13:09","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"계층적 클러스터링 적용 과정과 다른 클러스터링 기법과의 비교","en":"Hierarchical clustering and comparison with other clustering methods"},"content":"$4"},{"slug":"system-design/time-series-db","categorySlug":"system-design","title":{"ko":"시계열 데이터베이스와 TICK Stack","en":"Time series DB and TICK Stack"},"date":"2025-03-04 20:12","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"시계열 데이터베이스의 종류와 TICK stack","en":"types of time series DB and TICK Stack"},"content":"$5"},{"slug":"system-design/realtime-updates","categorySlug":"system-design","title":{"ko":"실시간 업데이트","en":"Realtime Updates"},"date":"2025-02-28 17:24","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"실시간 업데이트 처리 시 사용 기술","en":"Technologies for realtime updates"},"content":"$6"},{"slug":"system-design/database-indexing","categorySlug":"system-design","title":{"ko":"데이터베이스 인덱싱","en":"Database Indexing"},"date":"2025-02-27 00:43","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"데이터베이스 인덱싱 기본 개념 및 동작 원리","en":"Intro to DB index and how it works"},"content":"$7"},{"slug":"system-design/elasticsearch","categorySlug":"system-design","title":{"ko":"엘라스틱서치","en":"Elasticsearch"},"date":"2025-02-24 14:16","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"엘라스틱서치의 기본 개념과 동작 원리","en":"Intro to Elasticsearch and how it works"},"content":"$8"},{"slug":"system-design/event-broker-vs-message-broker","categorySlug":"system-design","title":{"ko":"이벤트 브로커와 메시지 브로커","en":"Event Broker and Message Broker"},"date":"2025-02-23 18:11","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"이벤트 브로커와 메시지 브로커의 차이, RabbitMQ와 Kafka의 동작 원리","en":"Difference between event broker and message broker, how RabbitMQ and Kafka work"},"content":"$9"},{"slug":"system-design/messaging-service","categorySlug":"system-design","title":{"ko":"메시징 서비스 시스템 디자인","en":"Design Messaging Service"},"date":"2025-02-20 00:00","category":{"ko":"시스템 디자인","en":"System Design"},"description":{"ko":"대규모 메시징 서비스 설계","en":"Let's design messaging service"},"content":"$a"}]}],null],null],null]},[null,["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$c","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Le",null,{"children":["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/e680cef9016abb97.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_29e2ff","children":["$","$Lf",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$L10",null,{"children":[["$","$L11",null,{}],["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L12",null]]]]
+12:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
