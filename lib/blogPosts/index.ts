@@ -45,6 +45,7 @@ import {csAsyncSyncBlockingNonblocking} from "@/lib/blogPosts/cs/004_async-vs-sy
 import {systemDesignHierarchicalClustering} from "@/lib/blogPosts/system-design/007_hierarchical-clustering";
 import {systemDesignWhenToScale} from "@/lib/blogPosts/system-design/008_when-to-scale";
 import {systemDesignPostSearch} from "@/lib/blogPosts/system-design/009_post-search";
+import {csSPINOperatingSystem} from "@/lib/blogPosts/cs/005_spin";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -72,7 +73,8 @@ export const blogPosts: BlogPost[] = [
     csAsyncSyncBlockingNonblocking,
     systemDesignHierarchicalClustering,
     systemDesignWhenToScale,
-    systemDesignPostSearch
+    systemDesignPostSearch,
+    csSPINOperatingSystem
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
