@@ -5,14 +5,32 @@ import { Experience } from "@/lib/types";
 
 const experiences = [
     {
+        company: "NAVER",
+        position: {
+            ko: "소프트웨어 엔지니어",
+            en: "Software Engineer",
+        },
+        period: {
+            ko: "2025.05 - 현재",
+            en: "May 2025 - Present",
+        },
+        stacks: [
+            "Golang",
+            "Python",
+            "Vue.js",
+            "PostgreSQL"
+        ],
+        projects: []
+    },
+    {
         company: "Tealbook",
         position: {
             ko: "소프트웨어 엔지니어",
             en: "Software Engineer",
         },
         period: {
-            ko: "2022.04 - 현재",
-            en: "Apr 2022 - Present",
+            ko: "2022.04 - 2025.04",
+            en: "Apr 2022 - Apr 2025",
         },
         stacks: [
             "Python",
@@ -34,15 +52,14 @@ const experiences = [
                     en: "Data Processing / Backend Service Management",
                 },
                 period: {
-                    ko: "2023.12 - 현재",
-                    en: "Dec 2023 - Present",
+                    ko: "2023.12 - 2025.04",
+                    en: "Dec 2023 - Apr 2025",
                 },
                 description: {
                     ko: [
-                        "다양한 데이터 소스에서 들어오는 데이터를 정제(TNV)하고 저장하는 시스템을 설계했습니다. " +
-                        "각 소스마다 데이터 구조가 달라 필드별 수정이 필요했으며, 이를 해결하기 위해 Config 기반의 데이터 변환 프로세스를 도입했습니다. " +
-                        "또한, 자동 수평 확장 기능을 적용하여 증가하는 데이터 처리량에도 유연하게 대응할 수 있도록 했습니다. " +
-                        "이를 통해 데이터 처리 속도가 향상되었으며, 장애율을 낮추는 데 기여했습니다."
+                        "다양한 데이터 소스 유입 데이터를 정제(TNV)·저장하는 시스템 설계, 운영 표준 수립",
+                        "소스별 상이한 스키마를 Config 기반 변환 프로세스로 표준화, 필드 단위 변경 비용 최소화",
+                        "자동 수평 확장 적용으로 처리량 급증에도 안정적 운영, 전체 처리 속도 향상과 장애율 감소 기여",
                     ],
                     en: [
                         "Processed and managed >300M data points from various sources",
@@ -61,7 +78,9 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "기존 구조에서는 하나의 서비스가 너무 많은 기능을 담당하고 있어 유지보수가 어려웠지만, 서비스 도메인을 분리하고 독립적으로 운영할 수 있도록 개선했습니다. 특히, InfluxDB, Grafana, Telegraf를 활용한 모니터링 시스템을 구축하여 메시지 큐 병목 현상을 감지하고, 실시간으로 대응할 수 있도록 했습니다. 결과적으로 장애율이 감소하고, 데이터 처리 안정성이 대폭 향상되었습니다.",
+                        "과도한 기능을 담당하던 단일 서비스를 도메인별로 분리, 독립 배포·운영 가능한 구조로 전환",
+                        "InfluxDB·Grafana·Telegraf 기반 모니터링 구축, 메시지 큐 병목 실시간 감지 및 대응 체계 마련",
+                        "장애율 감소와 데이터 처리 안정성 대폭 향상 달성",
                     ],
                     en: [
                         "Migrated the existing platform to a new MSA architecture using RabbitMQ message broker",
@@ -82,7 +101,8 @@ const experiences = [
                 },
                 description: {
                     ko: [
-                        "대용량 데이터를 다루는 B2B 솔루션의 백엔드 API를 개발하며, 데이터베이스 인덱싱 최적화 및 캐싱 전략을 적용해 성능을 개선했습니다.",
+                        "대용량 데이터를 다루는 B2B 솔루션 백엔드 API 구현",
+                        "데이터베이스 인덱싱 최적화와 캐싱 전략 적용으로 조회·응답 성능 개선",
                     ],
                     en: [
                         "Implemented the backend for a B2B solution to analyze supplier diversity and recommend new suppliers",
