@@ -46,6 +46,7 @@ import {systemDesignHierarchicalClustering} from "@/lib/blogPosts/system-design/
 import {systemDesignWhenToScale} from "@/lib/blogPosts/system-design/008_when-to-scale";
 import {systemDesignPostSearch} from "@/lib/blogPosts/system-design/009_post-search";
 import {csSPINOperatingSystem} from "@/lib/blogPosts/cs/005_spin";
+import {csExokernelOperatingSystem} from "@/lib/blogPosts/cs/006_exokernel";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -74,7 +75,8 @@ export const blogPosts: BlogPost[] = [
     systemDesignHierarchicalClustering,
     systemDesignWhenToScale,
     systemDesignPostSearch,
-    csSPINOperatingSystem
+    csSPINOperatingSystem,
+    csExokernelOperatingSystem
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
