@@ -1,11 +1,298 @@
 2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
-b:I[4707,[],""]
-d:I[6423,[],""]
-e:I[3483,["648","static/chunks/648-9a5a15d9455119c0.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
-f:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"ThemeProvider"]
-10:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"LanguageProvider"]
-11:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"Header"]
-3:T4eb7,
+c:I[4707,[],""]
+e:I[6423,[],""]
+f:I[3483,["648","static/chunks/648-9a5a15d9455119c0.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+10:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"ThemeProvider"]
+11:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"LanguageProvider"]
+12:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"Header"]
+3:T419c,
+## 개요
+* **목표**: 한 대의 호스트에서 **여러 VM**(게스트 OS)을 **효율적으로** 돌리면서도 **서로 완전히 격리**하고, 심지어 **과다할당(overcommit)** 상황(총 VM “물리” 메모리 합 > 실제 RAM)도 안전하게 운영하기
+* **제약**: 게스트 OS는 **수정할 수 없음(무변경)** → 하이퍼바이저가 **운영체제 아래**에서 메모리를 영리하게 가로채고 조율해야 함.
+
+---
+
+## 기본 구조 (메모리 가상화)
+
+* **machine 메모리(진짜 RAM)** vs **physical 메모리(게스트가 보는 가짜 물리)**
+
+  - ESX는 VM마다 **pmap(게스트 PPN→머신 MPN 변환표)** 를 두고, CPU가 실제로 쓰는 **shadow page table(가상→MPN)** 을 유지
+  - → 게스트의 평범한 메모리 접근은 **TLB 히트로 빠르게** 처리되면서, ESX는 뒤에서 **아무 페이지나 투명하게 다른 머신 프레임으로 재매핑**할 수 있음
+
+### 용어 사전
+* **하이퍼바이저/ VMM**: 여러 OS를 하드웨어 위에 안전하게 올리는 얇은 소프트웨어 층
+* **Ballooning**: 게스트 안 드라이버로 **게스트가 스스로** 덜 중요한 페이지를 내놓게 유도
+* **Demand paging(ESX)**: 풍선이 부족할 때 ESX가 **직접** 게스트 “물리” 페이지를 스왑
+* **Content-based sharing**: **내용 해시+전면 비교**로 **완전 동일** 페이지를 **COW 공유**
+* **Working-set sampling**: 일부 페이지만 **무작위 샘플**해서 **활동 비율** 추정
+* **Idle memory tax**: **유휴 페이지 단가를 높여** 먼저 회수하는 정책
+* **Hot I/O remapping**: **자주 DMA되는 페이지**를 **낮은 주소**로 재배치해 **복사 제거**
+* **PPN/MPN**: 게스트가 믿는 “물리” 페이지 번호 / 실제 머신 페이지 번호
+* **pmap**: PPN→MPN 테이블(각 VM 보유)
+* **shadow page table**: CPU가 소비하는 가상→MPN 매핑(ESX가 관리)
+* **COW(Copy-on-Write)**: 공유 페이지를 누가 쓰기 시작하면 그때 사본을 만들어 분리
+
+
+---
+
+## 메모리 회수 (과다할당에서 필수)
+
+### 1) **Ballooning** — 가장 선호되는 경로
+
+* 게스트 OS 안에 **풍선(balloon) 드라이버**를 넣고 ESX가 “**부풀려**라/**꺼뜨려**라”를 지시
+ 
+  - 풍선을 부풀리면 드라이버가 게스트 “물리” 페이지를 **할당·핀 고정** → 게스트 OS는 **자기 정책**으로 덜 중요한 페이지를 알아서 회수/스왑
+  - 드라이버는 **할당한 PPN 목록**을 ESX에 알려주고, ESX는 그 PPN을 받치던 **머신 프레임을 회수**
+
+* **장점**: “어떤 페이지가 덜 중요한가?” 를 **게스트 OS 스스로 판단**하므로 **정책 충돌**과 **이중 페이징(double paging)** 위험이 줄어듦
+* **안전성**: 풍선에 잡힌 PPN이 나중에 접근되면 ESX가 **함정 처리**해서 새 프레임을 붙이고(풍선 상태 리셋), **정합성** 유지
+
+#### Ballooning 흐름
+![](/julie/assets/cs/esx/01_ballooning.png)
+
+### 2) **Demand Paging** — 불가피할 때 쓰는 플랜 B
+
+* 풍선으로 부족하면 ESX가 **자체 스왑 영역**에 **게스트의 “물리” 페이지**를 **직접 페이징**
+* 게스트는 모름(메타 레벨 페이징)
+* 정책 충돌을 줄이려 **무작위성**을 섞음
+
+---
+
+## 중복 제거
+
+### **Content-based Page Sharing(내용기반 공유)**
+
+* **페이지 내용 해시**로 **서로 완전 동일한 페이지**를 찾아 **한 머신 프레임으로 공유 + COW**
+* 게스트 OS 코드 수정 없이, **언제/어디서/어떻게 만들어졌든** 내용이 같으면 공유
+  
+* **과정**:
+
+  1. 스캐너가 페이지를 **해시** → 전역 해시테이블 조회
+  2. **해시 충돌 후보** 나오면 **내용 전체 비교**로 진짜 확인
+  3. 같으면 **공유 + COW**, 중복 프레임 회수
+  4. 안 같으면 **힌트 기록**만(바로 COW로 두지 않아 **불필요한 COW fault 방지**)
+
+#### Page Sharing 흐름
+![](/julie/assets/cs/esx/02_page_sharing.png)
+
+---
+
+## Shares + Idle Memory Tax + 샘플링
+
+### 1) Share-based Allocation (비례 지분)
+
+* VM마다 **shares(지분)** 를 주고, 지분 비율에 맞게 **메모리 권리**(entitlement)를 배분
+* 과부하에서도 **비례적으로 저하**되고, 여유가 생기면 **비례적으로 이득**
+
+### 2) Idle Memory Tax (유휴 메모리 세금)
+
+* 문제: 지분만 보면 **유휴 VM이 메모리를 쌓아두고**, **활동 VM은 굶는** 일이 생김
+* 해결책
+  * **유휴 페이지에 더 높은 ‘가격’** 을 매겨 **먼저 회수**
+  * 즉, VM의 “가격”을 **shares / (활동 + (가중치)×유휴)** 로 보고, **가장 낮은 가격/페이지** VM에서 우선 회수 → **더 가치 있는(활동)** VM에 재배분
+  * 세율은 시스템 정책으로 조정; 갑작스런 작업세트 증가에 대비해 버퍼도 남김
+
+### 3) Working-set Sampling (작업세트 추정)
+
+* 게스트 OS를 전혀 수정하지 않고, 각 VM이 실제로 쓰는 메모리의 비율을 **임의로 추정**해 idle memory를 먼저 돌려받도록 도와주는 기법
+* 모든 페이지를 추적하면 정확하겠지만 비쌈. ESX는 **소수의 임의 페이지만 봐서 overhead를 고정/작게** 만듦
+* 추정 결과를 활동/유휴 페이지 수로 환산하고, 유휴 페이지는 더 비싸게 계산
+* 통계적 방법이라 **개별 순간엔 오차** 가능 → 평균/완충 정책(EWMA, Idle Tax, 히스테리시스)으로 흡수
+  * 빠른 평균(fast EWMA): 급증에 빨리 반응
+  * 느린 평균(slow EWMA): 감소에 천천히 반응(너무 성급한 회수 방지)
+  * 주기 중 즉시 반영본(current-fast): 주기 도중 급격한 증가도 놓치지 않게
+  * 최종 값은 세 가지 중 최댓값을 택해 증가엔 민첩/감소엔 보수적으로 만듦
+
+#### Idle-tax 의사결정 흐름
+![Idle-tax flow](/julie/assets/cs/esx/03_idle_tax.png)
+
+---
+
+## High-level 정책
+
+* **파라미터**
+  - min: VM이 어떤 상황에서도 최소한 보장받는 메모리 (회수 대상에서 최후에 빠짐)
+  - max: 게스트 OS가 "내 물리 메모리"라고 믿는 상한선. 여유가 많으면 보통 max 근처로 운용
+  - shares: 경쟁 상황에서 누가 더 많은 몫을 가져갈지 정하는 비례 지분. 메모리를 더 필요로 하는 VM들 사이에서 비율로 나눌 때 기준이 됨
+    - 단, ESX는 단순 비례 배분 대신 **“유휴 메모리 세금”** 을 얹어 안 쓰는 메모리를 먼저 돌려받도록 만듦
+    
+* **Admission control**
+  - RAM 쪽: 모든 VM의 min 합 + 관리 오버헤드를 충족할 머신 메모리가 있는가? → 없으면 부팅 거절 또는 관리자가 조정해야 함
+  - 스왑 쪽: 각 VM의 max − min 만큼 스왑 여유가 있는가? → 과다할당(Overcommit) 상태에서도 최악의 순간을 흡수할 공간. 실제로 항상 쓰진 않지만, 최소한의 안전판으로 예약
+    
+* **동적 재할당**
+    - 여유 충분: 아무 조치도 필요 없음
+    - 약간 부족: 부드러운 회수부터 시도
+    - 더 부족: 강한 회수 단계로 진입
+    - 매우 부족: 안전을 우선. 공격적 조치
+    - 이렇게 단계별로 나누는 이유는, 작은 출렁임에 과민 반응했다가 다시 되돌리고… 하는 플래핑 방지
+---
+
+## I/O 최적화: **Hot I/O Page Remapping**
+> DMA(Direct Memory Access): 디바이스(예: NIC, 디스크 컨트롤러)가 CPU를 거치지 않고 메모리와 직접 데이터를 주고받는 방식
+> * 장점: CPU 부담↓, 복사 횟수↓ → I/O가 더 빨라지고 시스템 전체 여유 증가
+> * 전제: 디바이스가 해당 물리 메모리 주소에 직접 접근할 수 있어야 함. 일부 장치는 낮은 주소 범위만 접근 가능
+
+* 일부 DMA 장치는 **낮은 주소 영역**만 접근 가능 (하드웨어 IOMMU가 없을 수 있음). 그런데 VM 환경(ESX)에서는 게스트 페이지가 머신 메모리 곳곳에 흩어져 있음
+  
+  디바이스가 높은 주소를 못 읽으면, 보통 바운스 버퍼라는 낮은 주소 임시 버퍼에 한 번 복사한 뒤 DMA를 시킴
+  
+  **결과: 추가 복사 + 메모리 대역폭 낭비 + 지연 증가 → 성능 손해**
+  
+* ESX는 **자주 DMA되는 “핫” 페이지**를 감지하면 그 페이지를 **낮은 메모리로 재매핑**해서 **복사 없이** DMA가 가능하게 함
+
+  낮은 영역이 부족해지면 **차갑고 덜 쓰는 페이지**를 위로 올려 자리 확보
+
+#### Hot I/O Remapping
+![](/julie/assets/cs/esx/04_hot_io_remapping.png)
+
+---
+
+## 오해
+* **과다할당 = 스왑만 왕창**
+  
+  아님. 순서가 있음
+  - 1순위: 페이지 공유
+    
+    서로 내용이 같은 페이지를 하나로 합쳐서 메모리를 즉시 확보(COW).
+
+  - 2순위: 벌룬(ballooning)
+
+    게스트 OS 안의 드라이버가 스스로 덜 중요한 페이지를 내놓게 유도
+    → 어떤 페이지가 덜 중요한지는 게스트 OS가 가장 잘 알기 때문에, 성능 예측 가능
+
+  - 3순위: 스왑 (최후의 수단)
+    
+    위 두 가지로도 부족할 때만 게스트 “물리” 페이지를 ESX 스왑으로 내보냄
+  
+* **공유는 0페이지(모두 0인 페이지)만 된다**
+  
+  아님. 0페이지도 공유되지만 핵심은 코드·읽기전용(RO) 데이터
+  
+  - 같은 OS/라이브러리/런타임을 여러 VM이 쓰면, 코드·상수 데이터가 내용까지 동일한 경우가 많음
+  - ESX는 내용 해시 + 전체 비교로 정말 같은 페이지를 찾아 COW로 하나로 합쳐 메모리를 크게 줄임
+  - 누가 쓰기 시작하면 그때 사본을 만들어 분리되므로 안전
+
+* **Idle tax(유휴세금)가 보장(min)을 깨뜨린다**
+
+  아님. 최저 보장(min) 과 지분(shares) 는 그대로 지켜지고, 유휴로 추정되는 부분부터 우선 회수
+  
+  - ESX는 작업세트 샘플링으로 각 VM의 활동/유휴 비율을 대략 추정
+  - 메모리가 부족하면 유휴 페이지에 더 높은 ‘가격’을 매겨 먼저 회수하고, 활동 중인 VM에 재분배
+  - min 보장량은 유지되고, 갑자기 활동이 늘면 빠른 평균값을 써서 재빨리 메모리를 돌려줌
+
+--- 
+
+## Review Questions
+
+### 1) VMware Workstation vs. VMware ESX Server: VM 안의 사용자 프로세스가 시스템콜을 할 때, 두 경우의 처리 경로
+
+#### 아키텍처 차이
+
+* **VMware Workstation (호스티드, *hosted*)**
+![](/julie/assets/cs/esx/05.png)
+  * 일반 **호스트 OS 위**에서 돌아가는 VMM(하이퍼바이저)
+  * 디바이스 드라이버·파일시스템 등 **장치는 호스트 OS**가 제공/관리
+  
+* **VMware ESX (베어메탈, *bare-metal*)**
+![](/julie/assets/cs/esx/06.png)
+  * **하드웨어 위에 직접** 올라가는 하이퍼바이저
+  * **자체 스택**으로 CPU·메모리·I/O를 **직접** 관리(장치도 직접 스케줄/제어)
+
+#### 시스템콜이 디스크 I/O로 이어지는 예
+* 공통점: **VM 안 사용자 프로세스** → **게스트 OS**(리눅스/윈도우)의 **시스템콜 처리** → 디스크 같은 장치 접근이 필요
+* 차이:
+  * **Workstation**: 게스트 OS의 “가상 디스크 읽기” 요청을 **VMM이 가로채**서, **호스트 OS의 `read()`** 등으로 대신 수행 → 데이터 받아 VM에 전달.
+   
+    ↳ **경로에 호스트 OS**가 껴 있으니, I/O 정책·오버헤드는 호스트에 의존.
+  * **ESX**: **하이퍼바이저가 하드웨어를 직접** 다룸
+    
+    가상 디스크 요청을 **바로 물리 디스크**에 매핑해 처리(백엔드가 도메인 형태로 분리되기도 함) → **높은 성능/정밀한 자원 통제** 가능
+
+> 앱→게스트 OS까지는 동일. **차이는 “장치 접근을 누가 실제로 수행하느냐”** 에 있음: Workstation은 **호스트 OS**, ESX는 **하이퍼바이저(직접)**
+
+---
+
+### 2) 메모리 가상화: VMware vs. Xen
+![](/julie/assets/cs/esx/07.png)
+
+#### VMware ESX
+* **추가 번역 단계**: 게스트가 믿는 “물리” 페이지(가짜) → **머신 페이지(진짜)** 매핑을 **pmap**으로 관리
+* CPU가 쓰는 페이지테이블은 ESX가 유지하는 **그림자 페이지테이블(Shadow PT)**
+* 게스트가 PTE/TLB를 만지면 ESX가 **가로채서 shadow를 동기화**
+* **장점**: 게스트 수정 없이 **완전 가상화** 가능, 임의 페이지를 **투명하게 재배치/관찰** 가능
+* **비용**: Shadow 유지·동기화의 **복잡성/오버헤드**
+
+#### Xen
+
+* **게스트 PT를 직접 MMU에 등록**(게스트 OS는 **읽기 전용**으로 보고, **수정은 하이퍼콜**로 Xen에 요청)
+* Xen이 **검증**(자기 소유 페이지만 매핑, PT를 쓰기가능으로 만들지 않기 등) 후 반영
+* **배치**로 여러 변경을 **한 번에** 처리
+* 각 주소공간 상단의 **Xen 예약 영역**은 게스트가 건드릴 수 없음
+* **장점**: **Shadow PT 불필요** → 경로 단순/빠름(게스트는 약간 수정, 앱은 수정 없음)
+* **전제**: 게스트 OS가 **파라가상화**를 지원하도록 **소폭 수정**
+
+---
+
+### 3) 과다할당(Over-subscription) 시 메모리 회수 방법 + 각 방식의 장단점
+![](/julie/assets/cs/esx/08.png)
+
+
+#### (1) **Ballooning** *(권장 경로)*
+![](/julie/assets/cs/esx/09.png)
+
+* 게스트 안에 **작은 “풍선” 드라이버** 존재. ESX가 “부풀려라”라고 하면 드라이버가 게스트 “물리” 페이지를 **할당·핀 고정**해 게스트에 **메모리 압박**을 줌.
+* 그러면 **게스트 OS 자신**의 페이지 교체 정책으로 **덜 중요한 페이지**를 내보냄(필요시 **게스트 스왑**으로)
+* **장점**: 성능/행동이 “메모리를 적게 장착했을 때”와 **유사** → **예측 가능**, **이중 페이징 위험↓**
+* **단점**: 드라이버가 **없거나 비활성/느릴 때**는 회수가 더딜 수 있음
+
+#### (2) **VMM Demand Paging(스왑)** *(차선책)*
+
+* ESX가 **게스트 모르게** 게스트 “물리” 페이지를 **ESX 스왑 영역**으로 내보냄
+* **장점**: **게스트 협조 없이도** 당장 회수 가능
+* **단점**: **이중 페이징** 위험(게스트도 같은 데이터 스왑), VMM은 페이지 가치 정보를 **잘 모름** → 비효율 가능
+
+#### (3) **내용 기반 페이지 공유(Content-based Sharing)** *(상시 압박 완화)*
+![](/julie/assets/cs/esx/10.png)
+* 여러 VM에 **내용이 완전히 같은 페이지**가 있으면 **한 프레임으로 공유 + COW**
+* **장점**: 게스트 수정 없이 **메모리 발자국** 크게 줄일 수 있음, CPU 부담 낮게 운영 가능
+* **주의**: 회수 **트리거**라기보다 **배경 최적화**(다른 회수와 **함께** 효과↑)
+
+---
+
+### 4) Xen에서의 Ballooning
+![](/julie/assets/cs/esx/11.png)
+* Xen은 VM(도메인)마다 **메모리 “예약량”** 을 갖고, **게스트 풍선 드라이버**를 통해 **반납/재요청**을 하게 함
+* 관리 정책에 따라 특정 도메인의 예약을 **줄이거나 늘리고**, 게스트는 그만큼 **페이지를 Xen에 돌려주거나 받아감**
+* **격리 보장 유지**(예약선 유지) + **동적 재분배**(여유가치 높은 곳에 메모리 이동)
+
+---
+
+### 5) VMware의 페이지 공유
+
+* ESX가 주기적으로 페이지 **내용 해시** → 후보가 보이면 **전체 비교**로 진짜 동일 확인 → **같으면 공유 + COW**
+* **게스트 변경 불필요**. 이후 누군가 해당 페이지에 **쓰기** 하면 **그때** 개인 사본 생성
+
+---
+
+### 6) VMware의 메모리 **할당 정책**
+![](/julie/assets/cs/esx/12.png)
+
+* **목표**: **효율**(RAM 낭비 최소)과 **격리**(VM 간 공정)를 **동시에**
+* **기본 파라미터**: 각 VM의 **최소 보장(min)**, **최대 크기(max)**, **지분(shares)**
+* **비례 지분 + 최소 자금(min-funding) 회수**: “**할당 페이지당 지분이 낮은** VM”에서 먼저 회수 → **가치 높은 VM**에 재배치
+* **Idle Memory Tax(유휴 메모리 세금)** + **작업세트 샘플링**:
+
+  * 단순 지분만 쓰면 **노는 VM이 메모리 독점** → **유휴 페이지에 더 높은 ‘가격’** 을 매겨 **먼저 회수**
+  * 게스트를 건드리지 않고 **일부 페이지만 샘플링**해 **활동/유휴 비율** 추정(증가엔 빠르게, 감소엔 천천히 반응)
+* **시스템 상태 기반 트리거**:
+
+  * 여유 충분: 조치 없음 → **공유**로 발자국 감소
+  * 약간 부족: **Ballooning 우선**
+  * 더 부족: **페이징 가동**
+  * 매우 부족: **페이징 지속 + 목표 초과 VM 제약**
+  * 목표: 여유 메모리를 **안정 구간**으로 되돌리기(출렁임 방지 로직 포함)
+4:T4eb7,
 ## 개요
 * **문제**: 한 서버에서 여러 OS를 동시에 돌리려면 **strong isolation**, **여러 OS 공존(이질성)**, **낮은 오버헤드**가 동시에 필요함.
 * **Xen의 해법(파라가상화, *paravirtualization*)**:
@@ -246,7 +533,7 @@ f:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648
 
 * 가상화로 **서버 통합**·**공동 호스팅**·**분산 웹 서비스**·**보안 실행환경**·**이미지 이동성**이 쉬워진다.
 * 한 서버에 **다수의 VM**을 띄워 **비용·시간을 크게 줄여**(스핀업 빠름) **네트워크 중심의 동적 서비스**를 현실화한다.
-4:T41a0,
+5:T41a0,
 # μ-Kernel
 
 ## 개요
@@ -434,7 +721,7 @@ TLB가 클수록 더 아픔.
 * 성능은 구조보다 **구현과 하드웨어 활용**(TLB, 세그먼트, 트랩 경로)에 더 좌우됨.
 * μ-커널도 **경계 횡단과 주소공간 전환을 얇게** 만들면 충분히 빠름(인터럽트를 IPC로 처리할 만큼).
 * 모놀리식은 **커널 내부 공위치(co-location)** 덕을 볼 수 있지만, μ-커널도 **CPU 특성에 맞춘 경로 설계**로 충분히 대등하거나 더 빠를 수 있음.
-5:T4c95,
+6:T4c95,
 ## 개요
 
 > **Exokernel**: 커널은 보안만 담당(`"누가 어떤 자원을 써도 되는가?”`), **정책/기능은 앱 옆의 라이브러리 OS(LibOS)** 로 내려보내 각 앱이 자기 상황에 맞게 OS를 바꿔 쓰는 구조
@@ -695,7 +982,7 @@ TLB miss / page fault
 * **효과**: 경계 횡단 비용이 **메시지 IPC나 트랩**에 비해 **극히 작아** 핫패스에서 **정책 세분화**가 가능. 다중 핸들러·가드가 있어도 **생성된 호출 경로**로 비용 최소화.
 * **예시**
   * **Strands** 기반 스케줄링에서 **응답성 요구**에 따라 **앱 전용 스케줄러**를 얹더라도, 글로벌 스케줄러와의 상호작용이 **함수 호출 수준**으로 가볍게 유지.
-6:T344b,
+7:T344b,
 ## 개요
 SPIN: 애플리케이션이 커널 내부에 들어와(co-location) 필요한 정책과 구현을 직접 교체/확장할 수 있게 설계한 OS
 
@@ -892,7 +1179,7 @@ SPIN: 애플리케이션이 커널 내부에 들어와(co-location) 필요한 �
 > * **Page fault**: 접근한 가상 페이지가 아직 매핑되지 않았거나 보호 위반일 때 발생
 > * **TCB**: 신뢰할 수 있는 최소한의 커널/시스템 구성 요소 집합
 
-7:T12c4,
+8:T12c4,
 저는 지금까지 주로 Python을 이용해 개발해왔고, Django와 Flask 등 여러 프레임워크를 사용했지만, 최근엔 FastAPI를 사용해 엔드포인트를 만드는 일이 많아졌습니다.
 
 FastAPI의 가장 큰 차별점 중 하나는 **비동기 엔드포인트**를 기본적으로 지원한다는 점인데, 
@@ -998,7 +1285,7 @@ asyncio.run(non_blocking_example())
 - Blocking: 특정 작업이 완료될 때까지 다음 작업이 실행되지 않는 상태
 
 비동기와 non-blocking을 잘 활용하면 I/O 작업 중에도 다른 작업을 수행할 수 있어 자원을 효율적으로 사용할 수 있으며, 여러 요청을 동시에 처리할 수 있기 때문에 동시 접속자가 많을 때 성능이 향상됩니다.
-8:Ta1b,
+9:Ta1b,
 CAP Theorem은 분산 시스템이 **동시에 만족시킬 수 없는** 세 가지 특성입니다.
 
 ### 1. Consistency
@@ -1030,7 +1317,7 @@ CAP Theorem은 위 세 가지 특성 중에서 두 가지만을 동시에 완벽
 
 MongoDB는 **CP(Consistency + Partition Tolerence)** 를 따르는데, 만약 primary node에 문제가 생겼다면 secondary(복제된) 노드 중 하나가 primary로 promote 되어야 합니다.
 이 때, 새로운 primary 노드가 생기는 동안 **모든 쓰기 작업은 사용 불가능한 (NOT available) 상태**가 되므로 MongoDB는 CP system이라고 볼 수 있습니다.
-9:T2792,
+a:T2792,
 ## 개요
 대규모 데이터 파이프라인을 운영하다보면 **병목 현상**을 자주 목격하게 됩니다. 이 때, 마이크로서비스가 실행 중인 컨테이너들을 수평적으로 확장하는 것도 중요하지만, 때로는 컨테이너 확장만으로는 해결되지 않는 문제들도 있습니다.
 
@@ -1142,7 +1429,7 @@ CPython에서는 GIL이 interpreter의 핵심 설계 요소이기 때문에 Pyth
 
 #### 멀티 스레딩에서의 풀
 멀티 프로세싱에서 풀을 사용하는 것과 같이, 스레딩에서도 풀 개념을 적용할 수 있습니다. Python에서는 주로 `cuncurrent.futures.ThreadPoolExecutor`를 사용하여 풀을 구성합니다. 이를 통해 **미리 정해진 수의 스레드를 생성하고, 작업을 해당 스레드들에 분산**시켜 실행할 수 있습니다.
-a:T16f3,
+b:T16f3,
 ## 가비지 컬렉션 (Garbage Collection)
 Python의 가비지 컬렉션은 메모리 관리를 자동으로 수행하는 메커니즘입니다. 이 메커니즘은 크게 두 가지 방법을 사용합니다.
 ### 1. 참조 카운팅 (Reference Counting)
@@ -1213,7 +1500,7 @@ OS는 새로운 메모리 블록을 할당하거나, 사용이 끝난 메모리 
 
 ## 마무리
 오늘은 파이썬에서 가비지 컬렉션이 어떻게 동작하는지 알아보았습니다. 다음엔 네트워크 관련 게시글을 올려보도록 하겠습니다. 감사합니다 :)
-c:["category","cs","d"]
-0:["7aZQKhEyZfmghrmUxAyJX",[[["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__?{\"category\":\"cs\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"cs","filteredPosts":[{"slug":"cs/xen","categorySlug":"cs","title":{"ko":"Xen: 마이크로커널 가상화","en":"Xen: Microkernel Virtualization"},"date":"2025-09-11 15:28","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Xen 하이퍼바이저의 마이크로커널 아키텍처와 가상화 기법에 대한 심층 분석","en":"Xen hypervisor's microkernel architecture and virtualization techniques in-depth analysis"},"content":"$3"},{"slug":"cs/microkernel","categorySlug":"cs","title":{"ko":"Microkernel 운영체제","en":"Microkernel Operating System"},"date":"2025-09-10 18:41","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Microkernel 운영체제","en":"Microkernel Operating System"},"content":"$4"},{"slug":"cs/exokernel","categorySlug":"cs","title":{"ko":"Exokernel 운영체제","en":"Exokernel Operating System"},"date":"2025-09-10 17:59","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Exokernel 운영체제","en":"Exokernel Operating System"},"content":"$5"},{"slug":"cs/spin","categorySlug":"cs","title":{"ko":"SPIN 운영체제","en":"SPIN Operating System"},"date":"2025-09-08 13:25","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"SPIN 운영체제","en":"SPIN Operating System"},"content":"$6"},{"slug":"cs/async-vs-sync","categorySlug":"cs","title":{"ko":"동기 vs 비동기","en":"Sync vs. Async"},"date":"2025-03-04 21:14","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"동기 비동기 프로그래밍 차이 + 블락킹 논블락킹","en":"Differences between sync vs. async programming + blocking vs. non-blocking"},"content":"$7"},{"slug":"cs/cap-theorem","categorySlug":"cs","title":{"ko":"CAP Theorem","en":"CAP Theorem"},"date":"2025-02-25 17:14","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"CAP 이론","en":"Definition of CAP Theorem"},"content":"$8"},{"slug":"cs/multiprocessing-and-multithreading-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 멀티 프로세싱과 멀티 스레딩","en":"Multiprocessing and Multithreading in Python"},"date":"2025-02-21 00:00","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"멀티 프로세싱과 멀티 스레딩의 파이썬에서의 동작 원리","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$9"},{"slug":"cs/garbage-collection-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 가비지 컬렉션","en":"Garbage Collection in Python"},"date":"2025-02-21 00:00","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"가비지 컬렉션의 파이썬에서의 동작 원리","en":"How Garbage Collection Works in Python"},"content":"$a"}]}],null],null],null]},[null,["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$c","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Le",null,{"children":["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/237cf7396f340dd9.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_0a8dff","children":["$","$Lf",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$L10",null,{"children":[["$","$L11",null,{}],["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L12",null]]]]
-12:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+d:["category","cs","d"]
+0:["MYUr5GWbJ_KukmkXSD4o1",[[["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__?{\"category\":\"cs\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"cs","filteredPosts":[{"slug":"cs/esx","categorySlug":"cs","title":{"ko":"VMWare ESX 서버에서의 메모리 리소스 관리","en":"VMWare ESX Server Memory Resource Management"},"date":"2025-09-11 16:55","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"VMWare ESX 서버의 메모리 관리 기법","en":"VMWare ESX Server memory management techniques"},"content":"$3"},{"slug":"cs/xen","categorySlug":"cs","title":{"ko":"Xen: 마이크로커널 가상화","en":"Xen: Microkernel Virtualization"},"date":"2025-09-11 15:28","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Xen 하이퍼바이저의 마이크로커널 아키텍처와 가상화 기법에 대한 심층 분석","en":"Xen hypervisor's microkernel architecture and virtualization techniques in-depth analysis"},"content":"$4"},{"slug":"cs/microkernel","categorySlug":"cs","title":{"ko":"Microkernel 운영체제","en":"Microkernel Operating System"},"date":"2025-09-10 18:41","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Microkernel 운영체제","en":"Microkernel Operating System"},"content":"$5"},{"slug":"cs/exokernel","categorySlug":"cs","title":{"ko":"Exokernel 운영체제","en":"Exokernel Operating System"},"date":"2025-09-10 17:59","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Exokernel 운영체제","en":"Exokernel Operating System"},"content":"$6"},{"slug":"cs/spin","categorySlug":"cs","title":{"ko":"SPIN 운영체제","en":"SPIN Operating System"},"date":"2025-09-08 13:25","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"SPIN 운영체제","en":"SPIN Operating System"},"content":"$7"},{"slug":"cs/async-vs-sync","categorySlug":"cs","title":{"ko":"동기 vs 비동기","en":"Sync vs. Async"},"date":"2025-03-04 21:14","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"동기 비동기 프로그래밍 차이 + 블락킹 논블락킹","en":"Differences between sync vs. async programming + blocking vs. non-blocking"},"content":"$8"},{"slug":"cs/cap-theorem","categorySlug":"cs","title":{"ko":"CAP Theorem","en":"CAP Theorem"},"date":"2025-02-25 17:14","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"CAP 이론","en":"Definition of CAP Theorem"},"content":"$9"},{"slug":"cs/multiprocessing-and-multithreading-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 멀티 프로세싱과 멀티 스레딩","en":"Multiprocessing and Multithreading in Python"},"date":"2025-02-21 00:00","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"멀티 프로세싱과 멀티 스레딩의 파이썬에서의 동작 원리","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$a"},{"slug":"cs/garbage-collection-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 가비지 컬렉션","en":"Garbage Collection in Python"},"date":"2025-02-21 00:00","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"가비지 컬렉션의 파이썬에서의 동작 원리","en":"How Garbage Collection Works in Python"},"content":"$b"}]}],null],null],null]},[null,["$","$Lc",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$d","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Le",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Lf",null,{"children":["$","$Lc",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Le",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/237cf7396f340dd9.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_0a8dff","children":["$","$L10",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$L11",null,{"children":[["$","$L12",null,{}],["$","$Lc",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Le",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L13",null]]]]
+13:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
