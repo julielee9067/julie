@@ -54,9 +54,6 @@ export function Educations({ language, t }: EducationSectionProps) {
                 <p className="text-muted-foreground">{edu.degree[language]}</p>
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">{edu.period[language]}</span>
-                  <span>
-                    {t("gpa")}: {edu.gpa}
-                  </span>
                 </div>
               </div>
             </CardContent>
