@@ -14,10 +14,6 @@ export function Header() {
                     JULIE
                 </Link>
                 <div className="flex items-center gap-4">
-                    <a>
-                        <img
-                            src="https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https://julielee9067.github.io/julie?&count_bg=%23B397D3&title_bg=%23DDBCD8&icon=awesomelists.svg&icon_color=%23E7E7E7&title=-++&edge_flat=false"/>
-                    </a>
                     <PDFDownloadButton/>
                     <LanguageToggle/>
                     <ModeToggle/>

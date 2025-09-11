@@ -48,6 +48,7 @@ import {systemDesignPostSearch} from "@/lib/blogPosts/system-design/009_post-sea
 import {csSPINOperatingSystem} from "@/lib/blogPosts/cs/005_spin";
 import {csExokernelOperatingSystem} from "@/lib/blogPosts/cs/006_exokernel";
 import {csMicrokernelOperatingSystem} from "@/lib/blogPosts/cs/007_microkernel";
+import {csXenVirtualization} from "@/lib/blogPosts/cs/008_xen";
 
 export const blogPosts: BlogPost[] = [
     csMultiprocessingAndMultiThreadingInPython,
@@ -78,7 +79,8 @@ export const blogPosts: BlogPost[] = [
     systemDesignPostSearch,
     csSPINOperatingSystem,
     csExokernelOperatingSystem,
-    csMicrokernelOperatingSystem
+    csMicrokernelOperatingSystem,
+    csXenVirtualization
 ]
 
 export const leetcodeProblems: LeetCodeProblem[] = [
