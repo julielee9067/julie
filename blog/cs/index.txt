@@ -1,11 +1,252 @@
 2:I[3422,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","269","static/chunks/269-a28aad18182cd41e.js","254","static/chunks/app/blog/%5Bcategory%5D/page-6078f51c25971824.js"],"default"]
-a:I[4707,[],""]
-c:I[6423,[],""]
-d:I[3483,["648","static/chunks/648-9a5a15d9455119c0.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
-e:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-c9372bd81191f3d0.js"],"ThemeProvider"]
-f:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-c9372bd81191f3d0.js"],"LanguageProvider"]
-10:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-c9372bd81191f3d0.js"],"Header"]
-3:T41a0,
+b:I[4707,[],""]
+d:I[6423,[],""]
+e:I[3483,["648","static/chunks/648-9a5a15d9455119c0.js","768","static/chunks/app/blog/layout-a0ac16c7cad7b2d1.js"],"default",1]
+f:I[5495,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"ThemeProvider"]
+10:I[4491,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"LanguageProvider"]
+11:I[1890,["137","static/chunks/137-7c01c277e0f0cc48.js","648","static/chunks/648-9a5a15d9455119c0.js","185","static/chunks/app/layout-33370c959c0d243d.js"],"Header"]
+3:T4eb7,
+## 개요
+* **문제**: 한 서버에서 여러 OS를 동시에 돌리려면 **strong isolation**, **여러 OS 공존(이질성)**, **낮은 오버헤드**가 동시에 필요함.
+* **Xen의 해법(파라가상화, *paravirtualization*)**:
+  - **하이퍼바이저**(hypervisor, 여러 OS를 하드웨어 위에 올려서 나눠 쓰게 하는 최소 소프트웨어 층)가 **“하드웨어와 매우 비슷하지만 완전히 같지는 않은 인터페이스”** 를 제공 →
+  게스트 OS(리눅스, BSD, 윈도우 등)에 **소스 코드 레벨로 아주 얇은 수정**을 하고 올림
+  - 결과: **앱(사용자 프로그램)은 수정 없이** 그대로 동작(ABI 유지), 오버헤드는 아주 작고, 격리는 강함
+
+![Xen overall architecture](/julie/assets/cs/xen/01_overall_architecture.png)
+
+> **왜 ‘완전 가상화’ 대신 파라가상화를 사용하는가?**
+
+> x86에는 **트랩이 안 걸리는 특권 명령** 등 “그냥은 가상화가 어려운” 부분이 있음. 이를 전부 숨기려면 복잡한 **섀도우 페이지 테이블** 같은 비용이 큼.
+> Xen은 **게스트가 ‘가상화된 사실’을 약간 인지**하게 만들어, **간단한 하이퍼콜**로 특권 작업을 요청하게 바꿔 성능과 단순성을 얻음
+
+### 용어 사전
+
+* **하이퍼바이저(Hypervisor)**: 여러 OS(게스트)를 **한 물리 머신** 위에 동시에 올려서 돌리는 **최소 핵심 소프트웨어**. **가상 머신 모니터(VMM)** 라고도 함
+* **VM(가상 머신)**: 하이퍼바이저가 만들어 주는 **독립된 컴퓨터 환상**. 게스트 OS는 여기서 자기 마음대로 돌아감
+* **도메인(Domain)**: Xen 용어로 **게스트 OS 인스턴스**(= 하나의 VM)
+* **Domain0**: **관리 권한을 가진 특권 도메인**. 다른 도메인을 만들고, 자원을 배분하고, 가상 디바이스를 관리
+* **파라가상화(Paravirtualization)**: 게스트 OS가 **가상화 사실을 약간 알고** 하이퍼바이저에 **하이퍼콜**을 날리는 방식. 게스트에 **소스 수정**이 조금 들어가지만 **성능·단순성**이 좋아짐
+* **ABI(Application Binary Interface)**: **앱의 이진 호환성 약속**. ABI를 지키면 **앱은 재컴파일 없이** 그대로 동작. Xen은 **게스트 OS만 수정**, 앱은 그대로
+* **API**: 소스 레벨 함수 인터페이스. ABI는 실행파일·바이너리 수준, API는 소스 수준
+* **NIC(Network Interface Card)**: 네트워크 카드. Xen에서는 **VIF(가상 NIC)** 라는 논리 인터페이스로 노출
+* **VIF (Virtual Interface)**: 게스트 도메인이 쓰는 **가상 네트워크 인터페이스**
+* **VFR (Virtual Firewall-Router)**: Xen 내부의 **가상 라우터/방화벽**. VIF에 **규칙**을 붙여 스푸핑 방지, 트래픽 조절
+* **VBD (Virtual Block Device)**: **가상 디스크**. 실제 디스크의 구간(익스텐트)과 **권한(ACL)** 을 모아 만든 논리 장치
+* **I/O 링(I/O Ring)**: **요청/응답 디스크립터**를 넣는 **원형 큐**. 실제 데이터는 **공유 메모리 버퍼**에 있음
+* **DMA(Direct Memory Access)**: 장치가 **CPU 개입 없이 메모리로 직접 읽고 쓰는** 기술. **제로카피** 구현의 핵심
+* **페이지 플리핑(Page Flipping)**: 네트워크 수신 시, **게스트가 미리 낸 빈 페이지**와 **수신 버퍼 페이지**를 **바꿔치기**해 **복사 없이** 전달
+* **섀도우 페이지테이블(Shadow Page Table)**: 하이퍼바이저가 게스트의 PT를 **따라 만들고 동기화**하는 구조(완전 가상화에서 흔함). **복잡/느림**
+* **핀(Pinning)**: 페이지를 **당분간 이동·수정 금지**로 고정. DMA/검증 중 안전성·성능 위한 조치
+* **하이퍼콜(Hypercall)**: 게스트 → 하이퍼바이저 **특권 연산 요청**(시스템콜 비슷)
+* **이벤트(Event)**: 하이퍼바이저 → 게스트의 **비동기 알림**(인터럽트 대체)
+* **TLB / MMU**: 주소 변환 캐시(TLB) / 메모리 관리 유닛(MMU). **페이지테이블**을 읽어 **가상→물리** 주소 변환
+* **ACL(Access Control List)**: 접근 권한 목록. VIF/VBD에 “누가 무엇을 할 수 있는지”를 명시
+* **스캐터-게더(Scatter–Gather)**: 여러 조각으로 흩어진 버퍼를 **한 번에 DMA**로 전송/수신
+* **배리어(Barrier)**: 디스크 I/O에서 **순서 보장**을 위한 장치(저널링/DB 로그 일관성 유지.
+* **벌룬(Ballooning)**: 게스트가 **페이지를 내놓거나 받아서** 자신의 메모리 크기를 **동적으로 조절**하는 기법
+
+---
+
+## Xen 동작 방법
+
+### 메모리 가상화
+![Memory validation & batched updates](/julie/assets/cs/xen/07_mem_validation_batch.png)
+
+* 게스트 OS가 **하드웨어 페이지 테이블(PT)** 을 **읽을 수는 있지만, 쓸 때는 Xen에 ‘하이퍼콜’로 배치 제출** → Xen이 **검증** 후 적용
+  * **하이퍼콜(hypercall)**: 게스트 OS → 하이퍼바이저로 들어가는 **특권 요청**(시스템콜 비슷)
+  * **검증(Validation)**: “내가 **소유한** 페이지만 매핑”, “**페이지테이블을 쓰기 가능**으로 만들지 않기” 같은 **불변식(안전 규칙)** 을 체크
+  * **배치(Batch)**: 여러 변경을 **한 번에 묶어서** 보내 오버헤드 줄임
+
+* **핀(Pin)**: DMA 등 진행 중에는 페이지를 **움직이지 않도록 고정**(후킹·변조 방지, 성능 안정)
+* **물리 메모리 단편화 문제**: 하이퍼바이저가 실제(머신) 메모리를 **군데군데** 주더라도, 게스트는 **연속된 ‘가상 물리’ 메모리**처럼 보이게 자기 테이블을 관리(매핑 테이블 공유)
+
+
+## CPU/예외/인터럽트
+
+* **권한 링(Rings)**: Xen은 **ring 0**, 게스트 OS는 **ring 1**, 앱은 **ring 3**
+  → 게스트의 특권 연산은 **하이퍼콜**을 통해 Xen이 대신 수행(검증 포함)
+  ![System call to hypercall fast path](/julie/assets/cs/xen/02_syscall_hypercall.png)
+
+* **예외 처리**: 게스트가 **자기 예외 핸들러**를 Xen에 등록.
+  **페이지 폴트**처럼 특권 정보가 필요한 경우엔, Xen이 필요한 값을 **스택 프레임에 넣어** 게스트 핸들러가 바로 쓰도록 전달.
+* **인터럽트 대신 이벤트**: 하드웨어 인터럽트는 Xen이 **‘이벤트’(비동기 알림)** 로 게스트에 알려줌
+  ![Interrupts to events path](/julie/assets/cs/xen/03_interrupts_events.png)
+  * 게스트는 **콜백을 지연**시켜 **“한 번에 몰아서 처리(배치)”** 할 수도 있음(지연 ↔ 처리량 트레이드오프 조절)
+
+## I/O (네트워크/디스크)
+![I/O rings: descriptors & shared buffers](/julie/assets/cs/xen/04_io_rings.png)
+* **에뮬레이션 대신 ‘가상 디바이스 추상’ 제공**:
+  데이터는 **I/O 링**(원형 큐)에 **디스크립터(메타정보)** 만 올리고, **실제 버퍼는 공유 메모리**로 전달 → **제로카피·DMA**가 쉬움
+
+  * **I/O 링**: 송·수신 **요청/응답 큐**, **포인터**로 생산/소비 위치만 움직이는 구조
+  * **DMA**: 장치가 **메모리에 직접 접근**해서 복사 없이 빠르게 전송
+  * **스캐터-게더**: **여러 조각의 버퍼**를 한 번에 DMA 처리
+* **네트워크(VIF)**:
+  * 각 도메인(게스트 OS)은 **가상 NIC**(VIF, *Virtual Interface*)를 가지고, 하이퍼바이저 내부의 **가상 라우터/방화벽(VFR)** 을 거침
+  ![Network path via VIF/VFR](/julie/assets/cs/xen/05_network_path.png)
+  * 송신은 헤더만 검사/필터링(스푸핑 방지), 페이로드는 **복사 없이** DMA
+  * 수신은 게스트가 미리 빈 페이지를 내주고 **페이지 플리핑(page flipping)** 으로 끼워넣어 **0-복사** 수신
+* **디스크(VBD)**:
+  * **가상 블록 디바이스**(VBD, *Virtual Block Device*)로 디스크 구간과 권한(ACL)을 묶어 제공
+  ![Disk path via VBD backend](/julie/assets/cs/xen/06_disk_vbd.png)
+  * Xen이 **(VBD 식별자, 오프셋) → 실제 섹터/장치**로 변환해 DMA
+  * 요청은 각 도메인에서 모아 보내고, Xen이 **도메인 간 공정하게** 분배 + 내부적으로 **재정렬(엘리베이터)** 로 효율 확보
+  * **배리어(Barrier)** 로 DB/WAL 같은 **순서 보장**도 지원
+
+---
+
+## 관리·정책(도메인 0)
+
+* **정책과 메커니즘 분리**: Xen은 **최소 메커니즘**만, **정책은 Domain0(관리 도메인)** 가 수행
+
+  * **Domain0**: 특권 게스트. **도메인 생성/종료**, **CPU/메모리 할당**, **VIF/VBD** 생성·권한 설정 등 관리 작업 수행
+* **스케줄러**: **짧게 깨어나는 도메인**에 **빠르게 CPU를 할당**해 주는 형태(예: TCP ACK 빠르게 처리). Domain0에서 **파라미터 조정** 가능
+* **타이머/시간 모델**: 각 게스트가 **실시간**, **가상시간(자기가 돌 때만 증가)**, **벽시계**를 구분해 사용. **알람**은 이벤트로 도달
+
+---
+
+## 성능·확장성·격리
+
+* **일반 앱 중심 워크로드**: 네이티브에 **아주 가깝게** 동작
+* **프로세스 생성/주소공간 변경**처럼 페이지테이블 갱신이 많은 경로는 **부담**이 있지만,
+  **배치 하이퍼콜**, **핀/타입/참조계수** 관리로 **오버헤드 완화**
+* **네트워크**: 큰 패킷은 거의 네이티브, 작은 패킷은 헤더 검사 등으로 다소 손실이 있지만 **수용 가능한 수준**
+* **여러 도메인 동시 실행**: 단일 OS 안에 여러 앱을 돌릴 때 생기는 **캐시·메모리 간섭**보다, **도메인 단위 분리**가 유리한 경우가 많아 **총량 성능이 오히려 좋아지기도** 함
+* **격리**: 디스크 폭주·포크 폭탄·메모리 교란 같은 **악성 부하**에도 다른 도메인 영향은 **작게 유지**(스케줄링/자원 한도·ACL 덕분)
+* **스케일**: 도메인당 하이퍼바이저 오버헤드는 **아주 작게** 설계되어 **많은 수의 도메인**도 현실적으로 운영 가능(병목은 보통 앱/캐시 쪽)
+
+---
+
+## 다른 접근과의 비교
+
+* **완전 가상화(에뮬레이션/섀도우 PT)**: 게스트를 **수정하지 않아도 되는** 장점. 하지만 **섀도우 페이지테이블** 관리, **동적 번역** 등으로 **복잡/느려지기 쉬움**
+* **Denali(초대량 경량 VM)**: 수천 개의 작은 서비스가 목표 → ABI/네임스페이스를 크게 바꾸고 **VMM 페이징** 등 다른 선택.
+  Xen은 **물리 자원 가시화 + 엄격한 접근제어**를 유지해 **정확성/성능**을 택함
+* **요점**: Xen은 “게스트가 **하드웨어 페이지테이블을 직접 쓰되, Xen이 검증**만 한다”는 길을 가서 **단순하고 빠른 경로**를 확보
+
+---
+
+## 요약
+
+1. **파라가상화**: 게스트 OS에 **얇은 수정** → **하이퍼콜/이벤트**로 특권 연산과 인터럽트 대체 → **성능·격리↑**
+2. **메모리**: 게스트가 PT **읽기 자유**, **쓰기=배치 하이퍼콜+검증**, **핀/타입/참조계수**로 안전성
+3. **I/O**: **I/O 링 + 공유 메모리 + DMA**(네트워크는 **페이지 플리핑**, 디스크는 **VBD**)
+4. **관리**: **Domain0**가 정책(도메인 생성/자원할당/ACL), Xen은 최소 메커니즘
+5. **효과**: 일반 워크로드는 네이티브 수준, 무거운 경로는 **배치·제로카피**로 완충, **다수 도메인**에서도 **성능·격리** 유지
+
+---
+
+## Review Questions
+
+### 1. XenoLinux 위에서 사용자가 앱 `foo`를 실행하면 시작 전까지 무슨 일이 일어나는가
+#### 1) 프로세스 생성 & 주소 공간(Page Table) 준비
+![](/julie/assets/cs/xen/08.png)
+* XenoLinux(게스트 리눅스 커널)가 새 프로세스를 만들면서 **해당 프로세스용 하드웨어 페이지 테이블**도 만든다.
+* 게스트는 자기 도메인에 배정된 메모리에서 페이지를 하나 할당해 **페이지 테이블을 초기화**하고, 그 테이블을 \*\*Xen에 “등록(register)”\*\*한다.
+* 이 순간부터 **게스트는 해당 페이지 테이블을 직접 쓰기(write) 못 한다.** 이후의 모든 페이지 테이블 변경은 **하이퍼콜**(게스트→하이퍼바이저 특권 요청)로 \*\*배치(batch)\*\*로 넘기고, **Xen이 검증 후 반영**한다.
+
+  * 검증 예: “이 도메인이 **소유한** 페이지만 매핑한다”, “**페이지 테이블 자체를 쓰기 가능**으로 만들지 않는다” 등.
+* 보통 게스트는 변경을 모아두었다가 **TLB 갱신 시점**에 맞춰 한 번에 커밋한다.
+
+> **하이퍼콜**: 시스템콜처럼 보이지만, 대상이 **하이퍼바이저(Xen)** 인 특권 연산 요청.
+
+#### 2) 권한 레벨 & 진입/복귀 규칙
+* Xen은 **ring 0**(최고 권한), XenoLinux는 **ring 1**, 사용자 앱(`foo`)은 **ring 3**에서 돈다(낮은 권한일수록 숫자 큼).
+* 페이지 테이블 설치 같은 **특권 작업**은 **파라가상화** 방식으로 **Xen이 검사하고 실행**한다.
+* 예외/시스템콜 진입 지점은 게스트가 **Xen에 등록**한다. 게스트는 **빠른 시스템콜 핸들러**를 설치할 수 있어, **매번 Xen을 거치지 않고** 게스트 커널로 바로 들어갈 수도 있다.
+
+> **파라가상화**: 게스트 OS가 “가상화 사실”을 **약간 알고**, 특권 연산을 **하이퍼콜**로 요청하도록 바꾼 방식(성능·단순성↑).
+
+#### 3) Xen 매핑 & 격리
+* **모든 주소 공간의 맨 위 영역**(예: 상단 64MB)은 **Xen 전용**으로 **항상 예약**되어 있다. 게스트는 이 영역을 매핑/접근할 수 없다.
+* 이렇게 하면 **Xen 출입 시 불필요한 TLB 교란**을 줄이고, **어떤 프로세스 주소 공간에서도 Xen이 항상 보호**된다.
+
+> **TLB**: 가상→물리 주소 변환 결과를 캐싱하는 하드웨어.
+
+#### 4) 스케줄링 & `foo` 실행 개시
+
+* 새 주소 공간과 핸들러가 준비되면, XenoLinux는 `foo`를 **스케줄**에 올린다.
+* Xen의 스케줄러는 새로 깨어난 실행 흐름에 **지연 낮은(dispatch 빠른)** 처리를 제공한다(이벤트/타이머도 Xen이 제공).
+* 이제 제어가 **ring 3(사용자 모드)** 로 돌아가고, **`foo`가 실행을 시작**한다.
+
+---
+
+### 2. `foo`가 실행 중: `fd = fopen("bar");` (블로킹 시스템콜)
+
+> **요점**: 파일 열기 과정에서 **디스크 I/O**가 필요하면 `foo`는 **블록(수면)** 되었다가, **완료 이벤트**가 오면 깨어난다.
+
+#### (a) XenoLinux ↔ Xen 상호작용 전체 흐름 (어디서 `foo`가 재개되는지도 표기)
+![](/julie/assets/cs/xen/09.png)
+1. **시스템콜 진입**: `foo`가 시스템콜을 호출.
+   → 게스트가 설치한 **빠른 시스템콜 핸들러** 덕분에, **바로 게스트 커널**로 들어간다(매번 Xen 거치지 않음).
+2. **경로 해석 & I/O 필요 판단**: VFS가 `"bar"` 경로를 해석. 메타데이터/데이터 접근이 필요하면 **디스크 I/O**로 넘어감.
+3. **블록 요청 제출**: 게스트는 **가상 블록 디바이스(VBD)** 의 **I/O 링**(원형 큐)에 **요청 디스크립터**를 enqueue.
+   → Xen이 **버퍼 소유권/정렬** 등 **유효성 검사** 후 수락.
+4. **물리 디스크로 라우팅**: **백엔드 드라이버**(보통 Domain0)가 물리 디스크에 I/O 수행. 완료되면 **응답 디스크립터**가 링에 기록됨.
+5. **이벤트로 통지 & 깨우기**: Xen이 **이벤트**로 게스트에 완료를 알림. 게스트는 대기 중이던 **프로세스(`foo`)를 깨운다**.
+   → **여기서 `foo`가 재개**되고, `fopen`은 **유효한 `fd`** 를 반환한다.
+
+#### (b) 이어서 `fwrite(fd, bufsize, buffer);` (또 다른 블로킹 시스템콜)
+![](/julie/assets/cs/xen/10.png)
+1. **시스템콜 진입**: 동일하게 게스트 커널로 진입(빠른 핸들러).
+2. **쓰기 요청 큐잉**: 게스트는 VBD의 **TX 링**에 **쓰기 디스크립터**를 적재. Xen이 **검증** 후 백엔드로 전달.
+3. **완료까지 수면**: 디스크가 바빠서 **대기**가 필요하면, 게스트는 `foo`를 **블록**시킨다.
+4. **이벤트 & 재개**: 쓰기 완료 **이벤트**가 오면 게스트가 `foo`를 **깨우고**, **여기서 `foo`가 재개**되어 `fwrite`가 **쓴 바이트 수**를 반환한다.
+
+> **I/O 링**: “디스크립터(메타데이터만) 큐”. 실제 데이터는 **공유 메모리**로 주고받고, **DMA**로 복사 없이 전송.
+
+---
+
+### 3. 네트워크 전송/수신의 유사 시나리오 (`send`, `recv`)
+
+#### 전송(`send()`)
+![](/julie/assets/cs/xen/11.png)
+1. 게스트가 **가상 NIC(VIF)** 의 **TX 링**에 패킷 디스크립터를 적재하고 Xen에 알림.
+2. Xen이 **스푸핑 방지/필터/ACL** 등을 확인(필요 시 헤더만 복사).
+3. **백엔드(보통 Domain0)** 가 물리 NIC로 전송. **완료/크레딧 회복**은 **이벤트**로 게스트에 통지.
+4. 크레딧 부족 등으로 `send()`가 **블록**되어 있었다면, 완료 이벤트 시 **`foo` 재개**.
+
+#### 수신(`recv()`)
+![](/julie/assets/cs/xen/12.png)
+1. 백엔드가 들어온 패킷을, 게스트가 미리 제공한 **빈 페이지**에 **페이지 플리핑**(바꿔치기)으로 채워넣음(복사 없음).
+2. Xen이 **이벤트**로 게스트에 알림 → 게스트 네트워크 스택이 처리하고 **소켓 큐에 데이터 적재**.
+3. `recv()`에서 **블록** 중이던 `foo`를 **깨워서 재개**, 바이트를 되돌림.
+
+> **페이지 플리핑**: 수신 시 **수신 버퍼 페이지**와 게스트가 낸 **빈 페이지**를 교체 → **0-복사 수신**.
+
+---
+
+### 4. “모든 프로세스의 가상 주소 범위는 0..VMMAX”인데, 서로 어떻게 보호되나?
+![](/julie/assets/cs/xen/13.png)
+* **핵심**: **프로세스마다 “자기만의” 하드웨어 페이지 테이블**을 갖는다.
+  같은 가상 주소(예: 0x4000…)라도 **각 프로세스의 페이지 테이블이 가리키는 물리 페이지가 다르다**.
+* XenoLinux는 **각 프로세스의 페이지 테이블을 만들고 Xen에 등록**한다. 등록 이후 **직접 쓰기 금지**이고, **모든 변경은 Xen 검증**을 거친다.
+  → “**자기가 소유한 페이지**만 매핑”, “**페이지 테이블을 쓰기 가능**으로 만들지 않기” 같은 **안전 규칙**이 강제되어, **다른 프로세스 메모리를 몰래 매핑**할 수 없다.
+* 게다가 **모든 주소 공간의 최상단 영역은 Xen 전용**이라, 게스트가 **Xen을 덮어쓰거나 접근**할 수 없다.
+* 결과적으로, **프로세스 간 격리**는 “**각자 다른 페이지 테이블 + Xen의 강제 검증**”으로 보장된다.
+
+---
+
+### 5. OS 가상화의 세 가지 주요 동기
+
+1. **강력한 성능 격리(멀티 테넌트 안정성)**
+
+* 한 OS 안에서 여러 앱을 섞어 돌리면 **QoS 간섭**(한쪽의 CPU/메모리/디스크/네트워크 압력이 다른 쪽에 영향)이 많고, **정확한 자원 회계**도 어렵다(버퍼 캐시·페이징 영향 포함).
+* **VM 단위**로 쪼개면 **스케줄링/메모리/디스크/네트워크**를 **각 VM 경계에서** 제어·한정할 수 있어 **성능 격리**가 쉬워진다.
+* Xen은 **OS 단위 멀티플렉싱**을 지향하여 **강한 격리**를 제공한다.
+
+2. **유연성·이질성: 앱 ABI 유지한 채 다양한 OS 공존**
+
+* 가상화는 **서로 다른 OS**를 **같은 하드웨어**에서 **동시에** 돌리게 해준다.
+  앱은 **ABI** 약속만 지키면 **수정 없이 그대로 실행**(게스트 OS만 얇게 수정).
+* 서비스 성격/버전/커널 설정이 다른 환경을 **VM별로 분리**해 **충돌·간섭을 줄이고**, 환경을 **정교하게 튜닝**할 수 있다.
+
+3. **배포·이동성·운영비 절감**
+
+* 가상화로 **서버 통합**·**공동 호스팅**·**분산 웹 서비스**·**보안 실행환경**·**이미지 이동성**이 쉬워진다.
+* 한 서버에 **다수의 VM**을 띄워 **비용·시간을 크게 줄여**(스핀업 빠름) **네트워크 중심의 동적 서비스**를 현실화한다.
+4:T41a0,
 # μ-Kernel
 
 ## 개요
@@ -193,7 +434,7 @@ TLB가 클수록 더 아픔.
 * 성능은 구조보다 **구현과 하드웨어 활용**(TLB, 세그먼트, 트랩 경로)에 더 좌우됨.
 * μ-커널도 **경계 횡단과 주소공간 전환을 얇게** 만들면 충분히 빠름(인터럽트를 IPC로 처리할 만큼).
 * 모놀리식은 **커널 내부 공위치(co-location)** 덕을 볼 수 있지만, μ-커널도 **CPU 특성에 맞춘 경로 설계**로 충분히 대등하거나 더 빠를 수 있음.
-4:T4c95,
+5:T4c95,
 ## 개요
 
 > **Exokernel**: 커널은 보안만 담당(`"누가 어떤 자원을 써도 되는가?”`), **정책/기능은 앱 옆의 라이브러리 OS(LibOS)** 로 내려보내 각 앱이 자기 상황에 맞게 OS를 바꿔 쓰는 구조
@@ -454,7 +695,7 @@ TLB miss / page fault
 * **효과**: 경계 횡단 비용이 **메시지 IPC나 트랩**에 비해 **극히 작아** 핫패스에서 **정책 세분화**가 가능. 다중 핸들러·가드가 있어도 **생성된 호출 경로**로 비용 최소화.
 * **예시**
   * **Strands** 기반 스케줄링에서 **응답성 요구**에 따라 **앱 전용 스케줄러**를 얹더라도, 글로벌 스케줄러와의 상호작용이 **함수 호출 수준**으로 가볍게 유지.
-5:T344b,
+6:T344b,
 ## 개요
 SPIN: 애플리케이션이 커널 내부에 들어와(co-location) 필요한 정책과 구현을 직접 교체/확장할 수 있게 설계한 OS
 
@@ -651,7 +892,7 @@ SPIN: 애플리케이션이 커널 내부에 들어와(co-location) 필요한 �
 > * **Page fault**: 접근한 가상 페이지가 아직 매핑되지 않았거나 보호 위반일 때 발생
 > * **TCB**: 신뢰할 수 있는 최소한의 커널/시스템 구성 요소 집합
 
-6:T12c4,
+7:T12c4,
 저는 지금까지 주로 Python을 이용해 개발해왔고, Django와 Flask 등 여러 프레임워크를 사용했지만, 최근엔 FastAPI를 사용해 엔드포인트를 만드는 일이 많아졌습니다.
 
 FastAPI의 가장 큰 차별점 중 하나는 **비동기 엔드포인트**를 기본적으로 지원한다는 점인데, 
@@ -757,7 +998,7 @@ asyncio.run(non_blocking_example())
 - Blocking: 특정 작업이 완료될 때까지 다음 작업이 실행되지 않는 상태
 
 비동기와 non-blocking을 잘 활용하면 I/O 작업 중에도 다른 작업을 수행할 수 있어 자원을 효율적으로 사용할 수 있으며, 여러 요청을 동시에 처리할 수 있기 때문에 동시 접속자가 많을 때 성능이 향상됩니다.
-7:Ta1b,
+8:Ta1b,
 CAP Theorem은 분산 시스템이 **동시에 만족시킬 수 없는** 세 가지 특성입니다.
 
 ### 1. Consistency
@@ -789,7 +1030,7 @@ CAP Theorem은 위 세 가지 특성 중에서 두 가지만을 동시에 완벽
 
 MongoDB는 **CP(Consistency + Partition Tolerence)** 를 따르는데, 만약 primary node에 문제가 생겼다면 secondary(복제된) 노드 중 하나가 primary로 promote 되어야 합니다.
 이 때, 새로운 primary 노드가 생기는 동안 **모든 쓰기 작업은 사용 불가능한 (NOT available) 상태**가 되므로 MongoDB는 CP system이라고 볼 수 있습니다.
-8:T2792,
+9:T2792,
 ## 개요
 대규모 데이터 파이프라인을 운영하다보면 **병목 현상**을 자주 목격하게 됩니다. 이 때, 마이크로서비스가 실행 중인 컨테이너들을 수평적으로 확장하는 것도 중요하지만, 때로는 컨테이너 확장만으로는 해결되지 않는 문제들도 있습니다.
 
@@ -901,7 +1142,7 @@ CPython에서는 GIL이 interpreter의 핵심 설계 요소이기 때문에 Pyth
 
 #### 멀티 스레딩에서의 풀
 멀티 프로세싱에서 풀을 사용하는 것과 같이, 스레딩에서도 풀 개념을 적용할 수 있습니다. Python에서는 주로 `cuncurrent.futures.ThreadPoolExecutor`를 사용하여 풀을 구성합니다. 이를 통해 **미리 정해진 수의 스레드를 생성하고, 작업을 해당 스레드들에 분산**시켜 실행할 수 있습니다.
-9:T16f3,
+a:T16f3,
 ## 가비지 컬렉션 (Garbage Collection)
 Python의 가비지 컬렉션은 메모리 관리를 자동으로 수행하는 메커니즘입니다. 이 메커니즘은 크게 두 가지 방법을 사용합니다.
 ### 1. 참조 카운팅 (Reference Counting)
@@ -972,7 +1213,7 @@ OS는 새로운 메모리 블록을 할당하거나, 사용이 끝난 메모리 
 
 ## 마무리
 오늘은 파이썬에서 가비지 컬렉션이 어떻게 동작하는지 알아보았습니다. 다음엔 네트워크 관련 게시글을 올려보도록 하겠습니다. 감사합니다 :)
-b:["category","cs","d"]
-0:["kXddXFLoviqVz_qRrfQCL",[[["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__?{\"category\":\"cs\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"cs","filteredPosts":[{"slug":"cs/microkernel","categorySlug":"cs","title":{"ko":"Microkernel 운영체제","en":"Microkernel Operating System"},"date":"2025-09-10 18:41","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Microkernel 운영체제","en":"Microkernel Operating System"},"content":"$3"},{"slug":"cs/exokernel","categorySlug":"cs","title":{"ko":"Exokernel 운영체제","en":"Exokernel Operating System"},"date":"2025-09-10 17:59","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Exokernel 운영체제","en":"Exokernel Operating System"},"content":"$4"},{"slug":"cs/spin","categorySlug":"cs","title":{"ko":"SPIN 운영체제","en":"SPIN Operating System"},"date":"2025-09-08 13:25","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"SPIN 운영체제","en":"SPIN Operating System"},"content":"$5"},{"slug":"cs/async-vs-sync","categorySlug":"cs","title":{"ko":"동기 vs 비동기","en":"Sync vs. Async"},"date":"2025-03-04 21:14","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"동기 비동기 프로그래밍 차이 + 블락킹 논블락킹","en":"Differences between sync vs. async programming + blocking vs. non-blocking"},"content":"$6"},{"slug":"cs/cap-theorem","categorySlug":"cs","title":{"ko":"CAP Theorem","en":"CAP Theorem"},"date":"2025-02-25 17:14","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"CAP 이론","en":"Definition of CAP Theorem"},"content":"$7"},{"slug":"cs/multiprocessing-and-multithreading-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 멀티 프로세싱과 멀티 스레딩","en":"Multiprocessing and Multithreading in Python"},"date":"2025-02-21 00:00","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"멀티 프로세싱과 멀티 스레딩의 파이썬에서의 동작 원리","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$8"},{"slug":"cs/garbage-collection-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 가비지 컬렉션","en":"Garbage Collection in Python"},"date":"2025-02-21 00:00","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"가비지 컬렉션의 파이썬에서의 동작 원리","en":"How Garbage Collection Works in Python"},"content":"$9"}]}],null],null],null]},[null,["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$b","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Ld",null,{"children":["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/237cf7396f340dd9.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_0a8dff","children":["$","$Le",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$Lf",null,{"children":[["$","$L10",null,{}],["$","$La",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Lc",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L11",null]]]]
-11:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
+c:["category","cs","d"]
+0:["7aZQKhEyZfmghrmUxAyJX",[[["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__?{\"category\":\"cs\"}",{}]}]}]},"$undefined","$undefined",true],["",{"children":["blog",{"children":[["category","cs","d"],{"children":["__PAGE__",{},[["$L1",["$","$L2",null,{"category":"cs","filteredPosts":[{"slug":"cs/xen","categorySlug":"cs","title":{"ko":"Xen: 마이크로커널 가상화","en":"Xen: Microkernel Virtualization"},"date":"2025-09-11 15:28","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Xen 하이퍼바이저의 마이크로커널 아키텍처와 가상화 기법에 대한 심층 분석","en":"Xen hypervisor's microkernel architecture and virtualization techniques in-depth analysis"},"content":"$3"},{"slug":"cs/microkernel","categorySlug":"cs","title":{"ko":"Microkernel 운영체제","en":"Microkernel Operating System"},"date":"2025-09-10 18:41","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Microkernel 운영체제","en":"Microkernel Operating System"},"content":"$4"},{"slug":"cs/exokernel","categorySlug":"cs","title":{"ko":"Exokernel 운영체제","en":"Exokernel Operating System"},"date":"2025-09-10 17:59","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"Exokernel 운영체제","en":"Exokernel Operating System"},"content":"$5"},{"slug":"cs/spin","categorySlug":"cs","title":{"ko":"SPIN 운영체제","en":"SPIN Operating System"},"date":"2025-09-08 13:25","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"SPIN 운영체제","en":"SPIN Operating System"},"content":"$6"},{"slug":"cs/async-vs-sync","categorySlug":"cs","title":{"ko":"동기 vs 비동기","en":"Sync vs. Async"},"date":"2025-03-04 21:14","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"동기 비동기 프로그래밍 차이 + 블락킹 논블락킹","en":"Differences between sync vs. async programming + blocking vs. non-blocking"},"content":"$7"},{"slug":"cs/cap-theorem","categorySlug":"cs","title":{"ko":"CAP Theorem","en":"CAP Theorem"},"date":"2025-02-25 17:14","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"CAP 이론","en":"Definition of CAP Theorem"},"content":"$8"},{"slug":"cs/multiprocessing-and-multithreading-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 멀티 프로세싱과 멀티 스레딩","en":"Multiprocessing and Multithreading in Python"},"date":"2025-02-21 00:00","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"멀티 프로세싱과 멀티 스레딩의 파이썬에서의 동작 원리","en":"How Multiprocessing and Multithreading Work in Python"},"content":"$9"},{"slug":"cs/garbage-collection-in-python","categorySlug":"cs","title":{"ko":"파이썬에서의 가비지 컬렉션","en":"Garbage Collection in Python"},"date":"2025-02-21 00:00","category":{"ko":"컴퓨터 공학","en":"Computer Science"},"description":{"ko":"가비지 컬렉션의 파이썬에서의 동작 원리","en":"How Garbage Collection Works in Python"},"content":"$a"}]}],null],null],null]},[null,["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children","$c","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}]],null]},[[null,["$","$Le",null,{"children":["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children","blog","children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","notFoundStyles":"$undefined"}],"params":{}}]],null],null]},[[[["$","link","0",{"rel":"stylesheet","href":"/julie/_next/static/css/064e10fa6619f508.css","precedence":"next","crossOrigin":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/julie/_next/static/css/237cf7396f340dd9.css","precedence":"next","crossOrigin":"$undefined"}]],["$","html",null,{"lang":"ko","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__className_0a8dff","children":["$","$Lf",null,{"attribute":"class","defaultTheme":"system","enableSystem":true,"disableTransitionOnChange":true,"children":["$","$L10",null,{"children":[["$","$L11",null,{}],["$","$Lb",null,{"parallelRouterKey":"children","segmentPath":["children"],"error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$Ld",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":"404"}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],"notFoundStyles":[]}]]}]}]}]}]],null],null],["$L12",null]]]]
+12:[["$","meta","0",{"name":"viewport","content":"width=device-width, initial-scale=1"}],["$","meta","1",{"charSet":"utf-8"}],["$","title","2",{"children":"Julie Lee's Portfolio"}],["$","meta","3",{"name":"description","content":"Welcome to Julie's portfolio page."}],["$","meta","4",{"name":"next-size-adjust"}]]
 1:null
