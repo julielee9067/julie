@@ -22,7 +22,6 @@ const education = [
             ko: "2024.09 - 현재",
             en: "Sept 2024 - Present",
         },
-        gpa: "4.0/4.0",
     },
     {
         school: {
@@ -37,7 +36,6 @@ const education = [
             ko: "2017.09 - 2022.04",
             en: "Sep 2017 - Apr 2022",
         },
-        gpa: "3.32/4.0",
     },
 ]
 
